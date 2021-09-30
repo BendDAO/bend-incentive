@@ -3,17 +3,17 @@ pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import {DistributionTypes} from "../libs/DistributionTypes.sol";
+import {DistributionTypes} from "./DistributionTypes.sol";
 import {
-    IAaveDistributionManager
-} from "./interfaces/IAaveDistributionManager.sol";
+    IDistributionManager
+} from "./interfaces/IDistributionManager.sol";
 
 /**
  * @title AaveDistributionManager
  * @notice Accounting contract to manage multiple staking distributions
  * @author Aave
  **/
-contract AaveDistributionManager is IAaveDistributionManager {
+contract AaveDistributionManager is IDistributionManager {
     using SafeMath for uint256;
 
     struct AssetData {
