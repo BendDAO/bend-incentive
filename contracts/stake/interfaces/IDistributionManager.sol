@@ -2,9 +2,9 @@
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
-import {DistributionTypes} from "../../libs/DistributionTypes.sol";
+import {DistributionTypes} from "../DistributionTypes.sol";
 
-interface IAaveDistributionManager {
+interface IDistributionManager {
     function configureAssets(
         DistributionTypes.AssetConfigInput[] calldata assetsConfigInput
     ) external;
