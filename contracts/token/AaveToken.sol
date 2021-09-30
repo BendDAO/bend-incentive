@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
 
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20Detailed} from "../libs/ERC20Detailed.sol";
 import {ITransferHook} from "./interfaces/ITransferHook.sol";
-import {VersionedInitializable} from "../utils/VersionedInitializable.sol";
+import {VersionedInitializable} from "../libs/VersionedInitializable.sol";
 import {
     GovernancePowerDelegationERC20
 } from "./GovernancePowerDelegationERC20.sol";
@@ -20,7 +20,7 @@ contract AaveToken is GovernancePowerDelegationERC20, VersionedInitializable {
     string internal constant SYMBOL = "AAVE";
     uint8 internal constant DECIMALS = 18;
 
-    uint256 public constant REVISION = 2;
+    uint256 public constant REVISION = 1;
 
     /// @dev owner => next valid nonce to submit with permit()
     mapping(address => uint256) public _nonces;
@@ -53,7 +53,7 @@ contract AaveToken is GovernancePowerDelegationERC20, VersionedInitializable {
 
     mapping(address => address) internal _propositionPowerDelegates;
 
-    constructor() public ERC20(NAME, SYMBOL) {}
+    constructor() public ERC20Detailed(NAME, SYMBOL, DECIMALS) {}
 
     /**
      * @dev initializes the contract upon assignment to the InitializableAdminUpgradeabilityProxy

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20Detailed} from "../libs/ERC20Detailed.sol";
 import {
     IGovernancePowerDelegationToken
 } from "./interfaces/IGovernancePowerDelegationToken.sol";
@@ -12,7 +12,7 @@ import {
  * @author Aave
  */
 abstract contract GovernancePowerDelegationERC20 is
-    ERC20,
+    ERC20Detailed,
     IGovernancePowerDelegationToken
 {
     using SafeMath for uint256;
