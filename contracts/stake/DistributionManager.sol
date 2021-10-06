@@ -9,11 +9,11 @@ import {
 } from "./interfaces/IDistributionManager.sol";
 
 /**
- * @title AaveDistributionManager
+ * @title DistributionManager
  * @notice Accounting contract to manage multiple staking distributions
  * @author Aave
  **/
-contract AaveDistributionManager is IDistributionManager {
+contract DistributionManager is IDistributionManager {
     using SafeMath for uint256;
 
     struct AssetData {

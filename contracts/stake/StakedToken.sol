@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 import {ERC20Detailed} from "../libs/ERC20Detailed.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IStakedToken} from "./interfaces/IStakedToken.sol";
-import {ITransferHook} from "../token/interfaces/ITransferHook.sol";
+import {ITransferHook} from "../gov/interfaces/ITransferHook.sol";
 
 import {DistributionTypes} from "./DistributionTypes.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -29,13 +29,13 @@ contract StakedToken is
   IStakedToken,
   GovernancePowerWithSnapshot,
   VersionedInitializable,
-  AaveDistributionManager
+  DistributionManager
 {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
   /// @dev Start of Storage layout from StakedToken v1
-  uint256 public constant REVISION = 3;
+  uint256 public constant REVISION = 1;
 
   IERC20 public immutable STAKED_TOKEN;
   IERC20 public immutable REWARD_TOKEN;
@@ -89,7 +89,7 @@ contract StakedToken is
     string memory symbol,
     uint8 decimals,
     address governance
-  ) public ERC20Detailed(name, symbol, decimals) AaveDistributionManager(emissionManager, distributionDuration) {
+  ) public ERC20Detailed(name, symbol, decimals) DistributionManager(emissionManager, distributionDuration) {
     STAKED_TOKEN = stakedToken;
     REWARD_TOKEN = rewardToken;
     COOLDOWN_SECONDS = cooldownSeconds;
@@ -428,7 +428,7 @@ contract StakedToken is
 
     // caching the aave governance address to avoid multiple state loads
     ITransferHook aaveGovernance = _aaveGovernance;
-    if (aaveGovernance != ITransferHook(0)) {
+    if (aaveGovernance != ITransferHook(address(0))) {
       aaveGovernance.onTransfer(from, to, amount);
     }
   }
