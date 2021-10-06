@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {ERC20Detailed} from "../libs/ERC20Detailed.sol";
-import {ITransferHook} from "./interfaces/ITransferHook.sol";
+import {ITransferHook} from "../gov/interfaces/ITransferHook.sol";
 import {VersionedInitializable} from "../libs/VersionedInitializable.sol";
 import {
     GovernancePowerDelegationERC20

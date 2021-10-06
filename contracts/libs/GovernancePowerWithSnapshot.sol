@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import {ITransferHook} from "../token/interfaces/ITransferHook.sol";
+import {ITransferHook} from "../gov/interfaces/ITransferHook.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {
     GovernancePowerDelegationERC20
