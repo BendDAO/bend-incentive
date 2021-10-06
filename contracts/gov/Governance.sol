@@ -41,24 +41,16 @@ contract Governance is Ownable, IGovernance {
         );
     bytes32 public constant VOTE_EMITTED_TYPEHASH =
         keccak256("VoteEmitted(uint256 id,bool support)");
-    string public constant NAME = "Aave Governance v2";
+    string public constant NAME = "Governance";
 
     modifier onlyGuardian() {
         require(msg.sender == _guardian, "ONLY_BY_GUARDIAN");
         _;
     }
 
-    constructor(
-        address governanceStrategy,
-        uint256 votingDelay,
-        address guardian,
-        address[] memory executors
-    ) {
-        _setGovernanceStrategy(governanceStrategy);
+    constructor(uint256 votingDelay, address guardian) {
         _setVotingDelay(votingDelay);
         _guardian = guardian;
-
-        authorizeExecutors(executors);
     }
 
     struct CreateVars {

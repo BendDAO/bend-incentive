@@ -14,7 +14,7 @@ interface IProposalValidator {
    * @return boolean, true if can be created
    **/
   function validateCreatorOfProposal(
-    IAaveGovernanceV2 governance,
+    IGovernance governance,
     address user,
     uint256 blockNumber
   ) external view returns (bool);
@@ -27,7 +27,7 @@ interface IProposalValidator {
    * @return boolean, true if can be cancelled
    **/
   function validateProposalCancellation(
-    IAaveGovernanceV2 governance,
+    IGovernance governance,
     address user,
     uint256 blockNumber
   ) external view returns (bool);
@@ -40,7 +40,7 @@ interface IProposalValidator {
    * @return true if user has enough power
    **/
   function isPropositionPowerEnough(
-    IAaveGovernanceV2 governance,
+    IGovernance governance,
     address user,
     uint256 blockNumber
   ) external view returns (bool);
@@ -51,7 +51,7 @@ interface IProposalValidator {
    * @param blockNumber Blocknumber at which to evaluate
    * @return minimum Proposition Power needed
    **/
-  function getMinimumPropositionPowerNeeded(IAaveGovernanceV2 governance, uint256 blockNumber)
+  function getMinimumPropositionPowerNeeded(IGovernance governance, uint256 blockNumber)
     external
     view
     returns (uint256);
@@ -62,7 +62,7 @@ interface IProposalValidator {
    * @param proposalId Id of the proposal to set
    * @return true if proposal passed
    **/
-  function isProposalPassed(IAaveGovernanceV2 governance, uint256 proposalId)
+  function isProposalPassed(IGovernance governance, uint256 proposalId)
     external
     view
     returns (bool);

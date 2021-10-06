@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {
+    ERC20Upgradeable
+} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
-contract ERC20Detailed is ERC20 {
+contract ERC20Detailed is ERC20Upgradeable {
     uint8 private _decimals;
 
-    constructor(
+    function __ERC20Detailed_init(
         string memory name_,
         string memory symbol_,
         uint8 decimals_
-    ) ERC20(name_, symbol_) {
+    ) public initializer {
+        __ERC20_init(name_, symbol_);
         _decimals = decimals_;
     }
 

@@ -54,7 +54,7 @@ contract ProposalValidator is IProposalValidator {
      * @return boolean, true if can be created
      **/
     function validateCreatorOfProposal(
-        IAaveGovernanceV2 governance,
+        IGovernance governance,
         address user,
         uint256 blockNumber
     ) external view override returns (bool) {
@@ -70,7 +70,7 @@ contract ProposalValidator is IProposalValidator {
      * @return boolean, true if can be cancelled
      **/
     function validateProposalCancellation(
-        IAaveGovernanceV2 governance,
+        IGovernance governance,
         address user,
         uint256 blockNumber
     ) external view override returns (bool) {
@@ -85,7 +85,7 @@ contract ProposalValidator is IProposalValidator {
      * @return true if user has enough power
      **/
     function isPropositionPowerEnough(
-        IAaveGovernanceV2 governance,
+        IGovernance governance,
         address user,
         uint256 blockNumber
     ) public view override returns (bool) {
@@ -105,7 +105,7 @@ contract ProposalValidator is IProposalValidator {
      * @return minimum Proposition Power needed
      **/
     function getMinimumPropositionPowerNeeded(
-        IAaveGovernanceV2 governance,
+        IGovernance governance,
         uint256 blockNumber
     ) public view override returns (uint256) {
         IGovernanceStrategy currentGovernanceStrategy =
@@ -123,7 +123,7 @@ contract ProposalValidator is IProposalValidator {
      * @param proposalId Id of the proposal to set
      * @return true if proposal passed
      **/
-    function isProposalPassed(IAaveGovernanceV2 governance, uint256 proposalId)
+    function isProposalPassed(IGovernance governance, uint256 proposalId)
         external
         view
         override
@@ -154,13 +154,13 @@ contract ProposalValidator is IProposalValidator {
      * @param proposalId Id of the proposal to verify
      * @return voting power needed for a proposal to pass
      **/
-    function isQuorumValid(IAaveGovernanceV2 governance, uint256 proposalId)
+    function isQuorumValid(IGovernance governance, uint256 proposalId)
         public
         view
         override
         returns (bool)
     {
-        IAaveGovernanceV2.ProposalWithoutVotes memory proposal =
+        IGovernance.ProposalWithoutVotes memory proposal =
             governance.getProposalById(proposalId);
         uint256 votingSupply =
             IGovernanceStrategy(proposal.strategy).getTotalVotingSupplyAt(
@@ -178,10 +178,10 @@ contract ProposalValidator is IProposalValidator {
      * @return true if enough For-Votes
      **/
     function isVoteDifferentialValid(
-        IAaveGovernanceV2 governance,
+        IGovernance governance,
         uint256 proposalId
     ) public view override returns (bool) {
-        IAaveGovernanceV2.ProposalWithoutVotes memory proposal =
+        IGovernance.ProposalWithoutVotes memory proposal =
             governance.getProposalById(proposalId);
         uint256 votingSupply =
             IGovernanceStrategy(proposal.strategy).getTotalVotingSupplyAt(
