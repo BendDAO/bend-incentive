@@ -30,5 +30,9 @@
   "StakedTokenIncentivesController": {
     "address": "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB",
     "txHash": "0x0312df7fe9d3a1314b73c74b3a83ee6eeda6dda187ef0b11ee8e35fc5323409f"
+  },
+  "GovernanceStrategy": {
+    "address": "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8",
+    "txHash": "0xd6819c0b2a63465f96a361edfc1e025485f1711182cdb32dd7399a00d3dea7bc"
   }
 }

@@ -114,6 +114,16 @@ async function main() {
     { proxy: true }
   );
 
+  const governanceStrategy = await utils.loadOrDeploy(
+    "GovernanceStrategy",
+    [aaveToken.address, stakedToken.address],
+    hre.network.name,
+    deployer,
+    deploymentState
+  );
+  utils.waitForTx(
+    await governance.setGovernanceStrategy(governanceStrategy.address)
+  );
   await utils.loadOrDeploy(
     "StakedTokenIncentivesController",
     [stakedToken.address, shortTimelockExecutor.address],
