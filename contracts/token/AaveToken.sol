@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import {ERC20Detailed} from "../libs/ERC20Detailed.sol";
 import {ITransferHook} from "../gov/interfaces/ITransferHook.sol";
-import {VersionedInitializable} from "../libs/VersionedInitializable.sol";
 import {
     GovernancePowerDelegationERC20
 } from "./GovernancePowerDelegationERC20.sol";
@@ -13,14 +12,12 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * @notice implementation of the AAVE token contract
  * @author Aave
  */
-contract AaveToken is GovernancePowerDelegationERC20, VersionedInitializable {
+contract AaveToken is GovernancePowerDelegationERC20 {
     using SafeMath for uint256;
 
     string internal constant NAME = "Aave Token";
     string internal constant SYMBOL = "AAVE";
     uint8 internal constant DECIMALS = 18;
-
-    uint256 public constant REVISION = 1;
 
     /// @dev owner => next valid nonce to submit with permit()
     mapping(address => uint256) public _nonces;
@@ -53,12 +50,12 @@ contract AaveToken is GovernancePowerDelegationERC20, VersionedInitializable {
 
     mapping(address => address) internal _propositionPowerDelegates;
 
-    constructor() public ERC20Detailed(NAME, SYMBOL, DECIMALS) {}
-
     /**
      * @dev initializes the contract upon assignment to the InitializableAdminUpgradeabilityProxy
      */
-    function initialize() external initializer {}
+    function initialize() external initializer {
+        __ERC20Detailed_init(NAME, SYMBOL, DECIMALS);
+    }
 
     /**
      * @dev implements the permit function as for https://github.com/ethereum/EIPs/blob/8a34d644aacf0f9f8f00815307fd7dd5da07655f/EIPS/eip-2612.md
@@ -105,13 +102,6 @@ contract AaveToken is GovernancePowerDelegationERC20, VersionedInitializable {
         require(owner == ecrecover(digest, v, r, s), "INVALID_SIGNATURE");
         _nonces[owner] = currentValidNonce.add(1);
         _approve(owner, spender, value);
-    }
-
-    /**
-     * @dev returns the revision of the implementation contract
-     */
-    function getRevision() internal pure override returns (uint256) {
-        return REVISION;
     }
 
     /**

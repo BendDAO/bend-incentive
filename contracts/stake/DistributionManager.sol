@@ -4,16 +4,17 @@ pragma experimental ABIEncoderV2;
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {DistributionTypes} from "./DistributionTypes.sol";
+import {IDistributionManager} from "./interfaces/IDistributionManager.sol";
 import {
-    IDistributionManager
-} from "./interfaces/IDistributionManager.sol";
+    Initializable
+} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title DistributionManager
  * @notice Accounting contract to manage multiple staking distributions
  * @author Aave
  **/
-contract DistributionManager is IDistributionManager {
+contract DistributionManager is IDistributionManager, Initializable {
     using SafeMath for uint256;
 
     struct AssetData {
@@ -23,9 +24,9 @@ contract DistributionManager is IDistributionManager {
         mapping(address => uint256) users;
     }
 
-    uint256 public immutable DISTRIBUTION_END;
+    uint256 public DISTRIBUTION_END;
 
-    address public immutable EMISSION_MANAGER;
+    address public EMISSION_MANAGER;
 
     uint8 public constant PRECISION = 18;
 
@@ -39,7 +40,10 @@ contract DistributionManager is IDistributionManager {
         uint256 index
     );
 
-    constructor(address emissionManager, uint256 distributionDuration) public {
+    function __DistributionManager_init(
+        address emissionManager,
+        uint256 distributionDuration
+    ) public initializer {
         DISTRIBUTION_END = block.timestamp.add(distributionDuration);
         EMISSION_MANAGER = emissionManager;
     }
