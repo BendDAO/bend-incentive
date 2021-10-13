@@ -1,0 +1,38 @@
+{
+  "AaveToken": {
+    "address": "0xaD3a898BEd73dB65f1B6eEBEc9fd8a8526023A5A",
+    "txHash": "0xe4e2786f7e707025470bd8a9b7e588468d7624b89933894f5f6191308f3fca11"
+  },
+  "Governance": {
+    "address": "0x7d632f435c934FF982727B62A3E84e21193B59a2",
+    "txHash": "0xc16686566cd8894e2f2aaa4a26de9edb63379251234c53d2beaae6daed1b6c2c"
+  },
+  "ShortTimelockExecutor": {
+    "address": "0xC7dF3118bBBFE6dA93169a9093e8A568a475Be14",
+    "txHash": "0x5ad853d1095fd52e238b3caa2a065b161a7da0664b34b6bb4f7623c5a81027b6"
+  },
+  "LongTimelockExecutor": {
+    "address": "0x3363b0C3bB65dd11D3bf3fecFc15b058256f23A5",
+    "txHash": "0x234346f7ef48a60afd7a0c728d07b705d1f81f0cfb2bb819cc67956a3bfc78a6"
+  },
+  "EcosystemReserve": {
+    "address": "0xd826B1DffD6BEaED9c63b79D5Ea72931E908140b",
+    "txHash": "0xfdec6a0618d32be1aa1d562a79b81efe3cc9bf4c5a08a8c24f13f25a06c5f1fe"
+  },
+  "ControllerEcosystemReserve": {
+    "address": "0xB1ca69A2d4d36275ddE618c34F70a65f535601b0",
+    "txHash": "0x8ce4bdc39f3c12cc6e32a81460877c4642c7a0cfac560ea538ccbf790ec237fa"
+  },
+  "StakedToken": {
+    "address": "0xf87904e2f616cCB8B873a06FA65EBe7Ced65b9A8",
+    "txHash": "0x0a84197566d7903022dc67a3e1f208937e0eb2edeb9d49b0e112da98f09c0ac7"
+  },
+  "GovernanceStrategy": {
+    "address": "0x0bBde6fF0F24F032B9D044bdD3224b6dAc3041Ff",
+    "txHash": "0xc99b23df2d0de4bc8eb96e2459e20b9c1526b9c2d437fb440dd362d191ccf38d"
+  },
+  "StakedTokenIncentivesController": {
+    "address": "0xf47ac3003835585d9CbFfB4309E658E3206e0e6b",
+    "txHash": "0x87fd3e02209d0292bb0c0d098984d99cc6a18173775f8e1e5fb228069aa8eb04"
+  }
+}

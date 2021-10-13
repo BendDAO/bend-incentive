@@ -8,24 +8,38 @@ async function loadOrDeploy(
   network,
   deployer,
   deploymentState,
+  options
+) {
   options = {
-    id: undefined,
+    id: name,
     proxy: false,
     proxyInitializer: undefined,
     verify: true,
-  }
-) {
+    ...options,
+  };
+  const verify = async function (contract) {
+    if (options.verify) {
+      let address = contract.address;
+      if (options.proxy) {
+        address = await getProxyImpl(contract.address);
+      }
+      verifyContract(address, params);
+    }
+  };
   const factory = await hre.ethers.getContractFactory(name);
-  const id = options.id || name;
+  const id = options.id;
   if (deploymentState[id] && deploymentState[id].address) {
     console.log(
       `Using previously deployed ${id} contract at address ${deploymentState[id].address}`
     );
-    return new hre.ethers.Contract(
+    const contract = new hre.ethers.Contract(
       deploymentState[id].address,
       factory.interface,
       deployer
     );
+
+    verify(contract);
+    return contract;
   }
   let contract;
   if (options.proxy) {
@@ -57,14 +71,8 @@ async function loadOrDeploy(
     fs.mkdirSync(outputDir, { recursive: true });
   }
   saveDeployment(deploymentState, outputFile);
-  if (options.verify) {
-    let address = contract.address;
-    if (options.proxy) {
-      address = await getProxyImpl(contract.address);
-    }
-    verifyContract(address, params);
-  }
 
+  verify(contract);
   return contract;
 }
 
