@@ -19,11 +19,13 @@ async function loadOrDeploy(
   };
   const verify = async function (contract) {
     if (options.verify) {
-      let address = contract.address;
       if (options.proxy) {
-        address = await getProxyImpl(contract.address);
+        const address = await getProxyImpl(contract.address);
+        await verifyContract(address, []);
+        await verifyContract(contract.address, []);
+      } else {
+        await verifyContract(contract.address, params);
       }
-      verifyContract(address, params);
     }
   };
   const factory = await hre.ethers.getContractFactory(name);
@@ -38,7 +40,7 @@ async function loadOrDeploy(
       deployer
     );
 
-    verify(contract);
+    await verify(contract);
     return contract;
   }
   let contract;
@@ -72,7 +74,7 @@ async function loadOrDeploy(
   }
   saveDeployment(deploymentState, outputFile);
 
-  verify(contract);
+  await verify(contract);
   return contract;
 }
 
