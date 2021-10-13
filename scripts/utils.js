@@ -17,19 +17,36 @@ async function loadOrDeploy(
     verify: true,
     ...options,
   };
+
+  const id = options.id;
+  const outputFile = `${outputDir}/${network}.json`;
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+  const ETHERSCAN_BASE_URL =
+    process.env[`${network.toUpperCase()}_ETHERSCAN_BASE_URL`];
+
+  const factory = await hre.ethers.getContractFactory(name);
   const verify = async function (contract) {
     if (options.verify) {
       if (options.proxy) {
         const address = await getProxyImpl(contract.address);
         await verifyContract(address, []);
+        deploymentState[
+          id
+        ].verification = `${ETHERSCAN_BASE_URL}/${address}#code`;
         await verifyContract(contract.address, []);
+        deploymentState[
+          id
+        ].proxyVerification = `${ETHERSCAN_BASE_URL}/${contract.address}#code`;
       } else {
         await verifyContract(contract.address, params);
+        deploymentState[
+          id
+        ].verification = `${ETHERSCAN_BASE_URL}/${contract.address}#code`;
       }
     }
   };
-  const factory = await hre.ethers.getContractFactory(name);
-  const id = options.id;
   if (deploymentState[id] && deploymentState[id].address) {
     console.log(
       `Using previously deployed ${id} contract at address ${deploymentState[id].address}`
@@ -41,6 +58,7 @@ async function loadOrDeploy(
     );
 
     await verify(contract);
+    saveDeployment(deploymentState, outputFile);
     return contract;
   }
   let contract;
@@ -68,13 +86,11 @@ async function loadOrDeploy(
     address: contract.address,
     txHash: contract.deployTransaction.hash,
   };
-  const outputFile = `${outputDir}/${network}.json`;
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
-  saveDeployment(deploymentState, outputFile);
 
   await verify(contract);
+
+  saveDeployment(deploymentState, outputFile);
+
   return contract;
 }
 
