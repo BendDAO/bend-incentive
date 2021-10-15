@@ -8,9 +8,9 @@ import {IEcosystemReserve} from "./interfaces/IEcosystemReserve.sol";
 
 /**
  * @title EcosystemReserve
- * @notice Stores all the AAVE kept for incentives, just giving approval to the different
- * systems that will pull AAVE funds for their specific use case
- * @author Aave
+ * @notice Stores all the BEND kept for incentives, just giving approval to the different
+ * systems that will pull BEND funds for their specific use case
+ * @author Bend
  **/
 contract EcosystemReserve is Initializable, IEcosystemReserve {
     event NewFundsAdmin(address indexed fundsAdmin);

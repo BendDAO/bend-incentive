@@ -12,7 +12,7 @@ import {
 /**
  * @title DistributionManager
  * @notice Accounting contract to manage multiple staking distributions
- * @author Aave
+ * @author Bend
  **/
 contract DistributionManager is IDistributionManager, Initializable {
     using SafeMath for uint256;

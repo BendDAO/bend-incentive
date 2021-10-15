@@ -10,33 +10,33 @@ import {
 /**
  * @title Governance Strategy contract
  * @dev Smart contract containing logic to measure users' relative power to propose and vote.
- * User Power = User Power from Aave Token + User Power from stkAave Token.
+ * User Power = User Power from Bend Token + User Power from stkBend Token.
  * User Power from Token = Token Power + Token Power as Delegatee [- Token Power if user has delegated]
- * Two wrapper functions linked to Aave Tokens's GovernancePowerDelegationERC20.sol implementation
+ * Two wrapper functions linked to Bend Tokens's GovernancePowerDelegationERC20.sol implementation
  * - getPropositionPowerAt: fetching a user Proposition Power at a specified block
  * - getVotingPowerAt: fetching a user Voting Power at a specified block
- * @author Aave
+ * @author Bend
  **/
 contract GovernanceStrategy is IGovernanceStrategy {
-    address public immutable AAVE;
-    address public immutable STK_AAVE;
+    address public immutable BEND;
+    address public immutable STK_BEND;
 
     /**
      * @dev Constructor, register tokens used for Voting and Proposition Powers.
-     * @param aave The address of the AAVE Token contract.
-     * @param stkAave The address of the stkAAVE Token Contract
+     * @param bend The address of the BEND Token contract.
+     * @param stkBend The address of the stkBEND Token Contract
      **/
-    constructor(address aave, address stkAave) {
-        AAVE = aave;
-        STK_AAVE = stkAave;
+    constructor(address bend, address stkBend) {
+        BEND = bend;
+        STK_BEND = stkBend;
     }
 
     /**
      * @dev Returns the total supply of Proposition Tokens Available for Governance
-     * = AAVE Available for governance      + stkAAVE available
-     * The supply of AAVE staked in stkAAVE are not taken into account so:
-     * = (Supply of AAVE - AAVE in stkAAVE) + (Supply of stkAAVE)
-     * = Supply of AAVE, Since the supply of stkAAVE is equal to the number of AAVE staked
+     * = BEND Available for governance      + stkBEND available
+     * The supply of BEND staked in stkBEND are not taken into account so:
+     * = (Supply of BEND - BEND in stkBEND) + (Supply of stkBEND)
+     * = Supply of BEND, Since the supply of stkBEND is equal to the number of BEND staked
      * @param blockNumber Blocknumber at which to evaluate
      * @return total supply at blockNumber
      **/
@@ -46,7 +46,7 @@ contract GovernanceStrategy is IGovernanceStrategy {
         override
         returns (uint256)
     {
-        return IGovernancePowerDelegationToken(AAVE).totalSupplyAt(blockNumber);
+        return IGovernancePowerDelegationToken(BEND).totalSupplyAt(blockNumber);
     }
 
     /**
@@ -109,12 +109,12 @@ contract GovernanceStrategy is IGovernanceStrategy {
         IGovernancePowerDelegationToken.DelegationType powerType
     ) internal view returns (uint256) {
         return
-            IGovernancePowerDelegationToken(AAVE).getPowerAtBlock(
+            IGovernancePowerDelegationToken(BEND).getPowerAtBlock(
                 user,
                 blockNumber,
                 powerType
             ) +
-            IGovernancePowerDelegationToken(STK_AAVE).getPowerAtBlock(
+            IGovernancePowerDelegationToken(STK_BEND).getPowerAtBlock(
                 user,
                 blockNumber,
                 powerType

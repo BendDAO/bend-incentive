@@ -8,11 +8,11 @@ import {IProposalValidator} from "./interfaces/IProposalValidator.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
- * @title Proposal Validator Contract, inherited by  Aave Governance Executors
+ * @title Proposal Validator Contract, inherited by  Bend Governance Executors
  * @dev Validates/Invalidations propositions state modifications.
  * Proposition Power functions: Validates proposition creations/ cancellation
  * Voting Power functions: Validates success of propositions.
- * @author Aave
+ * @author Bend
  **/
 contract ProposalValidator is IProposalValidator {
     using SafeMath for uint256;
@@ -177,10 +177,12 @@ contract ProposalValidator is IProposalValidator {
      * @param proposalId Id of the proposal to verify
      * @return true if enough For-Votes
      **/
-    function isVoteDifferentialValid(
-        IGovernance governance,
-        uint256 proposalId
-    ) public view override returns (bool) {
+    function isVoteDifferentialValid(IGovernance governance, uint256 proposalId)
+        public
+        view
+        override
+        returns (bool)
+    {
         IGovernance.ProposalWithoutVotes memory proposal =
             governance.getProposalById(proposalId);
         uint256 votingSupply =
