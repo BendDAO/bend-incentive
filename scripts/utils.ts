@@ -2,19 +2,29 @@ import hre from "hardhat";
 import fs from "fs";
 import { Signer } from "ethers";
 const outputDir = "./deployments";
+import { Contract, ContractTransaction } from "@ethersproject/contracts";
+import { NomicLabsHardhatPluginError } from "hardhat/plugins";
 
 export async function loadOrDeploy(
   name: string,
   params: any[],
   network: string,
   deployer: Signer,
-  deploymentState: {},
-  options?: {
+  deploymentState: Record<
+    string,
+    {
+      address: string;
+      txHash: string;
+      verification?: string;
+      proxyVerification?: string;
+    }
+  >,
+  options: {
     id?: string;
     proxy?: boolean;
     proxyInitializer?: string | false;
     verify?: boolean;
-  }
+  } = {}
 ) {
   options = {
     id: name,
@@ -24,7 +34,7 @@ export async function loadOrDeploy(
     ...options,
   };
 
-  const id = options.id;
+  const id = options.id || name;
   const outputFile = `${outputDir}/${network}.json`;
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
@@ -33,7 +43,7 @@ export async function loadOrDeploy(
     process.env[`${network.toUpperCase()}_ETHERSCAN_BASE_URL`];
 
   const factory = await hre.ethers.getContractFactory(name);
-  const verify = async function (contract) {
+  const verify = async function (contract: Contract) {
     if (options.verify) {
       if (options.proxy) {
         const address = await getProxyImpl(contract.address);
@@ -100,7 +110,7 @@ export async function loadOrDeploy(
   return contract;
 }
 
-function saveDeployment(deploymentState, outputFile) {
+function saveDeployment(deploymentState: {}, outputFile: string) {
   const deploymentStateJSON = JSON.stringify(deploymentState, null, 2);
   fs.writeFileSync(outputFile, deploymentStateJSON);
 }
@@ -125,10 +135,9 @@ export async function verifyContract(
       address,
       constructorArguments,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     // if it was already verified, it’s like a success, so let’s move forward and save it
-    if (error.name !== "NomicLabsHardhatPluginError") {
-      console.error(`Error verifying: ${error.name}`);
+    if (!(error instanceof NomicLabsHardhatPluginError)) {
       console.error(error);
     }
   }
@@ -142,6 +151,6 @@ async function getProxyImpl(address: string) {
   return hre.ethers.utils.hexStripZeros(implHex);
 }
 
-export async function waitForTx(tx) {
+export async function waitForTx(tx: ContractTransaction) {
   await tx.wait();
 }
