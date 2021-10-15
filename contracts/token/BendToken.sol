@@ -9,14 +9,14 @@ import {
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
- * @notice implementation of the AAVE token contract
- * @author Aave
+ * @notice implementation of the BEND token contract
+ * @author Bend
  */
-contract AaveToken is GovernancePowerDelegationERC20 {
+contract BendToken is GovernancePowerDelegationERC20 {
     using SafeMath for uint256;
 
-    string internal constant NAME = "Aave Token";
-    string internal constant SYMBOL = "AAVE";
+    string internal constant NAME = "Bend Token";
+    string internal constant SYMBOL = "BEND";
     uint8 internal constant DECIMALS = 18;
 
     /// @dev owner => next valid nonce to submit with permit()
@@ -26,10 +26,10 @@ contract AaveToken is GovernancePowerDelegationERC20 {
 
     mapping(address => uint256) public _votingSnapshotsCounts;
 
-    /// @dev reference to the Aave governance contract to call (if initialized) on _beforeTokenTransfer
-    /// !!! IMPORTANT The Aave governance is considered a trustable contract, being its responsibility
-    /// to control all potential reentrancies by calling back the AaveToken
-    ITransferHook public _aaveGovernance;
+    /// @dev reference to the Bend governance contract to call (if initialized) on _beforeTokenTransfer
+    /// !!! IMPORTANT The Bend governance is considered a trustable contract, being its responsibility
+    /// to control all potential reentrancies by calling back the BendToken
+    ITransferHook public _bendGovernance;
 
     bytes32 public DOMAIN_SEPARATOR;
     bytes public constant EIP712_REVISION = bytes("1");
@@ -156,10 +156,10 @@ contract AaveToken is GovernancePowerDelegationERC20 {
             DelegationType.PROPOSITION_POWER
         );
 
-        // caching the aave governance address to avoid multiple state loads
-        ITransferHook aaveGovernance = _aaveGovernance;
-        if (address(aaveGovernance) != address(0)) {
-            aaveGovernance.onTransfer(from, to, amount);
+        // caching the bend governance address to avoid multiple state loads
+        ITransferHook bendGovernance = _bendGovernance;
+        if (address(bendGovernance) != address(0)) {
+            bendGovernance.onTransfer(from, to, amount);
         }
     }
 

@@ -12,7 +12,7 @@ import {
 /**
  * @title DistributionManager
  * @notice Accounting contract to manage multiple staking distributions
- * @author Aave
+ * @author Bend
  **/
 contract DistributionManager is IDistributionManager, Initializable {
     using SafeMath for uint256;
@@ -79,7 +79,7 @@ contract DistributionManager is IDistributionManager, Initializable {
 
     /**
      * @dev Updates the state of one distribution, mainly rewards index and timestamp
-     * @param underlyingAsset The address used as key in the distribution, for example sAAVE or the aTokens addresses on Aave
+     * @param underlyingAsset The address used as key in the distribution, for example sBEND or the aTokens addresses on Bend
      * @param assetConfig Storage pointer to the distribution's config
      * @param totalStaked Current total of staked assets for this distribution
      * @return The new distribution index

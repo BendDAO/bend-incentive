@@ -8,11 +8,11 @@ contract ControllerEcosystemReserve is Ownable {
     IEcosystemReserve public immutable RESERVE_ECOSYSTEM;
 
     constructor(
-        address aaveGovShortTimelock,
+        address bendGovShortTimelock,
         IEcosystemReserve ecosystemReserve
     ) {
         RESERVE_ECOSYSTEM = ecosystemReserve;
-        transferOwnership(aaveGovShortTimelock);
+        transferOwnership(bendGovShortTimelock);
     }
 
     function approve(

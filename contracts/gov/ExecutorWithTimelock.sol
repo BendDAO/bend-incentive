@@ -7,11 +7,11 @@ import {IGovernance} from "./interfaces/IGovernance.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
- * @title Time Locked Executor Contract, inherited by Aave Governance Executors
+ * @title Time Locked Executor Contract, inherited by Bend Governance Executors
  * @dev Contract that can queue, execute, cancel transactions voted by Governance
  * Queued transactions can be executed after a delay and until
  * Grace period is not over.
- * @author Aave
+ * @author Bend
  **/
 contract ExecutorWithTimelock is IExecutorWithTimelock {
     using SafeMath for uint256;

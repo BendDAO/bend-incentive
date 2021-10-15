@@ -20,8 +20,8 @@ import {GovernancePowerWithSnapshot} from "./GovernancePowerWithSnapshot.sol";
 
 /**
  * @title StakedToken
- * @notice Contract to stake Aave token, tokenize the position and get rewards, inheriting from a distribution manager contract
- * @author Aave
+ * @notice Contract to stake Bend token, tokenize the position and get rewards, inheriting from a distribution manager contract
+ * @author Bend
  **/
 contract StakedToken is
     IStakedToken,
@@ -107,7 +107,7 @@ contract StakedToken is
         COOLDOWN_SECONDS = cooldownSeconds;
         UNSTAKE_WINDOW = unstakeWindow;
         REWARDS_VAULT = rewardsVault;
-        _aaveGovernance = ITransferHook(governance);
+        _bendGovernance = ITransferHook(governance);
         uint256 chainId;
 
         //solium-disable-next-line
@@ -125,7 +125,7 @@ contract StakedToken is
             )
         );
 
-        // Update lastUpdateTimestamp of stkAave to reward users since the end of the prior staking period
+        // Update lastUpdateTimestamp of stkBend to reward users since the end of the prior staking period
         AssetData storage assetData = assets[address(this)];
         assetData.lastUpdateTimestamp = 1620594720;
     }
@@ -477,10 +477,10 @@ contract StakedToken is
             DelegationType.PROPOSITION_POWER
         );
 
-        // caching the aave governance address to avoid multiple state loads
-        ITransferHook aaveGovernance = _aaveGovernance;
-        if (aaveGovernance != ITransferHook(address(0))) {
-            aaveGovernance.onTransfer(from, to, amount);
+        // caching the bend governance address to avoid multiple state loads
+        ITransferHook bendGovernance = _bendGovernance;
+        if (bendGovernance != ITransferHook(address(0))) {
+            bendGovernance.onTransfer(from, to, amount);
         }
     }
 

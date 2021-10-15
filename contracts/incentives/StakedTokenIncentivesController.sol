@@ -19,10 +19,9 @@ import {IIncentivesController} from "./interfaces/IIncentivesController.sol";
 
 /**
  * @title StakedTokenIncentivesController
- * @notice Distributor contract for rewards to the Aave protocol, using a staked token as rewards asset.
- * The contract stakes the rewards before redistributing them to the Aave protocol participants.
- * The reference staked token implementation is at https://github.com/aave/aave-stake-v2
- * @author Aave
+ * @notice Distributor contract for rewards to the Bend protocol, using a staked token as rewards asset.
+ * The contract stakes the rewards before redistributing them to the Bend protocol participants.
+ * @author Bend
  **/
 contract StakedTokenIncentivesController is
     IIncentivesController,

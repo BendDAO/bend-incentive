@@ -13,7 +13,7 @@ import {isContract, getChainId} from "../libs/Helpers.sol";
 
 /**
  * @title Governance V2 contract
- * @dev Main point of interaction with Aave protocol's governance
+ * @dev Main point of interaction with Bend protocol's governance
  * - Create a Proposal
  * - Cancel a Proposal
  * - Queue a Proposal
@@ -21,7 +21,7 @@ import {isContract, getChainId} from "../libs/Helpers.sol";
  * - Submit Vote to a Proposal
  * Proposal States : Pending => Active => Succeeded(/Failed) => Queued => Executed(/Expired)
  *                   The transition to "Canceled" can appear in multiple states
- * @author Aave
+ * @author Bend
  **/
 contract Governance is Ownable, IGovernance {
     using SafeMath for uint256;
