@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "paths": {},
+    "esModuleInterop": true
+    // ...Other compilerOptions
+  },
+  "include": ["./scripts", "./test"],
+  "files": ["./hardhat.config.ts"]
+}

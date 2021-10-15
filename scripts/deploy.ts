@@ -3,10 +3,11 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-const hre = require("hardhat");
-const utils = require("./utils.js");
-const envResult = require("dotenv").config();
-const constants = require("./constants.js");
+import hre from "hardhat";
+import { loadPreviousDeployment, loadOrDeploy, waitForTx } from "./utils.js";
+import { ZERO_ADDRESS } from "./constants.js";
+import dotenv from "dotenv";
+const envResult = dotenv.config();
 
 if (envResult.error) {
   throw envResult.error;
@@ -14,8 +15,7 @@ if (envResult.error) {
 const env = envResult.parsed;
 
 const GUARDIAN_MULTI_SIG_ADDR =
-  env[`${hre.network.name.toUpperCase()}_GOVERNANCE_GUARDIAN`] ||
-  constants.ZERO_ADDRESS;
+  env[`${hre.network.name.toUpperCase()}_GOVERNANCE_GUARDIAN`] || ZERO_ADDRESS;
 
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
@@ -24,8 +24,8 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const deploymentState = utils.loadPreviousDeployment(hre.network.name);
-  const aaveToken = await utils.loadOrDeploy(
+  const deploymentState = loadPreviousDeployment(hre.network.name);
+  const aaveToken = await loadOrDeploy(
     "AaveToken",
     [],
     hre.network.name,
@@ -33,14 +33,14 @@ async function main() {
     deploymentState,
     { proxy: true }
   );
-  const governance = await utils.loadOrDeploy(
+  const governance = await loadOrDeploy(
     "Governance",
     [0, GUARDIAN_MULTI_SIG_ADDR],
     hre.network.name,
     deployer,
     deploymentState
   );
-  const shortTimelockExecutor = await utils.loadOrDeploy(
+  const shortTimelockExecutor = await loadOrDeploy(
     "Executor",
     [governance.address, 86400, 432000, 86400, 864000, 50, 19200, 50, 200],
     hre.network.name,
@@ -48,7 +48,7 @@ async function main() {
     deploymentState,
     { id: "ShortTimelockExecutor" }
   );
-  const longTimelockExecutor = await utils.loadOrDeploy(
+  const longTimelockExecutor = await loadOrDeploy(
     "Executor",
     [
       governance.address,
@@ -66,13 +66,13 @@ async function main() {
     deploymentState,
     { id: "LongTimelockExecutor" }
   );
-  utils.waitForTx(
+  waitForTx(
     await governance.authorizeExecutors([
       shortTimelockExecutor.address,
       longTimelockExecutor.address,
     ])
   );
-  const ecosystemReserve = await utils.loadOrDeploy(
+  const ecosystemReserve = await loadOrDeploy(
     "EcosystemReserve",
     [],
     hre.network.name,
@@ -80,7 +80,7 @@ async function main() {
     deploymentState,
     { proxy: true, proxyInitializer: false }
   );
-  const controllerEcosystemReserve = await utils.loadOrDeploy(
+  const controllerEcosystemReserve = await loadOrDeploy(
     "ControllerEcosystemReserve",
     [shortTimelockExecutor.address, ecosystemReserve.address],
     hre.network.name,
@@ -88,12 +88,12 @@ async function main() {
     deploymentState
   );
   try {
-    utils.waitForTx(
+    waitForTx(
       await ecosystemReserve.initialize(controllerEcosystemReserve.address)
     );
   } catch (error) {}
 
-  const stakedToken = await utils.loadOrDeploy(
+  const stakedToken = await loadOrDeploy(
     "StakedToken",
     [
       aaveToken.address,
@@ -106,7 +106,7 @@ async function main() {
       "Staked AAVE",
       "stkAAVE",
       18,
-      constants.ZERO_ADDRESS,
+      ZERO_ADDRESS,
     ],
     hre.network.name,
     deployer,
@@ -114,17 +114,15 @@ async function main() {
     { proxy: true }
   );
 
-  const governanceStrategy = await utils.loadOrDeploy(
+  const governanceStrategy = await loadOrDeploy(
     "GovernanceStrategy",
     [aaveToken.address, stakedToken.address],
     hre.network.name,
     deployer,
     deploymentState
   );
-  utils.waitForTx(
-    await governance.setGovernanceStrategy(governanceStrategy.address)
-  );
-  await utils.loadOrDeploy(
+  waitForTx(await governance.setGovernanceStrategy(governanceStrategy.address));
+  await loadOrDeploy(
     "StakedTokenIncentivesController",
     [stakedToken.address, shortTimelockExecutor.address],
     hre.network.name,
