@@ -3,32 +3,32 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-import hre from "hardhat";
-import { loadPreviousDeployment, loadOrDeploy, waitForTx } from "./utils.js";
-import { ZERO_ADDRESS } from "./constants.js";
+import { run, ethers, network } from "hardhat";
+import { loadPreviousDeployment, loadOrDeploy, waitForTx } from "./utils";
+import { ZERO_ADDRESS } from "./constants";
 import dotenv from "dotenv";
 const envResult = dotenv.config();
 
-if (envResult.error) {
+if (envResult.error || !envResult.parsed) {
   throw envResult.error;
 }
 const env = envResult.parsed;
 
 const GUARDIAN_MULTI_SIG_ADDR =
-  env[`${hre.network.name.toUpperCase()}_GOVERNANCE_GUARDIAN`] || ZERO_ADDRESS;
+  env[`${network.name.toUpperCase()}_GOVERNANCE_GUARDIAN`] || ZERO_ADDRESS;
 
 async function main() {
-  const [deployer] = await hre.ethers.getSigners();
+  const [deployer] = await ethers.getSigners();
 
   console.log("Deploying contracts with the account:", deployer.address);
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const deploymentState = loadPreviousDeployment(hre.network.name);
+  const deploymentState = loadPreviousDeployment(network.name);
   const aaveToken = await loadOrDeploy(
-    "AaveToken",
+    "BendToken",
     [],
-    hre.network.name,
+    network.name,
     deployer,
     deploymentState,
     { proxy: true }
@@ -36,14 +36,14 @@ async function main() {
   const governance = await loadOrDeploy(
     "Governance",
     [0, GUARDIAN_MULTI_SIG_ADDR],
-    hre.network.name,
+    network.name,
     deployer,
     deploymentState
   );
   const shortTimelockExecutor = await loadOrDeploy(
     "Executor",
     [governance.address, 86400, 432000, 86400, 864000, 50, 19200, 50, 200],
-    hre.network.name,
+    network.name,
     deployer,
     deploymentState,
     { id: "ShortTimelockExecutor" }
@@ -61,7 +61,7 @@ async function main() {
       1500,
       2000,
     ],
-    hre.network.name,
+    network.name,
     deployer,
     deploymentState,
     { id: "LongTimelockExecutor" }
@@ -75,7 +75,7 @@ async function main() {
   const ecosystemReserve = await loadOrDeploy(
     "EcosystemReserve",
     [],
-    hre.network.name,
+    network.name,
     deployer,
     deploymentState,
     { proxy: true, proxyInitializer: false }
@@ -83,7 +83,7 @@ async function main() {
   const controllerEcosystemReserve = await loadOrDeploy(
     "ControllerEcosystemReserve",
     [shortTimelockExecutor.address, ecosystemReserve.address],
-    hre.network.name,
+    network.name,
     deployer,
     deploymentState
   );
@@ -108,7 +108,7 @@ async function main() {
       18,
       ZERO_ADDRESS,
     ],
-    hre.network.name,
+    network.name,
     deployer,
     deploymentState,
     { proxy: true }
@@ -117,7 +117,7 @@ async function main() {
   const governanceStrategy = await loadOrDeploy(
     "GovernanceStrategy",
     [aaveToken.address, stakedToken.address],
-    hre.network.name,
+    network.name,
     deployer,
     deploymentState
   );
@@ -125,7 +125,7 @@ async function main() {
   await loadOrDeploy(
     "StakedTokenIncentivesController",
     [stakedToken.address, shortTimelockExecutor.address],
-    hre.network.name,
+    network.name,
     deployer,
     deploymentState,
     { proxy: true }
