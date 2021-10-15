@@ -1,14 +1,20 @@
-const hre = require("hardhat");
-const fs = require("fs");
+import hre from "hardhat";
+import fs from "fs";
+import { Signer } from "ethers";
 const outputDir = "./deployments";
 
-async function loadOrDeploy(
-  name,
-  params,
-  network,
-  deployer,
-  deploymentState,
-  options
+export async function loadOrDeploy(
+  name: string,
+  params: any[],
+  network: string,
+  deployer: Signer,
+  deploymentState: {},
+  options?: {
+    id?: string;
+    proxy?: boolean;
+    proxyInitializer?: string | false;
+    verify?: boolean;
+  }
 ) {
   options = {
     id: name,
@@ -31,11 +37,11 @@ async function loadOrDeploy(
     if (options.verify) {
       if (options.proxy) {
         const address = await getProxyImpl(contract.address);
-        await verifyContract(address, []);
+        await verifyContract(address);
         deploymentState[
           id
         ].verification = `${ETHERSCAN_BASE_URL}/${address}#code`;
-        await verifyContract(contract.address, []);
+        await verifyContract(contract.address);
         deploymentState[
           id
         ].proxyVerification = `${ETHERSCAN_BASE_URL}/${contract.address}#code`;
@@ -99,7 +105,7 @@ function saveDeployment(deploymentState, outputFile) {
   fs.writeFileSync(outputFile, deploymentStateJSON);
 }
 
-function loadPreviousDeployment(network) {
+export function loadPreviousDeployment(network: string) {
   let previousDeployment = {};
   const outputFile = `${outputDir}/${network}.json`;
   if (fs.existsSync(outputFile)) {
@@ -110,7 +116,10 @@ function loadPreviousDeployment(network) {
   return previousDeployment;
 }
 
-async function verifyContract(address, constructorArguments) {
+export async function verifyContract(
+  address: string,
+  constructorArguments: any = []
+) {
   try {
     await hre.run("verify:verify", {
       address,
@@ -125,7 +134,7 @@ async function verifyContract(address, constructorArguments) {
   }
 }
 
-async function getProxyImpl(address) {
+async function getProxyImpl(address: string) {
   const implHex = await hre.ethers.provider.getStorageAt(
     address,
     "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
@@ -133,14 +142,6 @@ async function getProxyImpl(address) {
   return hre.ethers.utils.hexStripZeros(implHex);
 }
 
-async function waitForTx(tx) {
+export async function waitForTx(tx) {
   await tx.wait();
 }
-
-module.exports = {
-  verifyContract: verifyContract,
-  loadOrDeploy: loadOrDeploy,
-  loadPreviousDeployment: loadPreviousDeployment,
-  getProxyImpl: getProxyImpl,
-  waitForTx: waitForTx,
-};

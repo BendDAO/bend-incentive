@@ -55,6 +55,22 @@ contract AaveToken is GovernancePowerDelegationERC20 {
      */
     function initialize() external initializer {
         __ERC20Detailed_init(NAME, SYMBOL, DECIMALS);
+        uint256 chainId;
+
+        //solium-disable-next-line
+        assembly {
+            chainId := chainid()
+        }
+
+        DOMAIN_SEPARATOR = keccak256(
+            abi.encode(
+                EIP712_DOMAIN,
+                keccak256(bytes(NAME)),
+                keccak256(EIP712_REVISION),
+                chainId,
+                address(this)
+            )
+        );
     }
 
     /**
