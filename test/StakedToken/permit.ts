@@ -1,63 +1,33 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract, ContractTransaction } from "@ethersproject/contracts";
-import { deployBendToken } from "./deployHelper";
-import { makeBN18 } from "./BNConverter";
-import {
-  getBendTokenDomainSeparatorPerNetwork,
-  MAX_UINT_AMOUNT,
-  ZERO_ADDRESS,
-} from "./constants";
+import { Network } from "../types";
+import { deployStakedToken } from "../deployHelper";
+import { makeBN18 } from "../BNConverter";
+import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../constants";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+
 import {
   buildPermitParams,
   getSignatureFromTypedData,
   waitForTx,
-} from "./utils";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+} from "../utils";
 
-describe("BendToken", function () {
-  let bendToken: Contract;
+describe("StakedToken", function () {
+  let stakedToken: Contract;
   let deployer: SignerWithAddress;
+  let vault: SignerWithAddress;
   let users: SignerWithAddress[];
   let keys: { privateKey: string; balance: string }[];
 
   before(async function () {
     let addresses = await ethers.getSigners();
-    [deployer] = addresses;
-    users = addresses.slice(1, addresses.length);
+    [deployer, vault] = addresses;
+    users = addresses.slice(2, addresses.length);
     keys = require("../test-wallets.ts").accounts;
-
-    bendToken = await deployBendToken();
-    console.log(`   ${bendToken.address}`);
+    stakedToken = await deployStakedToken(vault, makeBN18(1000000), deployer);
+    console.log(`   ${stakedToken.address}`);
   });
-
-  it("Checks initial configuration", async () => {
-    expect(await bendToken.name()).to.be.equal(
-      "Bend Token",
-      "Invalid token name"
-    );
-
-    expect(await bendToken.symbol()).to.be.equal(
-      "BEND",
-      "Invalid token symbol"
-    );
-
-    expect((await bendToken.decimals()).toString()).to.be.equal(
-      "18",
-      "Invalid token decimals"
-    );
-  });
-
-  // it("Checks the domain separator", async () => {
-  //   const DOMAIN_SEPARATOR_ENCODED = getBendTokenDomainSeparatorPerNetwork(
-  //     network.name as Network
-  //   );
-  //   const separator = await bendToken.DOMAIN_SEPARATOR();
-  //   expect(separator).to.be.equal(
-  //     DOMAIN_SEPARATOR_ENCODED,
-  //     "Invalid domain separator"
-  //   );
-  // });
 
   it("Reverts submitting a permit with 0 expiration", async () => {
     const owner = deployer.address;
@@ -65,12 +35,12 @@ describe("BendToken", function () {
     const { chainId } = await ethers.provider.getNetwork();
 
     const expiration = 0;
-    const nonce = (await bendToken._nonces(owner)).toNumber();
+    const nonce = (await stakedToken._nonces(owner)).toNumber();
     const permitAmount = makeBN18("2").toString();
     const msgParams = buildPermitParams(
       chainId,
-      bendToken.address,
-      "Bend Token",
+      stakedToken.address,
+      "Staked BEND",
       owner,
       spender,
       nonce,
@@ -83,23 +53,21 @@ describe("BendToken", function () {
       throw new Error("INVALID_OWNER_PK");
     }
 
-    expect((await bendToken.allowance(owner, spender)).toString()).to.be.equal(
-      "0",
-      "INVALID_ALLOWANCE_BEFORE_PERMIT"
-    );
+    expect(
+      (await stakedToken.allowance(owner, spender)).toString()
+    ).to.be.equal("0", "INVALID_ALLOWANCE_BEFORE_PERMIT");
 
     const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
 
     await expect(
-      bendToken
+      stakedToken
         .connect(users[1])
         .permit(owner, spender, permitAmount, expiration, v, r, s)
     ).to.be.revertedWith("INVALID_EXPIRATION");
 
-    expect((await bendToken.allowance(owner, spender)).toString()).to.be.equal(
-      "0",
-      "INVALID_ALLOWANCE_AFTER_PERMIT"
-    );
+    expect(
+      (await stakedToken.allowance(owner, spender)).toString()
+    ).to.be.equal("0", "INVALID_ALLOWANCE_AFTER_PERMIT");
   });
 
   it("Submits a permit with maximum expiration length", async () => {
@@ -108,12 +76,12 @@ describe("BendToken", function () {
     const { chainId } = await ethers.provider.getNetwork();
 
     const deadline = MAX_UINT_AMOUNT;
-    const nonce = (await bendToken._nonces(owner)).toNumber();
+    const nonce = (await stakedToken._nonces(owner)).toNumber();
     const permitAmount = makeBN18("2").toString();
     const msgParams = buildPermitParams(
       chainId,
-      bendToken.address,
-      "Bend Token",
+      stakedToken.address,
+      "Staked BEND",
       owner,
       spender,
       nonce,
@@ -126,34 +94,32 @@ describe("BendToken", function () {
       throw new Error("INVALID_OWNER_PK");
     }
 
-    expect((await bendToken.allowance(owner, spender)).toString()).to.be.equal(
-      "0",
-      "INVALID_ALLOWANCE_BEFORE_PERMIT"
-    );
+    expect(
+      (await stakedToken.allowance(owner, spender)).toString()
+    ).to.be.equal("0", "INVALID_ALLOWANCE_BEFORE_PERMIT");
 
     const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
 
     await waitForTx(
-      await bendToken
+      await stakedToken
         .connect(users[1])
         .permit(owner, spender, permitAmount, deadline, v, r, s)
     );
 
-    expect((await bendToken._nonces(owner)).toNumber()).to.be.equal(1);
+    expect((await stakedToken._nonces(owner)).toNumber()).to.be.equal(1);
   });
 
   it("Cancels the previous permit", async () => {
     const owner = deployer.address;
     const spender = users[1].address;
     const { chainId } = await ethers.provider.getNetwork();
-
     const deadline = MAX_UINT_AMOUNT;
-    const nonce = (await bendToken._nonces(owner)).toNumber();
+    const nonce = (await stakedToken._nonces(owner)).toNumber();
     const permitAmount = "0";
     const msgParams = buildPermitParams(
       chainId,
-      bendToken.address,
-      "Bend Token",
+      stakedToken.address,
+      "Staked BEND",
       owner,
       spender,
       nonce,
@@ -167,22 +133,21 @@ describe("BendToken", function () {
     }
 
     const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
-    expect((await bendToken.allowance(owner, spender)).toString()).to.be.equal(
-      makeBN18("2").toString(),
-      "INVALID_ALLOWANCE_BEFORE_PERMIT"
-    );
+
+    expect(
+      (await stakedToken.allowance(owner, spender)).toString()
+    ).to.be.equal(makeBN18("2").toString(), "INVALID_ALLOWANCE_BEFORE_PERMIT");
 
     await waitForTx(
-      await bendToken
+      await stakedToken
         .connect(users[1])
         .permit(owner, spender, permitAmount, deadline, v, r, s)
     );
-    expect(await bendToken.allowance(owner, spender)).to.be.equal(
-      permitAmount,
-      "INVALID_ALLOWANCE_AFTER_PERMIT"
-    );
+    expect(
+      (await stakedToken.allowance(owner, spender)).toString()
+    ).to.be.equal(permitAmount, "INVALID_ALLOWANCE_AFTER_PERMIT");
 
-    expect((await bendToken._nonces(owner)).toNumber()).to.be.equal(2);
+    expect((await stakedToken._nonces(owner)).toNumber()).to.be.equal(2);
   });
 
   it("Tries to submit a permit with invalid nonce", async () => {
@@ -194,8 +159,8 @@ describe("BendToken", function () {
     const permitAmount = "0";
     const msgParams = buildPermitParams(
       chainId,
-      bendToken.address,
-      "Bend Token",
+      stakedToken.address,
+      "Staked BEND",
       owner,
       spender,
       nonce,
@@ -211,7 +176,7 @@ describe("BendToken", function () {
     const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
 
     await expect(
-      bendToken
+      stakedToken
         .connect(users[1])
         .permit(owner, spender, permitAmount, deadline, v, r, s)
     ).to.be.revertedWith("INVALID_SIGNATURE");
@@ -222,12 +187,12 @@ describe("BendToken", function () {
     const spender = users[1].address;
     const { chainId } = await ethers.provider.getNetwork();
     const expiration = "1";
-    const nonce = (await bendToken._nonces(owner)).toNumber();
+    const nonce = (await stakedToken._nonces(owner)).toNumber();
     const permitAmount = "0";
     const msgParams = buildPermitParams(
       chainId,
-      bendToken.address,
-      "Bend Token",
+      stakedToken.address,
+      "Staked BEND",
       owner,
       spender,
       nonce,
@@ -243,7 +208,7 @@ describe("BendToken", function () {
     const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
 
     await expect(
-      bendToken
+      stakedToken
         .connect(users[1])
         .permit(owner, spender, expiration, permitAmount, v, r, s)
     ).to.be.revertedWith("INVALID_EXPIRATION");
@@ -254,12 +219,12 @@ describe("BendToken", function () {
     const spender = users[1].address;
     const { chainId } = await ethers.provider.getNetwork();
     const deadline = MAX_UINT_AMOUNT;
-    const nonce = (await bendToken._nonces(owner)).toNumber();
+    const nonce = (await stakedToken._nonces(owner)).toNumber();
     const permitAmount = "0";
     const msgParams = buildPermitParams(
       chainId,
-      bendToken.address,
-      "Bend Token",
+      stakedToken.address,
+      "Staked BEND",
       owner,
       spender,
       nonce,
@@ -275,7 +240,7 @@ describe("BendToken", function () {
     const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
 
     await expect(
-      bendToken
+      stakedToken
         .connect(users[1])
         .permit(owner, ZERO_ADDRESS, permitAmount, deadline, v, r, s)
     ).to.be.revertedWith("INVALID_SIGNATURE");
@@ -286,12 +251,12 @@ describe("BendToken", function () {
     const spender = users[1].address;
     const { chainId } = await ethers.provider.getNetwork();
     const expiration = MAX_UINT_AMOUNT;
-    const nonce = (await bendToken._nonces(owner)).toNumber();
+    const nonce = (await stakedToken._nonces(owner)).toNumber();
     const permitAmount = "0";
     const msgParams = buildPermitParams(
       chainId,
-      bendToken.address,
-      "Bend Token",
+      stakedToken.address,
+      "Staked BEND",
       owner,
       spender,
       nonce,
@@ -307,7 +272,7 @@ describe("BendToken", function () {
     const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
 
     await expect(
-      bendToken
+      stakedToken
         .connect(users[1])
         .permit(ZERO_ADDRESS, spender, expiration, permitAmount, v, r, s)
     ).to.be.revertedWith("INVALID_OWNER");

@@ -4,7 +4,8 @@ import { Contract, ContractTransaction } from "@ethersproject/contracts";
 
 export const buildPermitParams = (
   chainId: number,
-  bendToken: string,
+  tokenContract: string,
+  tokenName: string,
   owner: string,
   spender: string,
   nonce: number,
@@ -28,10 +29,10 @@ export const buildPermitParams = (
   },
   primaryType: "Permit" as const,
   domain: {
-    name: "Bend Token",
+    name: tokenName,
     version: "1",
     chainId: chainId,
-    verifyingContract: bendToken,
+    verifyingContract: tokenContract,
   },
   message: {
     owner,
