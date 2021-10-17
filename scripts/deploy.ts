@@ -25,7 +25,7 @@ async function main() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const deploymentState = loadPreviousDeployment(network.name);
-  const aaveToken = await loadOrDeploy(
+  const bendToken = await loadOrDeploy(
     "BendToken",
     [],
     network.name,
@@ -96,8 +96,8 @@ async function main() {
   const stakedToken = await loadOrDeploy(
     "StakedToken",
     [
-      aaveToken.address,
-      aaveToken.address,
+      bendToken.address,
+      bendToken.address,
       864000,
       172800,
       ecosystemReserve.address,
@@ -116,7 +116,7 @@ async function main() {
 
   const governanceStrategy = await loadOrDeploy(
     "GovernanceStrategy",
-    [aaveToken.address, stakedToken.address],
+    [bendToken.address, stakedToken.address],
     network.name,
     deployer,
     deploymentState
