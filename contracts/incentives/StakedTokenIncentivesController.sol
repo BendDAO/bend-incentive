@@ -6,14 +6,15 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {
     SafeERC20Upgradeable
 } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import {DistributionTypes} from "./DistributionTypes.sol";
+import {DistributionTypes} from "../stake/DistributionTypes.sol";
 
-import {DistributionManager} from "./DistributionManager.sol";
+import {DistributionManager} from "../stake/DistributionManager.sol";
 
 import {IStakedTokenWithConfig} from "./interfaces/IStakedTokenWithConfig.sol";
 import {
     IERC20Upgradeable
 } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+
 import {IScaledBalanceToken} from "./interfaces/IScaledBalanceToken.sol";
 import {IIncentivesController} from "./interfaces/IIncentivesController.sol";
 
@@ -31,24 +32,21 @@ contract StakedTokenIncentivesController is
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     IStakedTokenWithConfig public STAKE_TOKEN;
+    IERC20Upgradeable public REWARD_TOKEN;
+    address public REWARDS_VAULT;
 
     mapping(address => uint256) internal _usersUnclaimedRewards;
 
-    // this mapping allows whitelisted addresses to claim on behalf of others
-    // useful for contracts that hold tokens to be rewarded but don't have any native logic to claim Liquidity Mining rewards
-    mapping(address => address) internal _authorizedClaimers;
-
-    modifier onlyAuthorizedClaimers(address claimer, address user) {
-        require(_authorizedClaimers[user] == claimer, "CLAIMER_UNAUTHORIZED");
-        _;
-    }
-
     function initialize(
         IStakedTokenWithConfig stakeToken,
-        address emissionManager
+        address rewardsVault,
+        address emissionManager,
+        uint128 distributionDuration
     ) public initializer {
-        __DistributionManager_init(emissionManager);
+        __DistributionManager_init(emissionManager, distributionDuration);
         STAKE_TOKEN = stakeToken;
+        REWARD_TOKEN = IERC20Upgradeable(stakeToken);
+        REWARDS_VAULT = rewardsVault;
         //approves the safety module to allow staking
         IERC20Upgradeable(STAKE_TOKEN.STAKED_TOKEN()).safeApprove(
             address(STAKE_TOKEN),
@@ -71,7 +69,7 @@ contract StakedTokenIncentivesController is
 
         for (uint256 i = 0; i < assets.length; i++) {
             assetsConfig[i].underlyingAsset = assets[i];
-            assetsConfig[i].emissionPerSecond = uint104(emissionsPerSecond[i]);
+            assetsConfig[i].emissionPerSecond = uint128(emissionsPerSecond[i]);
 
             require(
                 assetsConfig[i].emissionPerSecond == emissionsPerSecond[i],
@@ -132,56 +130,6 @@ contract StakedTokenIncentivesController is
     }
 
     /// @inheritdoc IIncentivesController
-    function claimRewards(
-        address[] calldata assets,
-        uint256 amount,
-        address to
-    ) external override returns (uint256) {
-        require(to != address(0), "INVALID_TO_ADDRESS");
-        return _claimRewards(assets, amount, msg.sender, msg.sender, to);
-    }
-
-    /// @inheritdoc IIncentivesController
-    function claimRewardsOnBehalf(
-        address[] calldata assets,
-        uint256 amount,
-        address user,
-        address to
-    )
-        external
-        override
-        onlyAuthorizedClaimers(msg.sender, user)
-        returns (uint256)
-    {
-        require(user != address(0), "INVALID_USER_ADDRESS");
-        require(to != address(0), "INVALID_TO_ADDRESS");
-        return _claimRewards(assets, amount, msg.sender, user, to);
-    }
-
-    /**
-     * @dev Claims reward for an user on behalf, on all the assets of the lending pool, accumulating the pending rewards.
-     * @param amount Amount of rewards to claim
-     * @param user Address to check and claim rewards
-     * @param to Address that will be receiving the rewards
-     * @return Rewards claimed
-     **/
-
-    /// @inheritdoc IIncentivesController
-    function setClaimer(address user, address caller)
-        external
-        override
-        onlyEmissionManager
-    {
-        _authorizedClaimers[user] = caller;
-        emit ClaimerSet(user, caller);
-    }
-
-    /// @inheritdoc IIncentivesController
-    function getClaimer(address user) external view override returns (address) {
-        return _authorizedClaimers[user];
-    }
-
-    /// @inheritdoc IIncentivesController
     function getUserUnclaimedRewards(address _user)
         external
         view
@@ -191,28 +139,21 @@ contract StakedTokenIncentivesController is
         return _usersUnclaimedRewards[_user];
     }
 
-    /// @inheritdoc IIncentivesController
-    function REWARD_TOKEN() external view override returns (address) {
-        return address(STAKE_TOKEN);
-    }
-
     /**
-     * @dev Claims reward for an user on behalf, on all the assets of the lending pool, accumulating the pending rewards.
+     * @dev Claims reward for an user, on all the assets of the lending pool, accumulating the pending rewards
      * @param amount Amount of rewards to claim
-     * @param user Address to check and claim rewards
      * @param to Address that will be receiving the rewards
      * @return Rewards claimed
      **/
-    function _claimRewards(
+    function claimRewards(
         address[] calldata assets,
         uint256 amount,
-        address claimer,
-        address user,
         address to
-    ) internal returns (uint256) {
+    ) external override returns (uint256) {
         if (amount == 0) {
             return 0;
         }
+        address user = msg.sender;
         uint256 unclaimedRewards = _usersUnclaimedRewards[user];
 
         DistributionTypes.UserStakeInput[] memory userState =
@@ -241,8 +182,14 @@ contract StakedTokenIncentivesController is
             amount > unclaimedRewards ? unclaimedRewards : amount;
         _usersUnclaimedRewards[user] = unclaimedRewards - amountToClaim; // Safe due to the previous line
 
+        IERC20Upgradeable(STAKE_TOKEN).safeTransferFrom(
+            REWARDS_VAULT,
+            address(this),
+            amountToClaim
+        );
         STAKE_TOKEN.stake(to, amountToClaim);
-        emit RewardsClaimed(user, to, claimer, amountToClaim);
+
+        emit RewardsClaimed(msg.sender, to, amountToClaim);
 
         return amountToClaim;
     }

@@ -124,7 +124,11 @@ async function main() {
   waitForTx(await governance.setGovernanceStrategy(governanceStrategy.address));
   await loadOrDeploy(
     "StakedTokenIncentivesController",
-    [stakedToken.address, shortTimelockExecutor.address],
+    [
+      stakedToken.address,
+      ecosystemReserve.address,
+      shortTimelockExecutor.address,
+    ],
     network.name,
     deployer,
     deploymentState,
