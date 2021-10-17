@@ -34,11 +34,18 @@ contract DistributionManager is IDistributionManager, Initializable {
 
     event AssetConfigUpdated(address indexed asset, uint256 emission);
     event AssetIndexUpdated(address indexed asset, uint256 index);
+    event DistributionEndUpdated(uint256 newDistributionEnd);
+
     event UserIndexUpdated(
         address indexed user,
         address indexed asset,
         uint256 index
     );
+
+    modifier onlyEmissionManager() {
+        require(msg.sender == EMISSION_MANAGER, "ONLY_EMISSION_MANAGER");
+        _;
+    }
 
     function __DistributionManager_init(
         address emissionManager,
@@ -48,15 +55,27 @@ contract DistributionManager is IDistributionManager, Initializable {
         EMISSION_MANAGER = emissionManager;
     }
 
+    function setDistributionEnd(uint256 distributionEnd)
+        external
+        onlyEmissionManager
+    {
+        DISTRIBUTION_END = distributionEnd;
+        emit DistributionEndUpdated(distributionEnd);
+    }
+
     /**
      * @dev Configures the distribution of rewards for a list of assets
      * @param assetsConfigInput The list of configurations to apply
      **/
     function configureAssets(
         DistributionTypes.AssetConfigInput[] calldata assetsConfigInput
-    ) external override {
-        require(msg.sender == EMISSION_MANAGER, "ONLY_EMISSION_MANAGER");
+    ) external override onlyEmissionManager {
+        _configureAssets(assetsConfigInput);
+    }
 
+    function _configureAssets(
+        DistributionTypes.AssetConfigInput[] memory assetsConfigInput
+    ) internal {
         for (uint256 i = 0; i < assetsConfigInput.length; i++) {
             AssetData storage assetConfig =
                 assets[assetsConfigInput[i].underlyingAsset];
