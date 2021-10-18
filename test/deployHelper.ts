@@ -1,8 +1,15 @@
 import { ethers, upgrades } from "hardhat";
-import { Signer } from "ethers";
+import { Signer, BigNumber } from "ethers";
 import { waitForTx } from "./utils";
-import { ZERO_ADDRESS } from "./constants";
-import BN from "bn.js";
+import {
+  ZERO_ADDRESS,
+  STAKED_TOKEN_NAME,
+  STAKED_TOKEN_SYMBOL,
+  STAKED_TOKEN_DECIMALS,
+  COOLDOWN_SECONDS,
+  UNSTAKE_WINDOW,
+  MAX_UINT_AMOUNT,
+} from "./constants";
 
 export async function deployBendToken() {
   return deployProxyContract("BendToken");
@@ -14,7 +21,7 @@ export async function deployBendTokenTester() {
 
 export async function deployStakedToken(
   vaultOfRewards: Signer,
-  bendAmountOfvault: BN,
+  bendAmountOfvault: BigNumber,
   emissionManager: Signer
 ) {
   const bendToken = await deployBendTokenTester();
@@ -24,19 +31,28 @@ export async function deployStakedToken(
       bendAmountOfvault.toString()
     )
   );
-  return deployProxyContract("StakedToken", [
+  const stakedToken = await deployProxyContract("StakedTokenTester", [
     bendToken.address,
     bendToken.address,
-    864000,
-    172800,
+    COOLDOWN_SECONDS,
+    UNSTAKE_WINDOW,
     await vaultOfRewards.getAddress(),
     await emissionManager.getAddress(),
     3153600000,
-    "Staked BEND",
-    "stkBEND",
-    18,
+    STAKED_TOKEN_NAME,
+    STAKED_TOKEN_SYMBOL,
+    STAKED_TOKEN_DECIMALS,
     ZERO_ADDRESS,
   ]);
+  await waitForTx(
+    await bendToken
+      .connect(vaultOfRewards)
+      .approve(stakedToken.address, MAX_UINT_AMOUNT)
+  );
+  return {
+    bendToken,
+    stakedToken,
+  };
 }
 
 export async function deployProxyContract(name: string, args?: unknown[]) {

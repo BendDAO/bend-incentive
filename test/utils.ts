@@ -1,60 +1,50 @@
-import { signTypedData, SignTypedDataVersion } from "@metamask/eth-sig-util";
-import { fromRpcSig, ECDSASignature } from "ethereumjs-util";
-import { Contract, ContractTransaction } from "@ethersproject/contracts";
+import hre from "hardhat";
+import { assert } from "chai";
 
-export const buildPermitParams = (
-  chainId: number,
-  tokenContract: string,
-  tokenName: string,
-  owner: string,
-  spender: string,
-  nonce: number,
-  deadline: string,
-  value: string
-) => ({
-  types: {
-    EIP712Domain: [
-      { name: "name", type: "string" },
-      { name: "version", type: "string" },
-      { name: "chainId", type: "uint256" },
-      { name: "verifyingContract", type: "address" },
-    ],
-    Permit: [
-      { name: "owner", type: "address" },
-      { name: "spender", type: "address" },
-      { name: "value", type: "uint256" },
-      { name: "nonce", type: "uint256" },
-      { name: "deadline", type: "uint256" },
-    ],
-  },
-  primaryType: "Permit" as const,
-  domain: {
-    name: tokenName,
-    version: "1",
-    chainId: chainId,
-    verifyingContract: tokenContract,
-  },
-  message: {
-    owner,
-    spender,
-    value,
-    nonce,
-    deadline,
-  },
-});
+import { ethers, ContractTransaction, BigNumber } from "ethers";
 
-export const getSignatureFromTypedData = (
-  privateKey: string,
-  typedData: any
-): ECDSASignature => {
-  const signature = signTypedData({
-    privateKey: Buffer.from(privateKey.substring(2, 66), "hex"),
-    data: typedData,
-    version: SignTypedDataVersion.V4,
-  });
-  return fromRpcSig(signature);
+export function makeBN(num: string | number, precision: number = 0) {
+  return ethers.utils.parseUnits(num.toString(), precision);
+}
+
+export function makeBN18(num: string | number) {
+  return ethers.utils.parseUnits(num.toString(), 18);
+}
+export const timeLatest = async () => {
+  const block = await hre.ethers.provider.getBlock("latest");
+  return makeBN(block.timestamp);
 };
 
+export async function fastForwardTimeAndBlock(seconds: number) {
+  await hre.ethers.provider.send("evm_increaseTime", [seconds]);
+  await hre.ethers.provider.send("evm_mine", []);
+}
+
+export async function fastForwardTime(seconds: number) {
+  await hre.ethers.provider.send("evm_increaseTime", [seconds]);
+  await hre.ethers.provider.send("evm_mine", []);
+}
+
+export async function fastForwardBlock(timestamp?: number) {
+  const priorBlock = await getCurrentBlock();
+  await hre.ethers.provider.send("evm_mine", timestamp ? [timestamp] : []);
+  const nextBlock = await getCurrentBlock();
+  if (!timestamp && nextBlock == priorBlock) {
+    await fastForwardBlock();
+    return;
+  }
+}
+export function getDifference(x: BigNumber, y: BigNumber) {
+  return Number(x.sub(y).abs());
+}
+export function assertAlmostEqual(x: BigNumber, y: BigNumber, error = 1000) {
+  assert.isAtMost(getDifference(x, y), error);
+}
+
 export async function waitForTx(tx: ContractTransaction) {
-  await tx.wait();
+  return await tx.wait();
+}
+
+export async function getCurrentBlock() {
+  return hre.ethers.provider.getBlockNumber();
 }

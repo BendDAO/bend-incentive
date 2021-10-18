@@ -1,19 +1,15 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import { Contract, ContractTransaction } from "@ethersproject/contracts";
-import { Network } from "../types";
+import { Contract } from "ethers";
 import { deployStakedToken } from "../deployHelper";
-import { makeBN18 } from "../BNConverter";
-import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../constants";
+import { buildPermitParams, getSignatureFromTypedData } from "../testHelper";
+import { MAX_UINT_AMOUNT, ZERO_ADDRESS, STAKED_TOKEN_NAME } from "../constants";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-import {
-  buildPermitParams,
-  getSignatureFromTypedData,
-  waitForTx,
-} from "../utils";
+import { makeBN18, waitForTx } from "../utils";
 
-describe("StakedToken", function () {
+describe("StakedToken permit tests", function () {
+  let bendToken: Contract;
   let stakedToken: Contract;
   let deployer: SignerWithAddress;
   let vault: SignerWithAddress;
@@ -24,8 +20,12 @@ describe("StakedToken", function () {
     let addresses = await ethers.getSigners();
     [deployer, vault] = addresses;
     users = addresses.slice(2, addresses.length);
-    keys = require("../test-wallets.ts").accounts;
-    stakedToken = await deployStakedToken(vault, makeBN18(1000000), deployer);
+    keys = require("../../test-wallets.ts").accounts;
+    ({ bendToken, stakedToken } = await deployStakedToken(
+      vault,
+      makeBN18(1000000),
+      deployer
+    ));
     console.log(`   ${stakedToken.address}`);
   });
 
@@ -36,11 +36,11 @@ describe("StakedToken", function () {
 
     const expiration = 0;
     const nonce = (await stakedToken._nonces(owner)).toNumber();
-    const permitAmount = makeBN18("2").toString();
+    const permitAmount = makeBN18(2);
     const msgParams = buildPermitParams(
       chainId,
       stakedToken.address,
-      "Staked BEND",
+      STAKED_TOKEN_NAME,
       owner,
       spender,
       nonce,
@@ -53,9 +53,10 @@ describe("StakedToken", function () {
       throw new Error("INVALID_OWNER_PK");
     }
 
-    expect(
-      (await stakedToken.allowance(owner, spender)).toString()
-    ).to.be.equal("0", "INVALID_ALLOWANCE_BEFORE_PERMIT");
+    expect(await stakedToken.allowance(owner, spender)).to.be.eq(
+      0,
+      "INVALID_ALLOWANCE_BEFORE_PERMIT"
+    );
 
     const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
 
@@ -65,9 +66,10 @@ describe("StakedToken", function () {
         .permit(owner, spender, permitAmount, expiration, v, r, s)
     ).to.be.revertedWith("INVALID_EXPIRATION");
 
-    expect(
-      (await stakedToken.allowance(owner, spender)).toString()
-    ).to.be.equal("0", "INVALID_ALLOWANCE_AFTER_PERMIT");
+    expect(await stakedToken.allowance(owner, spender)).to.be.eq(
+      0,
+      "INVALID_ALLOWANCE_AFTER_PERMIT"
+    );
   });
 
   it("Submits a permit with maximum expiration length", async () => {
@@ -77,11 +79,11 @@ describe("StakedToken", function () {
 
     const deadline = MAX_UINT_AMOUNT;
     const nonce = (await stakedToken._nonces(owner)).toNumber();
-    const permitAmount = makeBN18("2").toString();
+    const permitAmount = makeBN18(2);
     const msgParams = buildPermitParams(
       chainId,
       stakedToken.address,
-      "Staked BEND",
+      STAKED_TOKEN_NAME,
       owner,
       spender,
       nonce,
@@ -94,9 +96,10 @@ describe("StakedToken", function () {
       throw new Error("INVALID_OWNER_PK");
     }
 
-    expect(
-      (await stakedToken.allowance(owner, spender)).toString()
-    ).to.be.equal("0", "INVALID_ALLOWANCE_BEFORE_PERMIT");
+    expect(await stakedToken.allowance(owner, spender)).to.be.equal(
+      "0",
+      "INVALID_ALLOWANCE_BEFORE_PERMIT"
+    );
 
     const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
 
@@ -115,11 +118,11 @@ describe("StakedToken", function () {
     const { chainId } = await ethers.provider.getNetwork();
     const deadline = MAX_UINT_AMOUNT;
     const nonce = (await stakedToken._nonces(owner)).toNumber();
-    const permitAmount = "0";
+    const permitAmount = 0;
     const msgParams = buildPermitParams(
       chainId,
       stakedToken.address,
-      "Staked BEND",
+      STAKED_TOKEN_NAME,
       owner,
       spender,
       nonce,
@@ -134,18 +137,20 @@ describe("StakedToken", function () {
 
     const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
 
-    expect(
-      (await stakedToken.allowance(owner, spender)).toString()
-    ).to.be.equal(makeBN18("2").toString(), "INVALID_ALLOWANCE_BEFORE_PERMIT");
+    expect(await stakedToken.allowance(owner, spender)).to.be.equal(
+      makeBN18(2),
+      "INVALID_ALLOWANCE_BEFORE_PERMIT"
+    );
 
     await waitForTx(
       await stakedToken
         .connect(users[1])
         .permit(owner, spender, permitAmount, deadline, v, r, s)
     );
-    expect(
-      (await stakedToken.allowance(owner, spender)).toString()
-    ).to.be.equal(permitAmount, "INVALID_ALLOWANCE_AFTER_PERMIT");
+    expect(await stakedToken.allowance(owner, spender)).to.be.equal(
+      permitAmount,
+      "INVALID_ALLOWANCE_AFTER_PERMIT"
+    );
 
     expect((await stakedToken._nonces(owner)).toNumber()).to.be.equal(2);
   });
@@ -156,11 +161,11 @@ describe("StakedToken", function () {
     const { chainId } = await ethers.provider.getNetwork();
     const deadline = MAX_UINT_AMOUNT;
     const nonce = 1000;
-    const permitAmount = "0";
+    const permitAmount = 0;
     const msgParams = buildPermitParams(
       chainId,
       stakedToken.address,
-      "Staked BEND",
+      STAKED_TOKEN_NAME,
       owner,
       spender,
       nonce,
@@ -188,11 +193,11 @@ describe("StakedToken", function () {
     const { chainId } = await ethers.provider.getNetwork();
     const expiration = "1";
     const nonce = (await stakedToken._nonces(owner)).toNumber();
-    const permitAmount = "0";
+    const permitAmount = 0;
     const msgParams = buildPermitParams(
       chainId,
       stakedToken.address,
-      "Staked BEND",
+      STAKED_TOKEN_NAME,
       owner,
       spender,
       nonce,
@@ -220,11 +225,11 @@ describe("StakedToken", function () {
     const { chainId } = await ethers.provider.getNetwork();
     const deadline = MAX_UINT_AMOUNT;
     const nonce = (await stakedToken._nonces(owner)).toNumber();
-    const permitAmount = "0";
+    const permitAmount = 0;
     const msgParams = buildPermitParams(
       chainId,
       stakedToken.address,
-      "Staked BEND",
+      STAKED_TOKEN_NAME,
       owner,
       spender,
       nonce,
@@ -252,11 +257,11 @@ describe("StakedToken", function () {
     const { chainId } = await ethers.provider.getNetwork();
     const expiration = MAX_UINT_AMOUNT;
     const nonce = (await stakedToken._nonces(owner)).toNumber();
-    const permitAmount = "0";
+    const permitAmount = 0;
     const msgParams = buildPermitParams(
       chainId,
       stakedToken.address,
-      "Staked BEND",
+      STAKED_TOKEN_NAME,
       owner,
       spender,
       nonce,

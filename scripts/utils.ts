@@ -2,7 +2,7 @@ import hre from "hardhat";
 import fs from "fs";
 import { Signer } from "ethers";
 const outputDir = "./deployments";
-import { Contract, ContractTransaction } from "@ethersproject/contracts";
+import { Contract, ContractTransaction } from "ethers";
 import { NomicLabsHardhatPluginError } from "hardhat/plugins";
 
 export async function loadOrDeploy(
