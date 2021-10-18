@@ -1,18 +1,14 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import { Contract, ContractTransaction } from "@ethersproject/contracts";
+import { Contract, ContractTransaction } from "ethers";
 import { deployBendToken } from "./deployHelper";
-import { makeBN18 } from "./BNConverter";
+import { buildPermitParams, getSignatureFromTypedData } from "./testHelper";
 import {
   getBendTokenDomainSeparatorPerNetwork,
   MAX_UINT_AMOUNT,
   ZERO_ADDRESS,
 } from "./constants";
-import {
-  buildPermitParams,
-  getSignatureFromTypedData,
-  waitForTx,
-} from "./utils";
+import { makeBN18, waitForTx } from "./utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("BendToken", function () {
@@ -42,8 +38,8 @@ describe("BendToken", function () {
       "Invalid token symbol"
     );
 
-    expect((await bendToken.decimals()).toString()).to.be.equal(
-      "18",
+    expect(await bendToken.decimals()).to.be.equal(
+      18,
       "Invalid token decimals"
     );
   });
@@ -66,7 +62,7 @@ describe("BendToken", function () {
 
     const expiration = 0;
     const nonce = (await bendToken._nonces(owner)).toNumber();
-    const permitAmount = makeBN18("2").toString();
+    const permitAmount = makeBN18(2);
     const msgParams = buildPermitParams(
       chainId,
       bendToken.address,
@@ -83,8 +79,8 @@ describe("BendToken", function () {
       throw new Error("INVALID_OWNER_PK");
     }
 
-    expect((await bendToken.allowance(owner, spender)).toString()).to.be.equal(
-      "0",
+    expect(await bendToken.allowance(owner, spender)).to.be.equal(
+      0,
       "INVALID_ALLOWANCE_BEFORE_PERMIT"
     );
 
@@ -96,8 +92,8 @@ describe("BendToken", function () {
         .permit(owner, spender, permitAmount, expiration, v, r, s)
     ).to.be.revertedWith("INVALID_EXPIRATION");
 
-    expect((await bendToken.allowance(owner, spender)).toString()).to.be.equal(
-      "0",
+    expect(await bendToken.allowance(owner, spender)).to.be.equal(
+      0,
       "INVALID_ALLOWANCE_AFTER_PERMIT"
     );
   });
@@ -109,7 +105,7 @@ describe("BendToken", function () {
 
     const deadline = MAX_UINT_AMOUNT;
     const nonce = (await bendToken._nonces(owner)).toNumber();
-    const permitAmount = makeBN18("2").toString();
+    const permitAmount = makeBN18(2);
     const msgParams = buildPermitParams(
       chainId,
       bendToken.address,
@@ -126,8 +122,8 @@ describe("BendToken", function () {
       throw new Error("INVALID_OWNER_PK");
     }
 
-    expect((await bendToken.allowance(owner, spender)).toString()).to.be.equal(
-      "0",
+    expect(await bendToken.allowance(owner, spender)).to.be.equal(
+      0,
       "INVALID_ALLOWANCE_BEFORE_PERMIT"
     );
 
@@ -139,7 +135,7 @@ describe("BendToken", function () {
         .permit(owner, spender, permitAmount, deadline, v, r, s)
     );
 
-    expect((await bendToken._nonces(owner)).toNumber()).to.be.equal(1);
+    expect(await bendToken._nonces(owner)).to.be.equal(1);
   });
 
   it("Cancels the previous permit", async () => {
@@ -149,7 +145,7 @@ describe("BendToken", function () {
 
     const deadline = MAX_UINT_AMOUNT;
     const nonce = (await bendToken._nonces(owner)).toNumber();
-    const permitAmount = "0";
+    const permitAmount = 0;
     const msgParams = buildPermitParams(
       chainId,
       bendToken.address,
@@ -167,8 +163,8 @@ describe("BendToken", function () {
     }
 
     const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
-    expect((await bendToken.allowance(owner, spender)).toString()).to.be.equal(
-      makeBN18("2").toString(),
+    expect(await bendToken.allowance(owner, spender)).to.be.equal(
+      makeBN18(2),
       "INVALID_ALLOWANCE_BEFORE_PERMIT"
     );
 
@@ -182,7 +178,7 @@ describe("BendToken", function () {
       "INVALID_ALLOWANCE_AFTER_PERMIT"
     );
 
-    expect((await bendToken._nonces(owner)).toNumber()).to.be.equal(2);
+    expect(await bendToken._nonces(owner)).to.be.equal(2);
   });
 
   it("Tries to submit a permit with invalid nonce", async () => {
@@ -191,7 +187,7 @@ describe("BendToken", function () {
     const { chainId } = await ethers.provider.getNetwork();
     const deadline = MAX_UINT_AMOUNT;
     const nonce = 1000;
-    const permitAmount = "0";
+    const permitAmount = 0;
     const msgParams = buildPermitParams(
       chainId,
       bendToken.address,
@@ -223,7 +219,7 @@ describe("BendToken", function () {
     const { chainId } = await ethers.provider.getNetwork();
     const expiration = "1";
     const nonce = (await bendToken._nonces(owner)).toNumber();
-    const permitAmount = "0";
+    const permitAmount = 0;
     const msgParams = buildPermitParams(
       chainId,
       bendToken.address,
@@ -255,7 +251,7 @@ describe("BendToken", function () {
     const { chainId } = await ethers.provider.getNetwork();
     const deadline = MAX_UINT_AMOUNT;
     const nonce = (await bendToken._nonces(owner)).toNumber();
-    const permitAmount = "0";
+    const permitAmount = 0;
     const msgParams = buildPermitParams(
       chainId,
       bendToken.address,
@@ -287,7 +283,7 @@ describe("BendToken", function () {
     const { chainId } = await ethers.provider.getNetwork();
     const expiration = MAX_UINT_AMOUNT;
     const nonce = (await bendToken._nonces(owner)).toNumber();
-    const permitAmount = "0";
+    const permitAmount = 0;
     const msgParams = buildPermitParams(
       chainId,
       bendToken.address,
