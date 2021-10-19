@@ -4,7 +4,7 @@ import { Contract, ContractTransaction } from "ethers";
 import { deployBendToken } from "./deployHelper";
 import { buildPermitParams, getSignatureFromTypedData } from "./testHelper";
 import {
-  getBendTokenDomainSeparatorPerNetwork,
+  // getBendTokenDomainSeparatorPerNetwork,
   MAX_UINT_AMOUNT,
   ZERO_ADDRESS,
 } from "./constants";

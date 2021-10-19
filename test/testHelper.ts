@@ -5,10 +5,11 @@ import {
   BigNumberish,
   BigNumber,
 } from "ethers";
-import { expect, assert } from "chai";
-import { waitForTx, fastForwardTime, makeBN } from "./utils";
+import { expect } from "chai";
+import { waitForTx, fastForwardTime, makeBN, timeLatest } from "./utils";
 import { signTypedData, SignTypedDataVersion } from "@metamask/eth-sig-util";
 import { fromRpcSig, ECDSASignature } from "ethereumjs-util";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 export const buildPermitParams = (
   chainId: number,
   tokenContract: string,
@@ -75,9 +76,7 @@ export async function compareRewardsAtAction(
   assetConfig?: AssetConfig
 ) {
   const underlyingAsset = stakedToken.address;
-  // To prevent coverage to fail, add 5 seconds per comparisson.
-  // await fastForwardTime(5);
-  const rewardsBalanceBefore = await await stakedToken.getTotalRewardsBalance(
+  const rewardsBalanceBefore = await stakedToken.getTotalRewardsBalance(
     userAddress
   );
   // Configure assets of stake token
@@ -101,7 +100,7 @@ export async function compareRewardsAtAction(
   );
   // Dispatch actions that can or not update the user index
   const receipts: ethers.ContractReceipt[] = await Promise.all(
-    actions().map(async (action) => waitForTx(await action))
+    actions().map(async (action) => await waitForTx(await action))
   );
 
   // Get index after actions
@@ -111,7 +110,7 @@ export async function compareRewardsAtAction(
     underlyingAsset
   );
   // Compare calculated JS rewards versus Solidity user rewards
-  const rewardsBalanceAfter = await await stakedToken.getTotalRewardsBalance(
+  const rewardsBalanceAfter = await stakedToken.getTotalRewardsBalance(
     userAddress
   );
 
@@ -120,6 +119,7 @@ export async function compareRewardsAtAction(
     userIndexAfter,
     userIndexBefore
   );
+
   expect(rewardsBalanceAfter).to.eq(
     rewardsBalanceBefore.add(expectedAccruedRewards)
   );
@@ -147,4 +147,117 @@ export async function getUserIndex(
   asset: string
 ) {
   return await distributionManager.getUserAssetData(user, asset);
+}
+
+export async function compareRewardsAtTransfer(
+  stakedToken: Contract,
+  from: SignerWithAddress,
+  to: SignerWithAddress,
+  amount: BigNumberish,
+  fromShouldReward?: boolean,
+  toShouldReward?: boolean,
+  assetConfig?: AssetConfig
+) {
+  const fromAddress = from.address;
+  const toAddress = to.address;
+  const underlyingAsset = stakedToken.address;
+
+  const fromSavedBalance = await stakedToken.balanceOf(fromAddress);
+  const toSavedBalance = await stakedToken.balanceOf(toAddress);
+  const fromSavedRewards = await stakedToken.getTotalRewardsBalance(
+    fromAddress
+  );
+  const toSavedRewards = await stakedToken.getTotalRewardsBalance(toAddress);
+
+  // Configure assets of stake token
+  const assetConfiguration = assetConfig
+    ? {
+        ...assetConfig,
+        underlyingAsset,
+      }
+    : {
+        emissionPerSecond: "100",
+        totalStaked: await stakedToken.totalSupply(),
+        underlyingAsset,
+      };
+  await stakedToken.configureAssets([assetConfiguration]);
+
+  // Get index before actions
+  const fromIndexBefore = await getUserIndex(
+    stakedToken,
+    fromAddress,
+    underlyingAsset
+  );
+  const toIndexBefore = await getUserIndex(
+    stakedToken,
+    toAddress,
+    underlyingAsset
+  );
+
+  // Load actions that can or not update the user index
+  await waitForTx(await stakedToken.connect(from).transfer(toAddress, amount));
+
+  // Check rewards after transfer
+
+  // Get index after actions
+  const fromIndexAfter = await getUserIndex(
+    stakedToken,
+    fromAddress,
+    underlyingAsset
+  );
+  const toIndexAfter = await getUserIndex(
+    stakedToken,
+    toAddress,
+    underlyingAsset
+  );
+
+  // FROM: Compare calculated JS rewards versus Solidity user rewards
+  const fromRewardsBalanceAfter = await stakedToken.getTotalRewardsBalance(
+    fromAddress
+  );
+  const fromExpectedAccruedRewards = getRewards(
+    fromSavedBalance,
+    fromIndexAfter,
+    fromIndexBefore
+  );
+  expect(fromRewardsBalanceAfter).to.eq(
+    fromSavedRewards.add(fromExpectedAccruedRewards)
+  );
+
+  // TO: Compare calculated JS rewards versus Solidity user rewards
+  const toRewardsBalanceAfter = await stakedToken.getTotalRewardsBalance(
+    toAddress
+  );
+  const toExpectedAccruedRewards = getRewards(
+    toSavedBalance,
+    toIndexAfter,
+    toIndexBefore
+  );
+  expect(toRewardsBalanceAfter).to.eq(
+    toSavedRewards.add(toExpectedAccruedRewards)
+  );
+
+  // Explicit check rewards when the test case expects rewards to the user
+  if (fromShouldReward) {
+    expect(fromExpectedAccruedRewards).to.be.gt(0);
+  } else {
+    expect(fromExpectedAccruedRewards).to.be.eq(0);
+  }
+
+  // Explicit check rewards when the test case expects rewards to the user
+  if (toShouldReward) {
+    expect(toExpectedAccruedRewards).to.be.gt(0);
+  } else {
+    expect(toExpectedAccruedRewards).to.be.eq(0);
+  }
+
+  // Expect new balances
+  if (fromAddress === toAddress) {
+    expect(fromSavedBalance).to.be.eq(toSavedBalance);
+  } else {
+    const fromNewBalance = await stakedToken.balanceOf(fromAddress);
+    const toNewBalance = await stakedToken.balanceOf(toAddress);
+    expect(fromNewBalance).to.be.eq(fromSavedBalance.sub(amount));
+    expect(toNewBalance).to.be.eq(toSavedBalance.add(amount));
+  }
 }
