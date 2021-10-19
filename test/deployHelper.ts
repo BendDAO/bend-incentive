@@ -19,6 +19,10 @@ export async function deployBendTokenTester() {
   return deployProxyContract("BendTokenTester");
 }
 
+export async function deployDoubleTransferHelper(token: string) {
+  return deployContract("DoubleTransferHelper", [token]);
+}
+
 export async function deployStakedToken(
   vaultOfRewards: Signer,
   bendAmountOfvault: BigNumber,
@@ -58,6 +62,13 @@ export async function deployStakedToken(
 export async function deployProxyContract(name: string, args?: unknown[]) {
   const _f = await ethers.getContractFactory(name);
   const _c = await upgrades.deployProxy(_f, args);
+  await _c.deployed();
+  return _c;
+}
+
+export async function deployContract(name: string, args: unknown[] = []) {
+  const _f = await ethers.getContractFactory(name);
+  const _c = await _f.deploy(...args);
   await _c.deployed();
   return _c;
 }

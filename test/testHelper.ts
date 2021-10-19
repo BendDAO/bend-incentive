@@ -10,6 +10,7 @@ import { waitForTx, fastForwardTime, makeBN, timeLatest } from "./utils";
 import { signTypedData, SignTypedDataVersion } from "@metamask/eth-sig-util";
 import { fromRpcSig, ECDSASignature } from "ethereumjs-util";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { STAKED_TOKEN_NAME } from "./constants";
 export const buildPermitParams = (
   chainId: number,
   tokenContract: string,
@@ -48,6 +49,77 @@ export const buildPermitParams = (
     value: value.toString(),
     nonce,
     deadline,
+  },
+});
+
+export const buildDelegateParams = (
+  chainId: number,
+  aaveToken: string,
+  delegatee: string,
+  nonce: string,
+  expiry: string
+) => ({
+  types: {
+    EIP712Domain: [
+      { name: "name", type: "string" },
+      { name: "version", type: "string" },
+      { name: "chainId", type: "uint256" },
+      { name: "verifyingContract", type: "address" },
+    ],
+    Delegate: [
+      { name: "delegatee", type: "address" },
+      { name: "nonce", type: "uint256" },
+      { name: "expiry", type: "uint256" },
+    ],
+  },
+  primaryType: "Delegate" as const,
+  domain: {
+    name: STAKED_TOKEN_NAME,
+    version: "1",
+    chainId: chainId,
+    verifyingContract: aaveToken,
+  },
+  message: {
+    delegatee,
+    nonce,
+    expiry,
+  },
+});
+
+export const buildDelegateByTypeParams = (
+  chainId: number,
+  aaveToken: string,
+  delegatee: string,
+  type: string,
+  nonce: string,
+  expiry: string
+) => ({
+  types: {
+    EIP712Domain: [
+      { name: "name", type: "string" },
+      { name: "version", type: "string" },
+      { name: "chainId", type: "uint256" },
+      { name: "verifyingContract", type: "address" },
+    ],
+    DelegateByType: [
+      { name: "delegatee", type: "address" },
+      { name: "type", type: "uint256" },
+      { name: "nonce", type: "uint256" },
+      { name: "expiry", type: "uint256" },
+    ],
+  },
+  primaryType: "DelegateByType" as const,
+  domain: {
+    name: STAKED_TOKEN_NAME,
+    version: "1",
+    chainId: chainId,
+    verifyingContract: aaveToken,
+  },
+  message: {
+    delegatee,
+    type,
+    nonce,
+    expiry,
   },
 });
 

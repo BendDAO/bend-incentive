@@ -24,7 +24,7 @@ describe("BendToken", function () {
     keys = require("../test-wallets.ts").accounts;
 
     bendToken = await deployBendToken();
-    console.log(`   ${bendToken.address}`);
+    // console.log(`   ${bendToken.address}`);
   });
 
   it("Checks initial configuration", async () => {

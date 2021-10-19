@@ -26,7 +26,7 @@ describe("StakedToken permit tests", function () {
       makeBN18(1000000),
       deployer
     ));
-    console.log(`   ${stakedToken.address}`);
+    // console.log(`   ${stakedToken.address}`);
   });
 
   it("Reverts submitting a permit with 0 expiration", async () => {
