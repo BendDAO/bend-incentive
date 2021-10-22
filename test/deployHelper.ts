@@ -1,5 +1,5 @@
 import { ethers, upgrades } from "hardhat";
-import { Signer, BigNumber } from "ethers";
+import { Signer, BigNumber, Contract } from "ethers";
 import { waitForTx } from "./utils";
 import {
   ZERO_ADDRESS,
@@ -9,6 +9,7 @@ import {
   COOLDOWN_SECONDS,
   UNSTAKE_WINDOW,
   MAX_UINT_AMOUNT,
+  ONE_YEAR,
 } from "./constants";
 
 export async function deployBendToken() {
@@ -42,7 +43,7 @@ export async function deployStakedToken(
     UNSTAKE_WINDOW,
     await vaultOfRewards.getAddress(),
     await emissionManager.getAddress(),
-    3153600000,
+    ONE_YEAR * 100,
     STAKED_TOKEN_NAME,
     STAKED_TOKEN_SYMBOL,
     STAKED_TOKEN_DECIMALS,
@@ -57,6 +58,29 @@ export async function deployStakedToken(
     bendToken,
     stakedToken,
   };
+}
+
+export async function deployIncentivesController(
+  bendToken: Contract,
+  stakedToken: Contract,
+  vaultOfRewards: Signer,
+  emissionManager: Signer
+) {
+  const incentivesController = await deployProxyContract(
+    "StakedTokenIncentivesController",
+    [
+      stakedToken.address,
+      await vaultOfRewards.getAddress(),
+      await emissionManager.getAddress(),
+      ONE_YEAR * 100,
+    ]
+  );
+  await waitForTx(
+    await bendToken
+      .connect(vaultOfRewards)
+      .approve(incentivesController.address, MAX_UINT_AMOUNT)
+  );
+  return incentivesController;
 }
 
 export async function deployProxyContract(name: string, args?: unknown[]) {

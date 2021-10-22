@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {DistributionTypes} from "./DistributionTypes.sol";
-import {IDistributionManager} from "./interfaces/IDistributionManager.sol";
 import {
     Initializable
 } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -14,7 +13,7 @@ import {
  * @notice Accounting contract to manage multiple staking distributions
  * @author Bend
  **/
-contract DistributionManager is IDistributionManager, Initializable {
+contract DistributionManager is Initializable {
     using SafeMath for uint256;
 
     struct AssetData {
@@ -61,16 +60,6 @@ contract DistributionManager is IDistributionManager, Initializable {
     {
         DISTRIBUTION_END = distributionEnd;
         emit DistributionEndUpdated(distributionEnd);
-    }
-
-    /**
-     * @dev Configures the distribution of rewards for a list of assets
-     * @param assetsConfigInput The list of configurations to apply
-     **/
-    function configureAssets(
-        DistributionTypes.AssetConfigInput[] calldata assetsConfigInput
-    ) external override onlyEmissionManager {
-        _configureAssets(assetsConfigInput);
     }
 
     function _configureAssets(
