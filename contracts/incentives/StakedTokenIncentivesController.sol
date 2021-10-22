@@ -15,7 +15,7 @@ import {
     IERC20Upgradeable
 } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
-import {IScaledBalanceToken} from "./interfaces/IScaledBalanceToken.sol";
+import {IBToken} from "./interfaces/IBToken.sol";
 import {IIncentivesController} from "./interfaces/IIncentivesController.sol";
 
 /**
@@ -56,7 +56,7 @@ contract StakedTokenIncentivesController is
 
     /// @inheritdoc IIncentivesController
     function configureAssets(
-        address[] calldata assets,
+        IBToken[] calldata assets,
         uint256[] calldata emissionsPerSecond
     ) external override onlyEmissionManager {
         require(
@@ -68,7 +68,7 @@ contract StakedTokenIncentivesController is
             new DistributionTypes.AssetConfigInput[](assets.length);
 
         for (uint256 i = 0; i < assets.length; i++) {
-            assetsConfig[i].underlyingAsset = assets[i];
+            assetsConfig[i].underlyingAsset = address(assets[i]);
             assetsConfig[i].emissionPerSecond = uint128(emissionsPerSecond[i]);
 
             require(
@@ -76,8 +76,7 @@ contract StakedTokenIncentivesController is
                 "INVALID_CONFIGURATION"
             );
 
-            assetsConfig[i].totalStaked = IScaledBalanceToken(assets[i])
-                .scaledTotalSupply();
+            assetsConfig[i].totalStaked = assets[i].scaledTotalSupply();
         }
         _configureAssets(assetsConfig);
     }
@@ -116,12 +115,10 @@ contract StakedTokenIncentivesController is
             new DistributionTypes.UserStakeInput[](assets.length);
         for (uint256 i = 0; i < assets.length; i++) {
             userState[i].underlyingAsset = assets[i];
-            (
-                userState[i].stakedByUser,
-                userState[i].totalStaked
-            ) = IScaledBalanceToken(assets[i]).getScaledUserBalanceAndSupply(
-                user
-            );
+            (userState[i].stakedByUser, userState[i].totalStaked) = IBToken(
+                assets[i]
+            )
+                .getScaledUserBalanceAndSupply(user);
         }
         unclaimedRewards = unclaimedRewards.add(
             _getUnclaimedRewards(user, userState)
@@ -160,12 +157,10 @@ contract StakedTokenIncentivesController is
             new DistributionTypes.UserStakeInput[](assets.length);
         for (uint256 i = 0; i < assets.length; i++) {
             userState[i].underlyingAsset = assets[i];
-            (
-                userState[i].stakedByUser,
-                userState[i].totalStaked
-            ) = IScaledBalanceToken(assets[i]).getScaledUserBalanceAndSupply(
-                user
-            );
+            (userState[i].stakedByUser, userState[i].totalStaked) = IBToken(
+                assets[i]
+            )
+                .getScaledUserBalanceAndSupply(user);
         }
 
         uint256 accruedRewards = _claimRewards(user, userState);

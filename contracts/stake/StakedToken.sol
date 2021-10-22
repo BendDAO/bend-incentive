@@ -130,6 +130,16 @@ contract StakedToken is
         assetData.lastUpdateTimestamp = 1620594720;
     }
 
+    /**
+     * @dev Configures the distribution of rewards for a list of assets
+     * @param assetsConfigInput The list of configurations to apply
+     **/
+    function configureAssets(
+        DistributionTypes.AssetConfigInput[] calldata assetsConfigInput
+    ) external override onlyEmissionManager {
+        _configureAssets(assetsConfigInput);
+    }
+
     function stake(address onBehalfOf, uint256 amount) external override {
         require(amount != 0, "INVALID_ZERO_AMOUNT");
         uint256 balanceOfUser = balanceOf(onBehalfOf);

@@ -1,4 +1,4 @@
-import { ethers, network } from "hardhat";
+import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract } from "ethers";
 import { deployDoubleTransferHelper, deployStakedToken } from "../deployHelper";
@@ -7,9 +7,6 @@ import { fail } from "assert";
 import {
   waitForTx,
   makeBN18,
-  timeLatest,
-  fastForwardTimeAndBlock,
-  fastForwardTime,
   fastForwardBlock,
   getCurrentBlock,
 } from "../utils";
@@ -20,12 +17,7 @@ import {
   getSignatureFromTypedData,
 } from "../testHelper";
 
-import {
-  COOLDOWN_SECONDS,
-  MAX_UINT_AMOUNT,
-  UNSTAKE_WINDOW,
-  ZERO_ADDRESS,
-} from "../constants";
+import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../constants";
 
 describe("StakedToken delegate tests", function () {
   let bendToken: Contract;

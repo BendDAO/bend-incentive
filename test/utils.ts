@@ -1,7 +1,7 @@
 import hre from "hardhat";
-import { assert } from "chai";
+import { assert, expect } from "chai";
 
-import { ethers, ContractTransaction, BigNumber } from "ethers";
+import { ethers, ContractTransaction, BigNumber, Event } from "ethers";
 
 export function makeBN(num: string | number, precision: number = 0) {
   return ethers.utils.parseUnits(num.toString(), precision);
@@ -14,6 +14,14 @@ export const timeLatest = async () => {
   const block = await hre.ethers.provider.getBlock("latest");
   return makeBN(block.timestamp);
 };
+
+export async function getBlockTimestamp(blockNumber?: number) {
+  if (!blockNumber) {
+    throw new Error("No block number passed");
+  }
+  const block = await hre.ethers.provider.getBlock(blockNumber);
+  return makeBN(block.timestamp);
+}
 
 export async function fastForwardTimeAndBlock(seconds: number) {
   await hre.ethers.provider.send("evm_increaseTime", [seconds]);
@@ -34,12 +42,6 @@ export async function fastForwardBlock(timestamp?: number) {
     return;
   }
 }
-export function getDifference(x: BigNumber, y: BigNumber) {
-  return Number(x.sub(y).abs());
-}
-export function assertAlmostEqual(x: BigNumber, y: BigNumber, error = 1000) {
-  assert.isAtMost(getDifference(x, y), error);
-}
 
 export async function waitForTx(tx: ContractTransaction) {
   return await tx.wait();
@@ -47,4 +49,11 @@ export async function waitForTx(tx: ContractTransaction) {
 
 export async function getCurrentBlock() {
   return hre.ethers.provider.getBlockNumber();
+}
+
+export function getDifference(x: BigNumber, y: BigNumber) {
+  return Number(x.sub(y).abs());
+}
+export function assertAlmostEqual(x: BigNumber, y: BigNumber, error = 1000) {
+  assert.isAtMost(getDifference(x, y), error);
 }

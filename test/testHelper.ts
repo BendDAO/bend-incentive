@@ -6,11 +6,18 @@ import {
   BigNumber,
 } from "ethers";
 import { expect } from "chai";
-import { waitForTx, fastForwardTime, makeBN, timeLatest } from "./utils";
+import {
+  waitForTx,
+  fastForwardTime,
+  makeBN,
+  timeLatest,
+  getBlockTimestamp,
+} from "./utils";
 import { signTypedData, SignTypedDataVersion } from "@metamask/eth-sig-util";
 import { fromRpcSig, ECDSASignature } from "ethereumjs-util";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { STAKED_TOKEN_NAME } from "./constants";
+import { compare, CompareRules } from "./comparatorEngine";
 export const buildPermitParams = (
   chainId: number,
   tokenContract: string,
@@ -221,6 +228,18 @@ export async function getUserIndex(
   return await distributionManager.getUserAssetData(user, asset);
 }
 
+export async function getAssetsData(
+  distributionManager: Contract,
+  underlyingAssets: string[]
+) {
+  return await Promise.all(
+    underlyingAssets.map(async (underlyingAsset) => ({
+      ...(await distributionManager.assets(underlyingAsset)),
+      underlyingAsset,
+    }))
+  );
+}
+
 export async function compareRewardsAtTransfer(
   stakedToken: Contract,
   from: SignerWithAddress,
@@ -332,4 +351,172 @@ export async function compareRewardsAtTransfer(
     expect(fromNewBalance).to.be.eq(fromSavedBalance.sub(amount));
     expect(toNewBalance).to.be.eq(toSavedBalance.add(amount));
   }
+}
+
+export async function compareAssetIndex(
+  emissionPerSecond: number,
+  distributionManager: Contract,
+  asset: Contract,
+  userAddress: string,
+  totalSupply: number,
+  userBalance: number,
+  action: () => Promise<ContractTransaction>
+) {
+  const underlyingAsset = asset.address;
+  if (emissionPerSecond) {
+    await distributionManager.configureAssets(
+      [underlyingAsset],
+      [emissionPerSecond]
+    );
+  }
+
+  const distributionEndTimestamp = await distributionManager.DISTRIBUTION_END();
+
+  const rewardsBalanceBefore =
+    await distributionManager.getUserUnclaimedRewards(userAddress);
+  const userIndexBefore = await getUserIndex(
+    distributionManager,
+    userAddress,
+    underlyingAsset
+  );
+  const assetDataBefore = (
+    await getAssetsData(distributionManager, [underlyingAsset])
+  )[0];
+  const tx = await action();
+  const txReceipt = await waitForTx(tx);
+
+  const actionBlockTimestamp = await getBlockTimestamp(txReceipt.blockNumber);
+
+  const userIndexAfter = await getUserIndex(
+    distributionManager,
+    userAddress,
+    underlyingAsset
+  );
+  const assetDataAfter = (
+    await getAssetsData(distributionManager, [underlyingAsset])
+  )[0];
+
+  const expectedAccruedRewards = getRewards(
+    makeBN(userBalance),
+    userIndexAfter,
+    userIndexBefore
+  );
+
+  const rewardsBalanceAfter = await distributionManager.getUserUnclaimedRewards(
+    userAddress
+  );
+
+  await assetDataCompare(
+    { underlyingAsset, totalStaked: makeBN(totalSupply) },
+    assetDataBefore,
+    assetDataAfter,
+    actionBlockTimestamp,
+    distributionEndTimestamp
+  );
+
+  expect(userIndexAfter).to.be.equal(
+    assetDataAfter.index,
+    "user index are not correctly updated"
+  );
+  if (!assetDataAfter.index.eq(assetDataBefore.index)) {
+    expect(tx)
+      .to.emit(distributionManager, "AssetIndexUpdated")
+      .withArgs(assetDataAfter.underlyingAsset, assetDataAfter.index);
+
+    expect(tx)
+      .to.emit(distributionManager, "UserIndexUpdated")
+      .withArgs(
+        userAddress,
+        assetDataAfter.underlyingAsset,
+        assetDataAfter.index
+      );
+  }
+
+  expect(rewardsBalanceAfter).to.be.equal(
+    rewardsBalanceBefore.add(expectedAccruedRewards),
+    "rewards balance are incorrect"
+  );
+  if (!expectedAccruedRewards.eq(0)) {
+    expect(tx)
+      .to.emit(distributionManager, "RewardsAccrued")
+      .withArgs(userAddress, expectedAccruedRewards);
+  }
+}
+
+export type AssetData = {
+  emissionPerSecond: BigNumber;
+  index: BigNumber;
+  lastUpdateTimestamp: BigNumber;
+};
+
+export function assetDataCompare<
+  Input extends { underlyingAsset: string; totalStaked: BigNumber },
+  State extends AssetData
+>(
+  input: Input,
+  stateBefore: State,
+  stateAfter: State,
+  txTimestamp: BigNumber,
+  emissionEndTimestamp: BigNumber
+) {
+  return compare(
+    ["emissionPerSecond", "index", "lastUpdateTimestamp"],
+    input,
+    stateBefore,
+    stateAfter,
+    {
+      fieldsWithCustomLogic: [
+        // should happen on any update
+        {
+          fieldName: "lastUpdateTimestamp",
+          logic: (input, stateBefore, stateAfter) => txTimestamp.toString(),
+        },
+        {
+          fieldName: "index",
+          logic: async (input, stateBefore, stateAfter) => {
+            return getNormalizedDistribution(
+              input.totalStaked,
+              stateBefore.index,
+              stateBefore.emissionPerSecond,
+              stateBefore.lastUpdateTimestamp,
+              txTimestamp,
+              emissionEndTimestamp
+            );
+          },
+        },
+      ],
+    }
+  );
+}
+
+export function getLinearCumulatedRewards(
+  emissionPerSecond: BigNumber,
+  lastUpdateTimestamp: BigNumber,
+  currentTimestamp: BigNumber
+): BigNumber {
+  const timeDelta = currentTimestamp.sub(lastUpdateTimestamp);
+  return timeDelta.mul(emissionPerSecond);
+}
+
+export function getNormalizedDistribution(
+  balance: BigNumber,
+  oldIndex: BigNumber,
+  emissionPerSecond: BigNumber,
+  lastUpdateTimestamp: BigNumber,
+  currentTimestamp: BigNumber,
+  emissionEndTimestamp: BigNumber,
+  precision: number = 18
+): BigNumber {
+  if (balance.eq(0) || lastUpdateTimestamp.gte(emissionEndTimestamp)) {
+    return oldIndex;
+  }
+  const linearReward = getLinearCumulatedRewards(
+    emissionPerSecond,
+    lastUpdateTimestamp,
+    currentTimestamp.gte(emissionEndTimestamp)
+      ? emissionEndTimestamp
+      : currentTimestamp
+  );
+
+  return linearReward.mul(makeBN(10).pow(precision)).div(balance).add(oldIndex);
 }

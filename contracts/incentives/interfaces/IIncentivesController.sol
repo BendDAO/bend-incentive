@@ -3,11 +3,9 @@ pragma solidity ^0.8.0;
 
 pragma experimental ABIEncoderV2;
 
-import {
-    IDistributionManager
-} from "../../stake/interfaces/IDistributionManager.sol";
+import {IBToken} from "./IBToken.sol";
 
-interface IIncentivesController is IDistributionManager {
+interface IIncentivesController {
     event RewardsAccrued(address indexed user, uint256 amount);
 
     event RewardsClaimed(
@@ -22,7 +20,7 @@ interface IIncentivesController is IDistributionManager {
      * @param emissionsPerSecond The emission for each asset
      */
     function configureAssets(
-        address[] calldata assets,
+        IBToken[] calldata assets,
         uint256[] calldata emissionsPerSecond
     ) external;
 
