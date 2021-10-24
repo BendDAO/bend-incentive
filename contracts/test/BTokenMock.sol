@@ -25,10 +25,10 @@ contract BTokenMock is IBToken, ERC20 {
 
     function handleActionOnAic(
         address user,
-        uint256 userBalance,
-        uint256 totalSupply
+        uint256 totalSupply,
+        uint256 userBalance
     ) external {
-        _aic.handleAction(user, userBalance, totalSupply);
+        _aic.handleAction(user, totalSupply, userBalance);
     }
 
     function setUserBalanceAndSupply(

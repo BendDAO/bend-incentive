@@ -139,14 +139,13 @@ contract StakedTokenIncentivesController is
     /**
      * @dev Claims reward for an user, on all the assets of the lending pool, accumulating the pending rewards
      * @param amount Amount of rewards to claim
-     * @param to Address that will be receiving the rewards
      * @return Rewards claimed
      **/
-    function claimRewards(
-        address[] calldata assets,
-        uint256 amount,
-        address to
-    ) external override returns (uint256) {
+    function claimRewards(address[] calldata assets, uint256 amount)
+        external
+        override
+        returns (uint256)
+    {
         if (amount == 0) {
             return 0;
         }
@@ -177,14 +176,14 @@ contract StakedTokenIncentivesController is
             amount > unclaimedRewards ? unclaimedRewards : amount;
         _usersUnclaimedRewards[user] = unclaimedRewards - amountToClaim; // Safe due to the previous line
 
-        IERC20Upgradeable(STAKE_TOKEN).safeTransferFrom(
+        IERC20Upgradeable(STAKE_TOKEN.STAKED_TOKEN()).safeTransferFrom(
             REWARDS_VAULT,
             address(this),
             amountToClaim
         );
-        STAKE_TOKEN.stake(to, amountToClaim);
+        STAKE_TOKEN.stake(user, amountToClaim);
 
-        emit RewardsClaimed(msg.sender, to, amountToClaim);
+        emit RewardsClaimed(msg.sender, amountToClaim);
 
         return amountToClaim;
     }
