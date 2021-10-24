@@ -7,6 +7,7 @@ import {DistributionTypes} from "./DistributionTypes.sol";
 import {
     Initializable
 } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "hardhat/console.sol";
 
 /**
  * @title DistributionManager
@@ -112,6 +113,8 @@ contract DistributionManager is Initializable {
                 totalStaked
             );
 
+        // console.log("old index %d, new index %d", oldIndex, newIndex);
+
         if (newIndex != oldIndex) {
             assetConfig.index = newIndex;
             emit AssetIndexUpdated(underlyingAsset, newIndex);
@@ -142,13 +145,18 @@ contract DistributionManager is Initializable {
 
         uint256 newIndex =
             _updateAssetStateInternal(asset, assetData, totalStaked);
-
         if (userIndex != newIndex) {
             if (stakedByUser != 0) {
                 accruedRewards = _getRewards(stakedByUser, newIndex, userIndex);
             }
 
             assetData.users[user] = newIndex;
+            // console.log(
+            //     "set user:%s index from %d to %d",
+            //     user,
+            //     userIndex,
+            //     newIndex
+            // );
             emit UserIndexUpdated(user, asset, newIndex);
         }
 

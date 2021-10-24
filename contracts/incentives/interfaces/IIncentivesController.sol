@@ -8,11 +8,7 @@ import {IBToken} from "./IBToken.sol";
 interface IIncentivesController {
     event RewardsAccrued(address indexed user, uint256 amount);
 
-    event RewardsClaimed(
-        address indexed user,
-        address indexed to,
-        uint256 amount
-    );
+    event RewardsClaimed(address indexed user, uint256 amount);
 
     /**
      * @dev Configure assets for a certain rewards emission
@@ -49,14 +45,11 @@ interface IIncentivesController {
     /**
      * @dev Claims reward for an user, on all the assets of the lending pool, accumulating the pending rewards
      * @param amount Amount of rewards to claim
-     * @param to Address that will be receiving the rewards
      * @return Rewards claimed
      **/
-    function claimRewards(
-        address[] calldata assets,
-        uint256 amount,
-        address to
-    ) external returns (uint256);
+    function claimRewards(address[] calldata assets, uint256 amount)
+        external
+        returns (uint256);
 
     /**
      * @dev returns the unclaimed rewards of the user

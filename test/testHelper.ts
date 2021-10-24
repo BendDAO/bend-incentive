@@ -17,7 +17,6 @@ import { signTypedData, SignTypedDataVersion } from "@metamask/eth-sig-util";
 import { fromRpcSig, ECDSASignature } from "ethereumjs-util";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { STAKED_TOKEN_NAME } from "./constants";
-import { compare, CompareRules } from "./comparatorEngine";
 export const buildPermitParams = (
   chainId: number,
   tokenContract: string,
@@ -363,13 +362,12 @@ export async function compareAssetIndex(
   action: () => Promise<ContractTransaction>
 ) {
   const underlyingAsset = asset.address;
-  if (emissionPerSecond) {
-    await distributionManager.configureAssets(
-      [underlyingAsset],
-      [emissionPerSecond]
-    );
-  }
-
+  let tx = await distributionManager.configureAssets(
+    [underlyingAsset],
+    [emissionPerSecond]
+  );
+  let txReceipt = await waitForTx(tx);
+  let txTimestamp = await getBlockTimestamp(txReceipt.blockNumber);
   const distributionEndTimestamp = await distributionManager.DISTRIBUTION_END();
 
   const rewardsBalanceBefore =
@@ -382,10 +380,10 @@ export async function compareAssetIndex(
   const assetDataBefore = (
     await getAssetsData(distributionManager, [underlyingAsset])
   )[0];
-  const tx = await action();
-  const txReceipt = await waitForTx(tx);
 
-  const actionBlockTimestamp = await getBlockTimestamp(txReceipt.blockNumber);
+  tx = await action();
+  txReceipt = await waitForTx(tx);
+  txTimestamp = await getBlockTimestamp(txReceipt.blockNumber);
 
   const userIndexAfter = await getUserIndex(
     distributionManager,
@@ -396,29 +394,40 @@ export async function compareAssetIndex(
     await getAssetsData(distributionManager, [underlyingAsset])
   )[0];
 
-  const expectedAccruedRewards = getRewards(
-    makeBN(userBalance),
-    userIndexAfter,
-    userIndexBefore
-  );
-
   const rewardsBalanceAfter = await distributionManager.getUserUnclaimedRewards(
     userAddress
   );
 
-  await assetDataCompare(
-    { underlyingAsset, totalStaked: makeBN(totalSupply) },
-    assetDataBefore,
-    assetDataAfter,
-    actionBlockTimestamp,
-    distributionEndTimestamp
+  expect(assetDataAfter.emissionPerSecond).to.eq(
+    assetDataBefore.emissionPerSecond
   );
 
+  expect(assetDataAfter.lastUpdateTimestamp).to.eq(txTimestamp);
+  expect(assetDataAfter.index).to.eq(
+    getNormalizedDistribution(
+      makeBN(totalSupply),
+      assetDataBefore.index,
+      assetDataBefore.emissionPerSecond,
+      assetDataBefore.lastUpdateTimestamp,
+      txTimestamp,
+      distributionEndTimestamp
+    )
+  );
   expect(userIndexAfter).to.be.equal(
     assetDataAfter.index,
     "user index are not correctly updated"
   );
-  if (!assetDataAfter.index.eq(assetDataBefore.index)) {
+  if (emissionPerSecond == 0) {
+    expect(userIndexBefore).to.be.equal(
+      userIndexAfter,
+      "userIndexAfter should not change"
+    );
+    expect((txReceipt.events || []).length).to.be.equal(
+      0,
+      "no events should be emitted"
+    );
+  } else {
+    expect(assetDataAfter.index).to.not.eq(assetDataBefore.index);
     expect(tx)
       .to.emit(distributionManager, "AssetIndexUpdated")
       .withArgs(assetDataAfter.underlyingAsset, assetDataAfter.index);
@@ -431,6 +440,11 @@ export async function compareAssetIndex(
         assetDataAfter.index
       );
   }
+  const expectedAccruedRewards = getRewards(
+    makeBN(userBalance),
+    userIndexAfter,
+    userIndexBefore
+  );
 
   expect(rewardsBalanceAfter).to.be.equal(
     rewardsBalanceBefore.add(expectedAccruedRewards),
@@ -442,53 +456,6 @@ export async function compareAssetIndex(
       .withArgs(userAddress, expectedAccruedRewards);
   }
 }
-
-export type AssetData = {
-  emissionPerSecond: BigNumber;
-  index: BigNumber;
-  lastUpdateTimestamp: BigNumber;
-};
-
-export function assetDataCompare<
-  Input extends { underlyingAsset: string; totalStaked: BigNumber },
-  State extends AssetData
->(
-  input: Input,
-  stateBefore: State,
-  stateAfter: State,
-  txTimestamp: BigNumber,
-  emissionEndTimestamp: BigNumber
-) {
-  return compare(
-    ["emissionPerSecond", "index", "lastUpdateTimestamp"],
-    input,
-    stateBefore,
-    stateAfter,
-    {
-      fieldsWithCustomLogic: [
-        // should happen on any update
-        {
-          fieldName: "lastUpdateTimestamp",
-          logic: (input, stateBefore, stateAfter) => txTimestamp.toString(),
-        },
-        {
-          fieldName: "index",
-          logic: async (input, stateBefore, stateAfter) => {
-            return getNormalizedDistribution(
-              input.totalStaked,
-              stateBefore.index,
-              stateBefore.emissionPerSecond,
-              stateBefore.lastUpdateTimestamp,
-              txTimestamp,
-              emissionEndTimestamp
-            );
-          },
-        },
-      ],
-    }
-  );
-}
-
 export function getLinearCumulatedRewards(
   emissionPerSecond: BigNumber,
   lastUpdateTimestamp: BigNumber,
