@@ -8,8 +8,8 @@ import {
   waitForTx,
   makeBN18,
   timeLatest,
-  fastForwardTimeAndBlock,
-  fastForwardTime,
+  mineBlockAndIncreaseTime,
+  increaseTime,
 } from "../utils";
 
 import {
@@ -194,7 +194,7 @@ describe("StakedToken transfer tests", function () {
     const receiverCooldown = await stakedToken.stakersCooldowns(sender.address);
 
     // Increase time to an invalid time for cooldown
-    await fastForwardTimeAndBlock(
+    await mineBlockAndIncreaseTime(
       receiverCooldown
         .add(COOLDOWN_SECONDS)
         .add(UNSTAKE_WINDOW)
@@ -232,7 +232,7 @@ describe("StakedToken transfer tests", function () {
 
     // Enable cooldown for sender
     await stakedToken.connect(sender).cooldown();
-    await fastForwardTime(5);
+    await increaseTime(5);
 
     // Enable enable cooldown for receiver
     await stakedToken.connect(receiver).cooldown();

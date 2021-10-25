@@ -4,12 +4,7 @@ import { Contract } from "ethers";
 import { deployDoubleTransferHelper, deployStakedToken } from "../deployHelper";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { fail } from "assert";
-import {
-  waitForTx,
-  makeBN18,
-  fastForwardBlock,
-  getCurrentBlock,
-} from "../utils";
+import { waitForTx, makeBN18, mineBlockAtTime, latestBlock } from "../utils";
 
 import {
   buildDelegateByTypeParams,
@@ -419,9 +414,9 @@ describe("StakedToken delegate tests", function () {
   it("Ensure that getting the power at the current block is the same as using getPowerCurrent", async () => {
     const user1 = staker;
 
-    await fastForwardBlock();
+    await mineBlockAtTime();
 
-    const currentBlock = await getCurrentBlock();
+    const currentBlock = await latestBlock();
 
     const votingPowerAtPreviousBlock = await stakedToken.getPowerAtBlock(
       user1.address,
@@ -456,7 +451,7 @@ describe("StakedToken delegate tests", function () {
   it("Checks you can't fetch power at a block in the future", async () => {
     const user1 = staker;
 
-    const currentBlock = await getCurrentBlock();
+    const currentBlock = await latestBlock();
 
     await expect(
       stakedToken.getPowerAtBlock(user1.address, currentBlock + 1, "0")

@@ -11,6 +11,9 @@ export const STAKED_TOKEN_DECIMALS = 18;
 export const COOLDOWN_SECONDS = 3600;
 export const UNSTAKE_WINDOW = 1800;
 
+export const ipfsBytes32Hash =
+  "0x47858569385046d7f77f5032ae41e511b40a7fbfbd315503ba3d99a6dc885f2b";
+
 export const getParamPerNetwork = <T>(
   { kovan, ropsten, rinkeby, mainnet, hardhat, coverage }: iParamsPerNetwork<T>,
   network: Network

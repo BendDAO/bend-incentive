@@ -6,17 +6,42 @@ import {
   BigNumber,
 } from "ethers";
 import { expect } from "chai";
-import {
-  waitForTx,
-  fastForwardTime,
-  makeBN,
-  timeLatest,
-  getBlockTimestamp,
-} from "./utils";
+import { waitForTx, makeBN, getBlockTimestamp } from "./utils";
 import { signTypedData, SignTypedDataVersion } from "@metamask/eth-sig-util";
 import { fromRpcSig, ECDSASignature } from "ethereumjs-util";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { STAKED_TOKEN_NAME } from "./constants";
+
+export const buildGovPermitParams = (
+  chainId: number,
+  governance: string,
+  id: string,
+  support: boolean
+) => ({
+  types: {
+    EIP712Domain: [
+      { name: "name", type: "string" },
+      { name: "chainId", type: "uint256" },
+      { name: "verifyingContract", type: "address" },
+    ],
+    VoteEmitted: [
+      { name: "id", type: "uint256" },
+      { name: "support", type: "bool" },
+    ],
+  },
+  primaryType: "VoteEmitted" as const,
+  domain: {
+    name: "Governance",
+    version: "1",
+    chainId: chainId,
+    verifyingContract: governance,
+  },
+  message: {
+    id,
+    support,
+  },
+});
+
 export const buildPermitParams = (
   chainId: number,
   tokenContract: string,

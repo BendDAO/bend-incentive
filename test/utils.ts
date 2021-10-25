@@ -23,23 +23,39 @@ export async function getBlockTimestamp(blockNumber?: number) {
   return makeBN(block.timestamp);
 }
 
-export async function fastForwardTimeAndBlock(seconds: number) {
+export async function mineBlockAndIncreaseTime(seconds: number) {
+  await hre.ethers.provider.send("evm_mine", []);
   await hre.ethers.provider.send("evm_increaseTime", [seconds]);
+}
+
+export async function increaseTime(seconds: number) {
+  await hre.ethers.provider.send("evm_increaseTime", [seconds]);
+}
+
+export async function mineBlockAtTime(timestamp: number) {
+  await hre.ethers.provider.send("evm_mine", [timestamp]);
+}
+
+export async function mineBlock() {
   await hre.ethers.provider.send("evm_mine", []);
 }
 
-export async function fastForwardTime(seconds: number) {
-  await hre.ethers.provider.send("evm_increaseTime", [seconds]);
-  await hre.ethers.provider.send("evm_mine", []);
-}
-
-export async function fastForwardBlock(timestamp?: number) {
-  const priorBlock = await getCurrentBlock();
-  await hre.ethers.provider.send("evm_mine", timestamp ? [timestamp] : []);
-  const nextBlock = await getCurrentBlock();
-  if (!timestamp && nextBlock == priorBlock) {
-    await fastForwardBlock();
-    return;
+export async function mineBlockToHeight(target: number) {
+  const currentBlock = await latestBlock();
+  const start = Date.now();
+  let notified;
+  if (target < currentBlock)
+    throw Error(
+      `Target block #(${target}) is lower than current block #(${currentBlock})`
+    );
+  while ((await latestBlock()) < target) {
+    if (!notified && Date.now() - start >= 5000) {
+      notified = true;
+      console.log(
+        `mineBlockToHeight: Advancing too many blocks is causing this test to be slow.'`
+      );
+    }
+    await mineBlock();
   }
 }
 
@@ -47,7 +63,7 @@ export async function waitForTx(tx: ContractTransaction) {
   return await tx.wait();
 }
 
-export async function getCurrentBlock() {
+export async function latestBlock() {
   return hre.ethers.provider.getBlockNumber();
 }
 
@@ -57,3 +73,11 @@ export function getDifference(x: BigNumber, y: BigNumber) {
 export function assertAlmostEqual(x: BigNumber, y: BigNumber, error = 1000) {
   assert.isAtMost(getDifference(x, y), error);
 }
+
+export const evmSnapshot = async () => {
+  return await hre.ethers.provider.send("evm_snapshot", []);
+};
+
+export const evmRevert = async (id: string) => {
+  return await hre.ethers.provider.send("evm_revert", [id]);
+};

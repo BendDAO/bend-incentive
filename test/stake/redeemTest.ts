@@ -6,8 +6,8 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import {
   waitForTx,
-  fastForwardTimeAndBlock,
-  fastForwardBlock,
+  mineBlockAndIncreaseTime,
+  mineBlockAtTime,
   makeBN18,
   timeLatest,
 } from "../utils";
@@ -74,12 +74,12 @@ describe("StakedToken redeem tests", function () {
     const remainingCooldown = startedCooldownAt
       .add(COOLDOWN_SECONDS)
       .sub(currentTime);
-    await fastForwardTimeAndBlock(Number(remainingCooldown.div(2)));
+    await mineBlockAndIncreaseTime(Number(remainingCooldown.div(2)));
     await expect(
       stakedToken.connect(staker).redeem(staker.address, amount)
     ).to.be.revertedWith("INSUFFICIENT_COOLDOWN");
 
-    await fastForwardBlock(
+    await mineBlockAtTime(
       startedCooldownAt.add(COOLDOWN_SECONDS - 1).toNumber()
     ); // We fast-forward time to just before COOLDOWN_SECONDS
 
@@ -87,7 +87,7 @@ describe("StakedToken redeem tests", function () {
       stakedToken.connect(staker).redeem(staker.address, amount)
     ).to.be.revertedWith("INSUFFICIENT_COOLDOWN");
 
-    await fastForwardBlock(
+    await mineBlockAtTime(
       startedCooldownAt.add(COOLDOWN_SECONDS + UNSTAKE_WINDOW + 1).toNumber()
     ); // We fast-forward time to just after the unstake window
 
@@ -109,7 +109,7 @@ describe("StakedToken redeem tests", function () {
       .add(COOLDOWN_SECONDS)
       .sub(currentTime);
 
-    await fastForwardTimeAndBlock(remainingCooldown.add(1).toNumber());
+    await mineBlockAndIncreaseTime(remainingCooldown.add(1).toNumber());
     const aaveBalanceBefore = await bendToken.balanceOf(staker.address);
     const stakedAaveBalanceBefore = await stakedToken.balanceOf(staker.address);
     await stakedToken.connect(staker).redeem(staker.address, amount);
@@ -141,7 +141,7 @@ describe("StakedToken redeem tests", function () {
       .add(COOLDOWN_SECONDS)
       .sub(currentTime);
 
-    await fastForwardTimeAndBlock(remainingCooldown.add(1).toNumber());
+    await mineBlockAndIncreaseTime(remainingCooldown.add(1).toNumber());
     const aaveBalanceBefore = await bendToken.balanceOf(staker.address);
     await stakedToken.connect(staker).redeem(staker.address, amount);
     const aaveBalanceAfter = await bendToken.balanceOf(staker.address);
@@ -162,7 +162,7 @@ describe("StakedToken redeem tests", function () {
 
     const cooldownActivationTimestamp = await timeLatest();
 
-    await fastForwardBlock(
+    await mineBlockAtTime(
       cooldownActivationTimestamp.add(COOLDOWN_SECONDS + 1).toNumber()
     );
 
@@ -188,7 +188,7 @@ describe("StakedToken redeem tests", function () {
 
     const cooldownActivationTimestamp = await timeLatest();
 
-    await fastForwardBlock(
+    await mineBlockAtTime(
       cooldownActivationTimestamp.add(COOLDOWN_SECONDS + 1).toNumber()
     );
 

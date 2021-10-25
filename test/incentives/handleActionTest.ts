@@ -8,7 +8,7 @@ import {
 } from "../deployHelper";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-import { makeBN18, timeLatest, fastForwardTimeAndBlock } from "../utils";
+import { makeBN18, timeLatest, mineBlockAndIncreaseTime } from "../utils";
 import { compareAssetIndex } from "../testHelper";
 
 type ScenarioAction = {
@@ -88,7 +88,7 @@ describe("StakedTokenIncentivesController handleAction tests", function () {
   } of handleActionScenarios) {
     it(caseName, async () => {
       const userAddress = users[1].address;
-      await fastForwardTimeAndBlock(100);
+      await mineBlockAndIncreaseTime(100);
       bWeth = await deployContract("BTokenMock", [
         "bWETH",
         "bWETH",
