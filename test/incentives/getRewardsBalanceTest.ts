@@ -11,11 +11,11 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   makeBN18,
   timeLatest,
-  fastForwardTimeAndBlock,
+  mineBlockAndIncreaseTime,
   makeBN,
   waitForTx,
   getBlockTimestamp,
-  fastForwardBlock,
+  mineBlockAtTime,
 } from "../utils";
 import {
   getAssetsData,
@@ -80,7 +80,7 @@ describe("StakedTokenIncentivesController getRewardsBalance tests", function () 
   });
   for (const { caseName, emissionPerSecond } of getRewardsBalanceScenarios) {
     it(caseName, async () => {
-      await fastForwardTimeAndBlock(100);
+      await mineBlockAndIncreaseTime(100);
 
       const distributionEndTimestamp =
         await incentivesController.DISTRIBUTION_END();
@@ -90,7 +90,7 @@ describe("StakedTokenIncentivesController getRewardsBalance tests", function () 
       const underlyingAsset = bWeth.address;
 
       // update emissionPerSecond in advance to not affect user calculations
-      await fastForwardBlock((await timeLatest()).add(100).toNumber());
+      await mineBlockAtTime((await timeLatest()).add(100).toNumber());
       if (emissionPerSecond) {
         await bWeth.setUserBalanceAndSupply(userAddress, 0, totalStaked);
         await incentivesController.configureAssets(
@@ -99,7 +99,7 @@ describe("StakedTokenIncentivesController getRewardsBalance tests", function () 
         );
       }
       await bWeth.handleActionOnAic(userAddress, totalStaked, stakedByUser);
-      await fastForwardBlock((await timeLatest()).add(100).toNumber());
+      await mineBlockAtTime((await timeLatest()).add(100).toNumber());
 
       const lastTxReceipt = await waitForTx(
         await bWeth.setUserBalanceAndSupply(

@@ -11,7 +11,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   makeBN18,
   timeLatest,
-  fastForwardTimeAndBlock,
+  mineBlockAndIncreaseTime,
   makeBN,
   waitForTx,
   getBlockTimestamp,
@@ -108,7 +108,7 @@ describe("StakedTokenIncentivesController claimRewards tests", function () {
     emissionPerSecond,
   } of getRewardsBalanceScenarios) {
     it(caseName, async () => {
-      await fastForwardTimeAndBlock(100);
+      await mineBlockAndIncreaseTime(100);
       const userAddress = users[0].address;
       const underlyingAsset = bWeth.address;
       const stakedByUser = makeBN(22 * caseName.length);
@@ -276,7 +276,7 @@ describe("StakedTokenIncentivesController claimRewards tests", function () {
       if (expectedClaimedAmount.gt(0)) {
         expect(tx)
           .to.emit(incentivesController, "RewardsClaimed")
-          .withArgs(userAddress, expectedAccruedRewards);
+          .withArgs(userAddress, expectedClaimedAmount);
       }
     });
   }

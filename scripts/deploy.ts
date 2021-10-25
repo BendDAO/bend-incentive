@@ -35,7 +35,7 @@ async function main() {
   );
   const governance = await loadOrDeploy(
     "Governance",
-    [0, GUARDIAN_MULTI_SIG_ADDR],
+    [15, GUARDIAN_MULTI_SIG_ADDR],
     network.name,
     deployer,
     deploymentState

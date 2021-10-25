@@ -19,8 +19,8 @@ import {
 
 import {
   waitForTx,
-  fastForwardTimeAndBlock,
-  fastForwardBlock,
+  mineBlockAndIncreaseTime,
+  mineBlockAtTime,
   makeBN18,
   makeBN,
   timeLatest,
@@ -122,7 +122,7 @@ describe("StakedToken stake tests", function () {
 
   it("User 1 claim half rewards ", async () => {
     // Increase time for bigger rewards
-    await fastForwardTimeAndBlock(1000);
+    await mineBlockAndIncreaseTime(1000);
 
     const halfRewards = (
       await stakedToken.stakerRewardsToClaim(staker.address)
@@ -277,7 +277,7 @@ describe("StakedToken stake tests", function () {
 
     const cooldownActivationTimestamp = await timeLatest();
 
-    await fastForwardBlock(
+    await mineBlockAtTime(
       cooldownActivationTimestamp
         .add(makeBN(COOLDOWN_SECONDS).add(1000))
         .toNumber()
