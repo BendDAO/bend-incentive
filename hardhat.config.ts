@@ -1,6 +1,7 @@
 import "@openzeppelin/hardhat-upgrades";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
+require("solidity-coverage");
 import dotenv from "dotenv";
 dotenv.config();
 

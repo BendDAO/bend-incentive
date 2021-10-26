@@ -8,3 +8,5 @@ artifacts
 
 # OpenZeppelin
 .openzeppelin/unknown-*.json
+coverage.json
+coverage

@@ -1,38 +1,23 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
 
-import {ERC20Detailed} from "../libs/ERC20Detailed.sol";
-import {ITransferHook} from "../gov/interfaces/ITransferHook.sol";
+import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {
     GovernancePowerDelegationERC20
 } from "./GovernancePowerDelegationERC20.sol";
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import {getChainId} from "../libs/Helpers.sol";
 
 /**
- * @notice implementation of the BEND token contract
+ * @title ERC20WithSnapshot,.
+ * @notice ERC20 including snapshots of balances on transfer-related actions
  * @author Bend
- */
-contract BendToken is GovernancePowerDelegationERC20 {
+ **/
+abstract contract GovernanceToken is GovernancePowerDelegationERC20 {
     using SafeMath for uint256;
-
-    string internal constant NAME = "Bend Token";
-    string internal constant SYMBOL = "BEND";
-    uint8 internal constant DECIMALS = 18;
+    bytes32 public DOMAIN_SEPARATOR;
 
     /// @dev owner => next valid nonce to submit with permit()
     mapping(address => uint256) public _nonces;
-
-    mapping(address => mapping(uint256 => Snapshot)) public _votingSnapshots;
-
-    mapping(address => uint256) public _votingSnapshotsCounts;
-
-    /// @dev reference to the Bend governance contract to call (if initialized) on _beforeTokenTransfer
-    /// !!! IMPORTANT The Bend governance is considered a trustable contract, being its responsibility
-    /// to control all potential reentrancies by calling back the BendToken
-    ITransferHook public _bendGovernance;
-
-    bytes32 public DOMAIN_SEPARATOR;
-    bytes public constant EIP712_REVISION = bytes("1");
     bytes32 internal constant EIP712_DOMAIN =
         keccak256(
             "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
@@ -42,6 +27,14 @@ contract BendToken is GovernancePowerDelegationERC20 {
             "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
         );
 
+    /**
+     * @dev The following storage layout points to the prior StakedToken.sol implementation:
+     * _snapshots => _votingSnapshots
+     * _snapshotsCounts =>  _votingSnapshotsCounts
+     */
+    mapping(address => mapping(uint256 => Snapshot)) public _votingSnapshots;
+    mapping(address => uint256) public _votingSnapshotsCounts;
+
     mapping(address => address) internal _votingDelegates;
 
     mapping(address => mapping(uint256 => Snapshot))
@@ -50,24 +43,15 @@ contract BendToken is GovernancePowerDelegationERC20 {
 
     mapping(address => address) internal _propositionPowerDelegates;
 
-    /**
-     * @dev initializes the contract upon assignment to the InitializableAdminUpgradeabilityProxy
-     */
-    function initialize() external initializer {
-        __ERC20Detailed_init(NAME, SYMBOL, DECIMALS);
-        uint256 chainId;
-
-        //solium-disable-next-line
-        assembly {
-            chainId := chainid()
-        }
-
+    function _setDomainSeparator(string memory name, string memory version)
+        internal
+    {
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 EIP712_DOMAIN,
-                keccak256(bytes(NAME)),
-                keccak256(EIP712_REVISION),
-                chainId,
+                keccak256(bytes(name)),
+                keccak256(bytes(version)),
+                getChainId(),
                 address(this)
             )
         );
@@ -155,12 +139,6 @@ contract BendToken is GovernancePowerDelegationERC20 {
             amount,
             DelegationType.PROPOSITION_POWER
         );
-
-        // caching the bend governance address to avoid multiple state loads
-        ITransferHook bendGovernance = _bendGovernance;
-        if (address(bendGovernance) != address(0)) {
-            bendGovernance.onTransfer(from, to, amount);
-        }
     }
 
     function _getDelegationDataByType(DelegationType delegationType)

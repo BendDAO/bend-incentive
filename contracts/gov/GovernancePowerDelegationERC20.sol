@@ -5,7 +5,7 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {ERC20Detailed} from "../libs/ERC20Detailed.sol";
 import {
     IGovernancePowerDelegationToken
-} from "../gov/interfaces/IGovernancePowerDelegationToken.sol";
+} from "./interfaces/IGovernancePowerDelegationToken.sol";
 
 /**
  * @notice implementation of the BEND token contract
