@@ -9,7 +9,7 @@ import {IGovernanceStrategy} from "./interfaces/IGovernanceStrategy.sol";
 import {IGovernance} from "./interfaces/IGovernance.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import {isContract, getChainId} from "../libs/Helpers.sol";
+import {getChainId} from "../libs/Helpers.sol";
 
 /**
  * @title Governance V2 contract

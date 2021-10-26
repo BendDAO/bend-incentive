@@ -41,7 +41,11 @@ describe("StakedTokenIncentivesController tests", function () {
       vault,
       deployer
     );
-    bWeth = await deployContract("BTokenMock", [incentivesController.address]);
+    bWeth = await deployContract("BTokenMock", [
+      "bWETH",
+      "bWETH",
+      incentivesController.address,
+    ]);
     deployTime = await timeLatest();
   });
 
