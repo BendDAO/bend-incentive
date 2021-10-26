@@ -35,9 +35,11 @@ export const setBalance = async (
       .transfer(govContracts.minter.address, balanceBefore)
   ).wait();
   // filling
-  await govContracts.bendToken
-    .connect(govContracts.minter)
-    .transfer(user.address, amount);
+  await (
+    await govContracts.bendToken
+      .connect(govContracts.minter)
+      .transfer(user.address, amount)
+  ).wait();
 };
 
 export const getInitContractData = async (govContracts: GovContracts) => ({

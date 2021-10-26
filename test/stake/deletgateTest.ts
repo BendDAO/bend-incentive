@@ -4,7 +4,7 @@ import { Contract } from "ethers";
 import { deployDoubleTransferHelper, deployStakedToken } from "../deployHelper";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { fail } from "assert";
-import { waitForTx, makeBN18, mineBlockAtTime, latestBlock } from "../utils";
+import { waitForTx, makeBN18, mineBlock, latestBlock } from "../utils";
 
 import {
   buildDelegateByTypeParams,
@@ -414,7 +414,7 @@ describe("StakedToken delegate tests", function () {
   it("Ensure that getting the power at the current block is the same as using getPowerCurrent", async () => {
     const user1 = staker;
 
-    await mineBlockAtTime();
+    await mineBlock();
 
     const currentBlock = await latestBlock();
 
