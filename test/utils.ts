@@ -1,7 +1,7 @@
 import hre from "hardhat";
-import { assert, expect } from "chai";
+import { assert } from "chai";
 
-import { ethers, ContractTransaction, BigNumber, Event } from "ethers";
+import { ethers, ContractTransaction, BigNumber } from "ethers";
 
 export function makeBN(num: string | number, precision: number = 0) {
   return ethers.utils.parseUnits(num.toString(), precision);
@@ -64,7 +64,10 @@ export async function waitForTx(tx: ContractTransaction) {
 }
 
 export async function latestBlock() {
-  return hre.ethers.provider.getBlockNumber();
+  return parseInt(
+    (await hre.ethers.provider.send("eth_getBlockByNumber", ["latest", false]))
+      .number
+  );
 }
 
 export function getDifference(x: BigNumber, y: BigNumber) {
