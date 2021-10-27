@@ -72,25 +72,16 @@ async function main() {
       longTimelockExecutor.address,
     ])
   );
-  const ecosystemReserve = await loadOrDeploy(
-    "EcosystemReserve",
+  const vault = await loadOrDeploy(
+    "Vault",
     [],
-    network.name,
-    deployer,
-    deploymentState,
-    { proxy: true, proxyInitializer: false }
-  );
-  const controllerEcosystemReserve = await loadOrDeploy(
-    "ControllerEcosystemReserve",
-    [shortTimelockExecutor.address, ecosystemReserve.address],
     network.name,
     deployer,
     deploymentState
   );
+
   try {
-    waitForTx(
-      await ecosystemReserve.initialize(controllerEcosystemReserve.address)
-    );
+    waitForTx(await vault.transferOwnership(shortTimelockExecutor.address));
   } catch (error) {}
 
   const stakedToken = await loadOrDeploy(
@@ -100,7 +91,7 @@ async function main() {
       bendToken.address,
       864000,
       172800,
-      ecosystemReserve.address,
+      vault.address,
       shortTimelockExecutor.address,
       3153600000,
       "Staked BEND",
@@ -124,11 +115,7 @@ async function main() {
   waitForTx(await governance.setGovernanceStrategy(governanceStrategy.address));
   await loadOrDeploy(
     "StakedTokenIncentivesController",
-    [
-      stakedToken.address,
-      ecosystemReserve.address,
-      shortTimelockExecutor.address,
-    ],
+    [stakedToken.address, vault.address, shortTimelockExecutor.address],
     network.name,
     deployer,
     deploymentState,
