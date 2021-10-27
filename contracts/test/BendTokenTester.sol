@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../BendToken.sol";
+import "../token/BendToken.sol";
 
 contract BendTokenTester is BendToken {
     function mint(address _account, uint256 _amount) external {

@@ -82,10 +82,6 @@ contract StakedToken is IStakedToken, GovernanceToken, DistributionManager {
         COOLDOWN_SECONDS = cooldownSeconds;
         UNSTAKE_WINDOW = unstakeWindow;
         REWARDS_VAULT = rewardsVault;
-
-        // Update lastUpdateTimestamp of stkBend to reward users since the end of the prior staking period
-        // AssetData storage assetData = assets[address(this)];
-        // assetData.lastUpdateTimestamp = 1620594720;
     }
 
     /**

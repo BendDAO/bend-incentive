@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
 
-import {GovernanceToken} from "./gov/GovernanceToken.sol";
+import {GovernanceToken} from "../gov/GovernanceToken.sol";
 
 /**
  * @notice implementation of the BEND token contract
