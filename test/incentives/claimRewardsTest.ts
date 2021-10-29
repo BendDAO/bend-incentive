@@ -15,7 +15,7 @@ import {
   mineBlockAndIncreaseTime,
   makeBN,
   waitForTx,
-  getBlockTimestamp,
+  timeAtBlock,
 } from "../utils";
 import {
   getAssetsData,
@@ -151,7 +151,7 @@ describe("StakedTokenIncentivesController claimRewards tests", function () {
 
       const eventsEmitted = claimRewardsReceipt.events || [];
 
-      const actionBlockTimestamp = await getBlockTimestamp(
+      const actionBlockTimestamp = await timeAtBlock(
         claimRewardsReceipt.blockNumber
       );
 

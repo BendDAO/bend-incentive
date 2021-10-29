@@ -8,7 +8,7 @@ import {
 } from "../deployHelper";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { fail } from "assert";
-import { waitForTx, makeBN18, mineBlock, latestBlock } from "../utils";
+import { waitForTx, makeBN18, mineBlock, latestBlockNum } from "../utils";
 
 import {
   buildDelegateByTypeParams,
@@ -399,7 +399,7 @@ describe("StakedToken delegate tests", function () {
 
     await mineBlock();
 
-    const currentBlock = await latestBlock();
+    const currentBlock = await latestBlockNum();
 
     const votingPowerAtPreviousBlock = await stakedToken.getPowerAtBlock(
       user1.address,
@@ -434,7 +434,7 @@ describe("StakedToken delegate tests", function () {
   it("Checks you can't fetch power at a block in the future", async () => {
     const user1 = staker;
 
-    const currentBlock = await latestBlock();
+    const currentBlock = await latestBlockNum();
 
     await expect(
       stakedToken.getPowerAtBlock(user1.address, currentBlock + 1, "0")

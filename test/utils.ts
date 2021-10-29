@@ -11,16 +11,16 @@ export function makeBN18(num: string | number) {
   return ethers.utils.parseUnits(num.toString(), 18);
 }
 export const timeLatest = async () => {
-  const block = await hre.ethers.provider.getBlock("latest");
-  return makeBN(block.timestamp);
+  const block = await lastestBlock();
+  return makeBN(parseInt(block.timestamp));
 };
 
-export async function getBlockTimestamp(blockNumber?: number) {
+export async function timeAtBlock(blockNumber?: number) {
   if (!blockNumber) {
     throw new Error("No block number passed");
   }
-  const block = await hre.ethers.provider.getBlock(blockNumber);
-  return makeBN(block.timestamp);
+  const block = await getBlock(blockNumber);
+  return makeBN(parseInt(block.timestamp));
 }
 
 export async function mineBlockAndIncreaseTime(seconds: number) {
@@ -41,14 +41,14 @@ export async function mineBlock() {
 }
 
 export async function mineBlockToHeight(target: number) {
-  const currentBlock = await latestBlock();
+  const currentBlock = await latestBlockNum();
   const start = Date.now();
   let notified;
   if (target < currentBlock)
     throw Error(
       `Target block #(${target}) is lower than current block #(${currentBlock})`
     );
-  while ((await latestBlock()) < target) {
+  while ((await latestBlockNum()) < target) {
     if (!notified && Date.now() - start >= 5000) {
       notified = true;
       console.log(
@@ -63,11 +63,23 @@ export async function waitForTx(tx: ContractTransaction) {
   return await tx.wait();
 }
 
-export async function latestBlock() {
-  return parseInt(
-    (await hre.ethers.provider.send("eth_getBlockByNumber", ["latest", false]))
-      .number
-  );
+export async function lastestBlock() {
+  return await getBlock("latest");
+}
+
+// hre.ethers.provider.getBlock not work for evm_snapshot, evm_revert
+export async function getBlock(block_number: string | number) {
+  if (typeof block_number == "number") {
+    block_number = "0x" + block_number.toString(16);
+  }
+  return await hre.ethers.provider.send("eth_getBlockByNumber", [
+    block_number,
+    false,
+  ]);
+}
+
+export async function latestBlockNum() {
+  return parseInt((await lastestBlock()).number);
 }
 
 export function getDifference(x: BigNumber, y: BigNumber) {
