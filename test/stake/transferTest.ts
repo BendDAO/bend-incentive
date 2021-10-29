@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract } from "ethers";
-import { deployStakedToken } from "../deployHelper";
+import { deployStakedToken, deployVault } from "../deployHelper";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import {
@@ -24,17 +24,17 @@ describe("StakedToken transfer tests", function () {
   let stakedToken: Contract;
   let deployer: SignerWithAddress;
   let staker: SignerWithAddress;
-  let vault: SignerWithAddress;
   let users: SignerWithAddress[];
 
   before(async function () {
     let addresses = await ethers.getSigners();
-    [deployer, vault] = addresses;
-    users = addresses.slice(2, addresses.length);
+    [deployer] = addresses;
+    users = addresses.slice(1, addresses.length);
+    const vault = await deployVault();
     ({ bendToken, stakedToken } = await deployStakedToken(
       vault,
       makeBN18(1000000),
-      deployer
+      deployer.address
     ));
     staker = users[0];
     await waitForTx(await bendToken.mint(staker.address, makeBN18(100)));

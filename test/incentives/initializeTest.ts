@@ -5,13 +5,9 @@ import {
   deployStakedToken,
   deployIncentivesController,
   deployContract,
+  deployVault,
 } from "../deployHelper";
-import {
-  MAX_UINT_AMOUNT,
-  ZERO_ADDRESS,
-  STAKED_TOKEN_NAME,
-  ONE_YEAR,
-} from "../constants";
+import { ONE_YEAR } from "../constants";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import { makeBN18, timeLatest, waitForTx, assertAlmostEqual } from "../utils";
@@ -23,23 +19,24 @@ describe("StakedTokenIncentivesController tests", function () {
   let bWeth: Contract;
   let deployer: SignerWithAddress;
   let deployTime: BigNumber;
-  let vault: SignerWithAddress;
+  let vault: Contract;
   let users: SignerWithAddress[];
 
   before(async function () {
     let addresses = await ethers.getSigners();
-    [deployer, vault] = addresses;
-    users = addresses.slice(2, addresses.length);
+    [deployer] = addresses;
+    users = addresses.slice(1, addresses.length);
+    vault = await deployVault();
     ({ bendToken, stakedToken } = await deployStakedToken(
       vault,
       makeBN18(1000000),
-      deployer
+      deployer.address
     ));
     incentivesController = await deployIncentivesController(
       bendToken,
       stakedToken,
       vault,
-      deployer
+      deployer.address
     );
     bWeth = await deployContract("BTokenMock", [
       "bWETH",

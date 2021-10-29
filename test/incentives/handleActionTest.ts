@@ -1,10 +1,10 @@
 import { ethers } from "hardhat";
-import { expect } from "chai";
 import { Contract, BigNumber } from "ethers";
 import {
   deployStakedToken,
   deployIncentivesController,
   deployContract,
+  deployVault,
 } from "../deployHelper";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
@@ -64,18 +64,19 @@ describe("StakedTokenIncentivesController handleAction tests", function () {
 
   before(async function () {
     let addresses = await ethers.getSigners();
-    [deployer, vault] = addresses;
-    users = addresses.slice(2, addresses.length);
+    [deployer] = addresses;
+    users = addresses.slice(1, addresses.length);
+    const vault = await deployVault();
     ({ bendToken, stakedToken } = await deployStakedToken(
       vault,
       makeBN18(1000000),
-      deployer
+      deployer.address
     ));
     incentivesController = await deployIncentivesController(
       bendToken,
       stakedToken,
       vault,
-      deployer
+      deployer.address
     );
 
     deployTime = await timeLatest();
