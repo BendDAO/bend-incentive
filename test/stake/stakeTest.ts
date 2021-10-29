@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract } from "ethers";
-import { deployStakedToken } from "../deployHelper";
+import { deployStakedToken, deployVault } from "../deployHelper";
 import {
   STAKED_TOKEN_NAME,
   STAKED_TOKEN_SYMBOL,
@@ -32,21 +32,21 @@ describe("StakedToken stake tests", function () {
   let stakedToken: Contract;
   let deployer: SignerWithAddress;
   let staker: SignerWithAddress;
-  let vault: SignerWithAddress;
+  let vault: Contract;
   let users: SignerWithAddress[];
 
   before(async function () {
     let addresses = await ethers.getSigners();
-    [deployer, vault] = addresses;
-    users = addresses.slice(2, addresses.length);
+    [deployer] = addresses;
+    users = addresses.slice(1, addresses.length);
+    vault = await deployVault();
     ({ bendToken, stakedToken } = await deployStakedToken(
       vault,
       makeBN18(1000000),
-      deployer
+      deployer.address
     ));
     staker = users[0];
     await waitForTx(await bendToken.mint(staker.address, makeBN18(100)));
-    // console.log(`   ${stakedToken.address}`);
   });
 
   it("Initial configuration after initialize() is correct", async () => {

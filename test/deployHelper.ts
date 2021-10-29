@@ -25,34 +25,37 @@ export async function deployDoubleTransferHelper(token: string) {
   return deployContract("DoubleTransferHelper", [token]);
 }
 
+export async function deployVault() {
+  return await deployContract("Vault");
+}
+
 export async function deployStakedToken(
-  vaultOfRewards: Signer,
+  vaultOfRewards: Contract,
   bendAmountOfvault: BigNumber,
-  emissionManager: Signer
+  emissionManager: string
 ) {
   const bendToken = await deployBendTokenTester();
   await waitForTx(
-    await bendToken.mint(
-      await vaultOfRewards.getAddress(),
-      bendAmountOfvault.toString()
-    )
+    await bendToken.mint(vaultOfRewards.address, bendAmountOfvault.toString())
   );
   const stakedToken = await deployProxyContract("StakedToken", [
     bendToken.address,
     bendToken.address,
     COOLDOWN_SECONDS,
     UNSTAKE_WINDOW,
-    await vaultOfRewards.getAddress(),
-    await emissionManager.getAddress(),
+    vaultOfRewards.address,
+    emissionManager,
     ONE_YEAR * 100,
     STAKED_TOKEN_NAME,
     STAKED_TOKEN_SYMBOL,
     STAKED_TOKEN_DECIMALS,
   ]);
   await waitForTx(
-    await bendToken
-      .connect(vaultOfRewards)
-      .approve(stakedToken.address, MAX_UINT_AMOUNT)
+    await vaultOfRewards.approve(
+      bendToken.address,
+      stakedToken.address,
+      MAX_UINT_AMOUNT
+    )
   );
   return {
     bendToken,
@@ -63,22 +66,24 @@ export async function deployStakedToken(
 export async function deployIncentivesController(
   bendToken: Contract,
   stakedToken: Contract,
-  vaultOfRewards: Signer,
-  emissionManager: Signer
+  vaultOfRewards: Contract,
+  emissionManager: string
 ) {
   const incentivesController = await deployProxyContract(
     "StakedTokenIncentivesController",
     [
       stakedToken.address,
-      await vaultOfRewards.getAddress(),
-      await emissionManager.getAddress(),
+      vaultOfRewards.address,
+      await emissionManager,
       ONE_YEAR * 100,
     ]
   );
   await waitForTx(
-    await bendToken
-      .connect(vaultOfRewards)
-      .approve(incentivesController.address, MAX_UINT_AMOUNT)
+    await vaultOfRewards.approve(
+      bendToken.address,
+      incentivesController.address,
+      MAX_UINT_AMOUNT
+    )
   );
   return incentivesController;
 }
@@ -93,10 +98,9 @@ export async function deployFlashAttacks(
 
 export interface GovContracts {
   deployer: SignerWithAddress;
-  vault: SignerWithAddress;
   guardian: SignerWithAddress;
-  minter: SignerWithAddress;
   users: SignerWithAddress[];
+  vault: Contract;
   bendToken: Contract;
   stakedToken: Contract;
   governance: Contract;
@@ -116,12 +120,13 @@ export async function deployGovernanceStrategy(
 
 export async function deployGovernance() {
   let addresses = await ethers.getSigners();
-  const [deployer, vault, guardian] = addresses;
-  const users = addresses.slice(3, addresses.length);
+  const [deployer, guardian] = addresses;
+  const users = addresses.slice(2, addresses.length);
+  const vault = await deployVault();
   const { bendToken, stakedToken } = await deployStakedToken(
     vault,
     makeBN18(1000000),
-    deployer
+    deployer.address
   );
   const governance = await deployContract("Governance", [15, guardian.address]);
 
@@ -154,7 +159,7 @@ export async function deployGovernance() {
   return {
     deployer,
     guardian,
-    minter: vault,
+    vault,
     users,
     bendToken,
     stakedToken,

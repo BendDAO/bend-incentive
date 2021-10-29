@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract } from "ethers";
-import { deployStakedToken } from "../deployHelper";
+import { deployStakedToken, deployVault } from "../deployHelper";
 import { buildPermitParams, getSignatureFromTypedData } from "../testHelper";
 import { MAX_UINT_AMOUNT, ZERO_ADDRESS, STAKED_TOKEN_NAME } from "../constants";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -12,19 +12,19 @@ describe("StakedToken permit tests", function () {
   let bendToken: Contract;
   let stakedToken: Contract;
   let deployer: SignerWithAddress;
-  let vault: SignerWithAddress;
   let users: SignerWithAddress[];
   let keys: { privateKey: string; balance: string }[];
 
   before(async function () {
     let addresses = await ethers.getSigners();
-    [deployer, vault] = addresses;
-    users = addresses.slice(2, addresses.length);
+    [deployer] = addresses;
+    users = addresses.slice(1, addresses.length);
     keys = require("../../test-wallets.ts").accounts;
+    const vault = await deployVault();
     ({ bendToken, stakedToken } = await deployStakedToken(
       vault,
       makeBN18(1000000),
-      deployer
+      deployer.address
     ));
     // console.log(`   ${stakedToken.address}`);
   });

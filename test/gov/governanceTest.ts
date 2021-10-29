@@ -72,7 +72,7 @@ describe("Governance tests", function () {
       governanceStrategy,
       bendToken,
       users,
-      minter,
+      vault,
     } = govContracts;
     const [user1, user2, user3, user4, user5, user6] = users;
 
@@ -90,15 +90,17 @@ describe("Governance tests", function () {
 
     executorSigner = hre.ethers.provider.getSigner(executor.address);
     govSigner = hre.ethers.provider.getSigner(governance.address);
-    // Deploy flash attacks contract and approve from minter address
+    // Deploy flash attacks contract and approve from vault address
     flashAttacks = await deployFlashAttacks(
       bendToken.address,
-      minter.address,
+      vault.address,
       governance.address
     );
-    await bendToken
-      .connect(minter)
-      .approve(flashAttacks.address, MAX_UINT_AMOUNT);
+    await vault.approve(
+      bendToken.address,
+      flashAttacks.address,
+      MAX_UINT_AMOUNT
+    );
 
     // Cleaning users balances
     await emptyBalances(users, govContracts);
@@ -301,7 +303,7 @@ describe("Governance tests", function () {
       const {
         governance,
         users: [user],
-        minter,
+        vault,
       } = govContracts;
       // giving threshold power
       await setBalance(user, minimumCreatePower, govContracts);
@@ -846,7 +848,7 @@ describe("Governance tests", function () {
         governance,
         governanceStrategy,
         users: [user1, user2, user3, user4],
-        minter,
+        vault,
         executor,
         bendToken,
       } = govContracts;
@@ -883,7 +885,7 @@ describe("Governance tests", function () {
         governance,
         governanceStrategy,
         users: [user1, user2, user3, user4],
-        minter,
+        vault,
         executor,
         bendToken,
       } = govContracts;
@@ -924,7 +926,7 @@ describe("Governance tests", function () {
     it("Vote a proposal by permit", async () => {
       const {
         users: [, , user3],
-        minter,
+        vault,
         bendToken,
         governance,
       } = govContracts;
@@ -943,12 +945,14 @@ describe("Governance tests", function () {
         proposal2Id.toString(),
         true
       );
-      const ownerPrivateKey = require("../../test-wallets.ts").accounts[5]
-        .privateKey; // deployer, minter, user1, user2, user3
+      const ownerPrivateKey = require("../../test-wallets.ts").accounts[4]
+        .privateKey; // deployer, vault, user1, user2, user3
 
       const { v, r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
 
-      const balance = await bendToken.connect(minter).balanceOf(user3.address);
+      const balance = await bendToken
+        .connect(vault.address)
+        .balanceOf(user3.address);
 
       // Publish vote by signature using other address as relayer
       const votePermitTx = await governance
@@ -968,7 +972,7 @@ describe("Governance tests", function () {
     it("Revert permit vote if invalid signature", async () => {
       const {
         users: [, , user3],
-        minter,
+        vault,
         bendToken,
         governance,
       } = govContracts;
@@ -987,8 +991,8 @@ describe("Governance tests", function () {
         proposal2Id.toString(),
         true
       );
-      const ownerPrivateKey = require("../../test-wallets.ts").accounts[5]
-        .privateKey; // deployer, minter, user1, user2, user3
+      const ownerPrivateKey = require("../../test-wallets.ts").accounts[4]
+        .privateKey; // deployer, vault, user1, user2, user3
 
       const { r, s } = getSignatureFromTypedData(ownerPrivateKey, msgParams);
 

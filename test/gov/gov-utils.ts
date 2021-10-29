@@ -15,7 +15,7 @@ export const emptyBalances = async (
     await (
       await govContracts.bendToken
         .connect(users[i])
-        .transfer(govContracts.minter.address, balanceBefore)
+        .transfer(govContracts.vault.address, balanceBefore)
     ).wait();
   }
 };
@@ -32,13 +32,15 @@ export const setBalance = async (
   await (
     await govContracts.bendToken
       .connect(user)
-      .transfer(govContracts.minter.address, balanceBefore)
+      .transfer(govContracts.vault.address, balanceBefore)
   ).wait();
   // filling
   await (
-    await govContracts.bendToken
-      .connect(govContracts.minter)
-      .transfer(user.address, amount)
+    await govContracts.vault.transfer(
+      govContracts.bendToken.address,
+      user.address,
+      amount
+    )
   ).wait();
 };
 
@@ -65,9 +67,7 @@ export const expectProposalState = async (
   govContracts: GovContracts
 ) => {
   expect(
-    await govContracts.governance
-      .connect(govContracts.minter)
-      .getProposalState(proposalId)
+    await govContracts.governance.getProposalState(proposalId)
   ).to.be.equal(state);
 };
 

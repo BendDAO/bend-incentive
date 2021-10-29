@@ -1,7 +1,11 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract } from "ethers";
-import { deployDoubleTransferHelper, deployStakedToken } from "../deployHelper";
+import {
+  deployDoubleTransferHelper,
+  deployStakedToken,
+  deployVault,
+} from "../deployHelper";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { fail } from "assert";
 import { waitForTx, makeBN18, mineBlock, latestBlock } from "../utils";
@@ -19,45 +23,24 @@ describe("StakedToken delegate tests", function () {
   let stakedToken: Contract;
   let deployer: SignerWithAddress;
   let staker: SignerWithAddress;
-  let vault: SignerWithAddress;
   let users: SignerWithAddress[];
   let firstActionBlockNumber = 0;
   let secondActionBlockNumber = 0;
-
+  let keys: { privateKey: string; balance: string }[];
   before(async function () {
     let addresses = await ethers.getSigners();
-    [deployer, vault] = addresses;
-    users = addresses.slice(2, addresses.length);
+    [deployer] = addresses;
+    users = addresses.slice(1, addresses.length);
+    keys = require("../../test-wallets.ts").accounts;
+    const vault = await deployVault();
     ({ bendToken, stakedToken } = await deployStakedToken(
       vault,
       makeBN18(1000000),
-      deployer
+      deployer.address
     ));
     staker = users[0];
     await waitForTx(await bendToken.mint(staker.address, makeBN18(100)));
   });
-
-  // it("ZERO_ADDRESS tries to delegate voting power to user1 but delegatee should still be ZERO_ADDRESS", async () => {
-  //   await network.provider.request({
-  //     method: "hardhat_impersonateAccount",
-  //     params: [ZERO_ADDRESS],
-  //   });
-  //   const zeroUser = ethers.provider.getSigner(ZERO_ADDRESS);
-  //   await waitForTx(
-  //     await staker.sendTransaction({
-  //       to: ZERO_ADDRESS,
-  //       value: makeBN18(1),
-  //     })
-  //   );
-
-  //   await waitForTx(
-  //     await stakedToken.connect(zeroUser).delegateByType(staker.address, "0")
-  //   );
-
-  //   const delegatee = await stakedToken.getDelegateeByType(ZERO_ADDRESS, "0");
-
-  //   expect(delegatee.toString()).to.be.equal(ZERO_ADDRESS);
-  // });
 
   it("User 1 tries to delegate voting power to user 2", async () => {
     const user1 = staker;
@@ -529,8 +512,7 @@ describe("StakedToken delegate tests", function () {
       nonce,
       expiration
     );
-    const ownerPrivateKey =
-      require("../../test-wallets").accounts[2].privateKey;
+    const ownerPrivateKey = keys[1].privateKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -612,8 +594,7 @@ describe("StakedToken delegate tests", function () {
       nonce,
       expiration
     );
-    const ownerPrivateKey =
-      require("../../test-wallets").accounts[2].privateKey;
+    const ownerPrivateKey = keys[1].privateKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -719,8 +700,7 @@ describe("StakedToken delegate tests", function () {
       nonce,
       expiration
     );
-    const ownerPrivateKey =
-      require("../../test-wallets").accounts[3].privateKey;
+    const ownerPrivateKey = keys[2].privateKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -835,8 +815,7 @@ describe("StakedToken delegate tests", function () {
       nonce,
       expiration
     );
-    const ownerPrivateKey =
-      require("../../test-wallets").accounts[1].privateKey;
+    const ownerPrivateKey = keys[1].privateKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -869,8 +848,7 @@ describe("StakedToken delegate tests", function () {
       MAX_UINT_AMOUNT, // bad nonce
       expiration
     );
-    const ownerPrivateKey =
-      require("../../test-wallets").accounts[1].privateKey;
+    const ownerPrivateKey = keys[1].privateKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -912,8 +890,7 @@ describe("StakedToken delegate tests", function () {
       nonce,
       expiration
     );
-    const ownerPrivateKey =
-      require("../../test-wallets").accounts[2].privateKey;
+    const ownerPrivateKey = keys[1].privateKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -945,8 +922,7 @@ describe("StakedToken delegate tests", function () {
       nonce,
       expiration
     );
-    const ownerPrivateKey =
-      require("../../test-wallets").accounts[4].privateKey;
+    const ownerPrivateKey = keys[3].privateKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -977,8 +953,7 @@ describe("StakedToken delegate tests", function () {
       nonce,
       expiration
     );
-    const ownerPrivateKey =
-      require("../../test-wallets").accounts[4].privateKey;
+    const ownerPrivateKey = keys[3].privateKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
@@ -1009,8 +984,7 @@ describe("StakedToken delegate tests", function () {
       nonce,
       expiration
     );
-    const ownerPrivateKey =
-      require("../../test-wallets").accounts[3].privateKey;
+    const ownerPrivateKey = keys[2].privateKey;
     if (!ownerPrivateKey) {
       throw new Error("INVALID_OWNER_PK");
     }
