@@ -6,7 +6,7 @@ import {
   BigNumber,
 } from "ethers";
 import { expect } from "chai";
-import { waitForTx, makeBN, getBlockTimestamp } from "./utils";
+import { waitForTx, makeBN, timeAtBlock } from "./utils";
 import { signTypedData, SignTypedDataVersion } from "@metamask/eth-sig-util";
 import { fromRpcSig, ECDSASignature } from "ethereumjs-util";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -392,7 +392,7 @@ export async function compareAssetIndex(
     [emissionPerSecond]
   );
   let txReceipt = await waitForTx(tx);
-  let txTimestamp = await getBlockTimestamp(txReceipt.blockNumber);
+  let txTimestamp = await timeAtBlock(txReceipt.blockNumber);
   const distributionEndTimestamp = await distributionManager.DISTRIBUTION_END();
 
   const rewardsBalanceBefore =
@@ -408,7 +408,7 @@ export async function compareAssetIndex(
 
   tx = await action();
   txReceipt = await waitForTx(tx);
-  txTimestamp = await getBlockTimestamp(txReceipt.blockNumber);
+  txTimestamp = await timeAtBlock(txReceipt.blockNumber);
 
   const userIndexAfter = await getUserIndex(
     distributionManager,

@@ -1,7 +1,7 @@
 import { BigNumber, Contract } from "ethers";
 import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { latestBlock, makeBN } from "../utils";
+import { latestBlockNum, makeBN } from "../utils";
 import hre from "hardhat";
 import { deployContract, GovContracts } from "../deployHelper";
 export const emptyBalances = async (
@@ -50,7 +50,7 @@ export const getInitContractData = async (govContracts: GovContracts) => ({
   executionDelay: await govContracts.executor.getDelay(),
   minimumPower: await govContracts.executor.getMinimumVotingPowerNeeded(
     await govContracts.governanceStrategy.getTotalVotingSupplyAt(
-      await latestBlock()
+      await latestBlockNum()
     )
   ),
   minimumCreatePower:

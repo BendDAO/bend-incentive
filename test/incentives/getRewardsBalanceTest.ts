@@ -15,7 +15,7 @@ import {
   mineBlockAndIncreaseTime,
   makeBN,
   waitForTx,
-  getBlockTimestamp,
+  timeAtBlock,
   mineBlockAtTime,
 } from "../utils";
 import {
@@ -108,9 +108,7 @@ describe("StakedTokenIncentivesController getRewardsBalance tests", function () 
           totalStaked
         )
       );
-      const lastTxTimestamp = await getBlockTimestamp(
-        lastTxReceipt.blockNumber
-      );
+      const lastTxTimestamp = await timeAtBlock(lastTxReceipt.blockNumber);
 
       const unclaimedRewardsBefore =
         await incentivesController.getUserUnclaimedRewards(userAddress);

@@ -16,7 +16,7 @@ import {
   mineBlockToHeight,
   mineBlockAtTime,
   mineBlock,
-  latestBlock,
+  latestBlockNum,
 } from "../utils";
 import {
   emptyBalances,
@@ -1048,7 +1048,7 @@ describe("Governance tests", function () {
         users: [user2],
       } = govContracts;
 
-      await mineBlockToHeight((await latestBlock()) + 20);
+      await mineBlockToHeight((await latestBlockNum()) + 20);
       await expect(
         governance.connect(user2).submitVote(proposal2Id, true)
       ).to.be.revertedWith("VOTING_CLOSED");
