@@ -45,7 +45,7 @@ const getRewardsBalanceScenarios: ScenarioAction[] = [
   },
 ];
 
-describe("StakedTokenIncentivesController getRewardsBalance tests", function () {
+describe("StakedBendIncentivesController getRewardsBalance tests", function () {
   let bendToken: Contract;
   let stakedToken: Contract;
   let incentivesController: Contract;

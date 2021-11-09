@@ -19,12 +19,12 @@ import {IBToken} from "./interfaces/IBToken.sol";
 import {IIncentivesController} from "./interfaces/IIncentivesController.sol";
 
 /**
- * @title StakedTokenIncentivesController
+ * @title StakedBendIncentivesController
  * @notice Distributor contract for rewards to the Bend protocol, using a staked token as rewards asset.
  * The contract stakes the rewards before redistributing them to the Bend protocol participants.
  * @author Bend
  **/
-contract StakedTokenIncentivesController is
+contract StakedBendIncentivesController is
     IIncentivesController,
     DistributionManager
 {

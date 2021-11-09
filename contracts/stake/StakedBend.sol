@@ -18,11 +18,11 @@ import {DistributionManager} from "./DistributionManager.sol";
 import {GovernanceToken} from "../gov/GovernanceToken.sol";
 
 /**
- * @title StakedToken
+ * @title StakedBend
  * @notice Contract to stake Bend token, tokenize the position and get rewards, inheriting from a distribution manager contract
  * @author Bend
  **/
-contract StakedToken is IStakedToken, GovernanceToken, DistributionManager {
+contract StakedBend is IStakedToken, GovernanceToken, DistributionManager {
     using SafeMath for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -39,7 +39,7 @@ contract StakedToken is IStakedToken, GovernanceToken, DistributionManager {
     mapping(address => uint256) public stakerRewardsToClaim;
     mapping(address => uint256) public stakersCooldowns;
 
-    /// @dev End of Storage layout from StakedToken v1
+    /// @dev End of Storage layout from StakedBend v1
 
     string public constant REVISION = "1";
 

@@ -14,7 +14,7 @@ import {
 
 import { COOLDOWN_SECONDS, UNSTAKE_WINDOW } from "../constants";
 
-describe("StakedToken redeem tests", function () {
+describe("StakedBend redeem tests", function () {
   let bendToken: Contract;
   let stakedToken: Contract;
   let deployer: SignerWithAddress;

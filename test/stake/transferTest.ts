@@ -19,7 +19,7 @@ import {
 
 import { COOLDOWN_SECONDS, UNSTAKE_WINDOW } from "../constants";
 
-describe("StakedToken transfer tests", function () {
+describe("StakedBend transfer tests", function () {
   let bendToken: Contract;
   let stakedToken: Contract;
   let deployer: SignerWithAddress;

@@ -27,7 +27,7 @@ import {
   assertAlmostEqual,
 } from "../utils";
 
-describe("StakedToken stake tests", function () {
+describe("StakedBend stake tests", function () {
   let bendToken: Contract;
   let stakedToken: Contract;
   let deployer: SignerWithAddress;
