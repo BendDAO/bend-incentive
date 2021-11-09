@@ -3,11 +3,28 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-import { run, ethers, network } from "hardhat";
-import { loadPreviousDeployment, loadOrDeploy, waitForTx } from "./utils";
-import { ZERO_ADDRESS } from "./constants";
+import { ethers, network } from "hardhat";
+import {
+  loadPreviousDeployment,
+  loadOrDeploy,
+  waitForTx,
+  makeBN18,
+} from "./utils";
+import { ZERO_ADDRESS, MAX_UINT_AMOUNT, ONE_YEAR } from "./constants";
+import { Contract } from "ethers";
 import dotenv from "dotenv";
 const envResult = dotenv.config();
+
+export interface Contracts {
+  bendToken: Contract;
+  governance: Contract;
+  governanceStrategy: Contract;
+  shortTimelockExecutor: Contract;
+  longTimelockExecutor: Contract;
+  vault: Contract;
+  stakedBend: Contract;
+  incentivesController: Contract;
+}
 
 if (envResult.error || !envResult.parsed) {
   throw envResult.error;
@@ -17,7 +34,7 @@ const env = envResult.parsed;
 const GUARDIAN_MULTI_SIG_ADDR =
   env[`${network.name.toUpperCase()}_GOVERNANCE_GUARDIAN`] || ZERO_ADDRESS;
 
-async function main() {
+async function deploy() {
   const [deployer] = await ethers.getSigners();
 
   console.log("Deploying contracts with the account:", deployer.address);
@@ -25,9 +42,16 @@ async function main() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const deploymentState = loadPreviousDeployment(network.name);
+  const vault = await loadOrDeploy(
+    "Vault",
+    [],
+    network.name,
+    deployer,
+    deploymentState
+  );
   const bendToken = await loadOrDeploy(
     "BendToken",
-    [],
+    [vault.address, makeBN18(10000000)],
     network.name,
     deployer,
     deploymentState,
@@ -66,26 +90,9 @@ async function main() {
     deploymentState,
     { id: "LongTimelockExecutor" }
   );
-  waitForTx(
-    await governance.authorizeExecutors([
-      shortTimelockExecutor.address,
-      longTimelockExecutor.address,
-    ])
-  );
-  const vault = await loadOrDeploy(
-    "Vault",
-    [],
-    network.name,
-    deployer,
-    deploymentState
-  );
 
-  try {
-    waitForTx(await vault.transferOwnership(shortTimelockExecutor.address));
-  } catch (error) {}
-
-  const stakedToken = await loadOrDeploy(
-    "StakedToken",
+  const stakedBend = await loadOrDeploy(
+    "StakedBend",
     [
       bendToken.address,
       bendToken.address,
@@ -97,7 +104,6 @@ async function main() {
       "Staked BEND",
       "stkBEND",
       18,
-      ZERO_ADDRESS,
     ],
     network.name,
     deployer,
@@ -107,22 +113,72 @@ async function main() {
 
   const governanceStrategy = await loadOrDeploy(
     "GovernanceStrategy",
-    [bendToken.address, stakedToken.address],
+    [bendToken.address, stakedBend.address],
     network.name,
     deployer,
     deploymentState
   );
-  waitForTx(await governance.setGovernanceStrategy(governanceStrategy.address));
-  await loadOrDeploy(
-    "StakedTokenIncentivesController",
-    [stakedToken.address, vault.address, shortTimelockExecutor.address],
+
+  const incentivesController = await loadOrDeploy(
+    "StakedBendIncentivesController",
+    [
+      stakedBend.address,
+      vault.address,
+      shortTimelockExecutor.address,
+      ONE_YEAR * 100,
+    ],
     network.name,
     deployer,
     deploymentState,
     { proxy: true }
   );
+  return {
+    bendToken,
+    governance,
+    governanceStrategy,
+    shortTimelockExecutor,
+    longTimelockExecutor,
+    vault,
+    stakedBend,
+    incentivesController,
+  } as Contracts;
+}
+async function connect(contracts: Contracts) {
+  const {
+    bendToken,
+    governance,
+    governanceStrategy,
+    shortTimelockExecutor,
+    longTimelockExecutor,
+    vault,
+    stakedBend,
+    incentivesController,
+  } = contracts;
+  waitForTx(
+    await governance.authorizeExecutors([
+      shortTimelockExecutor.address,
+      longTimelockExecutor.address,
+    ])
+  );
+  waitForTx(await governance.setGovernanceStrategy(governanceStrategy.address));
+  waitForTx(await governance.transferOwnership(longTimelockExecutor.address));
+  waitForTx(
+    await vault.approve(
+      bendToken.address,
+      incentivesController.address,
+      MAX_UINT_AMOUNT
+    )
+  );
+  await waitForTx(
+    await vault.approve(bendToken.address, stakedBend.address, MAX_UINT_AMOUNT)
+  );
+  waitForTx(await vault.transferOwnership(shortTimelockExecutor.address));
 }
 
+async function main() {
+  let contracts = await deploy();
+  await connect(contracts);
+}
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main()
