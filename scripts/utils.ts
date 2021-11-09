@@ -2,8 +2,12 @@ import hre from "hardhat";
 import fs from "fs";
 import { Signer } from "ethers";
 const outputDir = "./deployments";
-import { Contract, ContractTransaction } from "ethers";
+import { Contract, ContractTransaction, BigNumber, ethers } from "ethers";
 import { NomicLabsHardhatPluginError } from "hardhat/plugins";
+
+export function makeBN18(num: string | number) {
+  return ethers.utils.parseUnits(num.toString(), 18);
+}
 
 export async function loadOrDeploy(
   name: string,
@@ -47,19 +51,25 @@ export async function loadOrDeploy(
     if (options.verify) {
       if (options.proxy) {
         const address = await getProxyImpl(contract.address);
-        await verifyContract(address);
-        deploymentState[
-          id
-        ].verification = `${ETHERSCAN_BASE_URL}/${address}#code`;
-        await verifyContract(contract.address);
-        deploymentState[
-          id
-        ].proxyVerification = `${ETHERSCAN_BASE_URL}/${contract.address}#code`;
+        if (!deploymentState[id].verification) {
+          await verifyContract(address);
+          deploymentState[
+            id
+          ].verification = `${ETHERSCAN_BASE_URL}/${address}#code`;
+        }
+        if (!deploymentState[id].proxyVerification) {
+          await verifyContract(contract.address);
+          deploymentState[
+            id
+          ].proxyVerification = `${ETHERSCAN_BASE_URL}/${contract.address}#code`;
+        }
       } else {
-        await verifyContract(contract.address, params);
-        deploymentState[
-          id
-        ].verification = `${ETHERSCAN_BASE_URL}/${contract.address}#code`;
+        if (!deploymentState[id].verification) {
+          await verifyContract(contract.address, params);
+          deploymentState[
+            id
+          ].verification = `${ETHERSCAN_BASE_URL}/${contract.address}#code`;
+        }
       }
     }
   };

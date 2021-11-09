@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {GovernanceToken} from "../gov/GovernanceToken.sol";
+import {IVault} from "./interfaces/IVault.sol";
 
 /**
  * @notice implementation of the BEND token contract
@@ -14,8 +15,9 @@ contract BendToken is GovernanceToken {
 
     string public constant REVISION = "1";
 
-    function initialize() external initializer {
+    function initialize(IVault _vault, uint256 amount) external initializer {
         __ERC20Detailed_init(NAME, SYMBOL, DECIMALS);
         _setDomainSeparator(NAME, REVISION);
+        _mint(address(_vault), amount);
     }
 }
