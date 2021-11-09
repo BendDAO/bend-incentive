@@ -8,7 +8,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import { makeBN18, waitForTx } from "../utils";
 
-describe("StakedToken permit tests", function () {
+describe("StakedBend permit tests", function () {
   let bendToken: Contract;
   let stakedToken: Contract;
   let deployer: SignerWithAddress;

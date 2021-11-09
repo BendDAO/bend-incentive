@@ -18,7 +18,7 @@ import {
 
 import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../constants";
 
-describe("StakedToken delegate tests", function () {
+describe("StakedBend delegate tests", function () {
   let bendToken: Contract;
   let stakedToken: Contract;
   let deployer: SignerWithAddress;

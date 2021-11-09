@@ -52,7 +52,7 @@ const handleActionScenarios: ScenarioAction[] = [
   },
 ];
 
-describe("StakedTokenIncentivesController handleAction tests", function () {
+describe("StakedBendIncentivesController handleAction tests", function () {
   let bendToken: Contract;
   let stakedToken: Contract;
   let incentivesController: Contract;

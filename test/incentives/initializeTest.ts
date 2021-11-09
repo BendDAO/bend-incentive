@@ -12,7 +12,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import { makeBN18, timeLatest, waitForTx, assertAlmostEqual } from "../utils";
 
-describe("StakedTokenIncentivesController tests", function () {
+describe("StakedBendIncentivesController tests", function () {
   let bendToken: Contract;
   let stakedToken: Contract;
   let incentivesController: Contract;

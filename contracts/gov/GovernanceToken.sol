@@ -28,7 +28,7 @@ abstract contract GovernanceToken is GovernancePowerDelegationERC20 {
         );
 
     /**
-     * @dev The following storage layout points to the prior StakedToken.sol implementation:
+     * @dev The following storage layout points to the prior StakedBend.sol implementation:
      * _snapshots => _votingSnapshots
      * _snapshotsCounts =>  _votingSnapshotsCounts
      */

@@ -38,7 +38,7 @@ export async function deployStakedToken(
   await waitForTx(
     await bendToken.mint(vaultOfRewards.address, bendAmountOfvault.toString())
   );
-  const stakedToken = await deployProxyContract("StakedToken", [
+  const stakedToken = await deployProxyContract("StakedBend", [
     bendToken.address,
     bendToken.address,
     COOLDOWN_SECONDS,
@@ -70,7 +70,7 @@ export async function deployIncentivesController(
   emissionManager: string
 ) {
   const incentivesController = await deployProxyContract(
-    "StakedTokenIncentivesController",
+    "StakedBendIncentivesController",
     [
       stakedToken.address,
       vaultOfRewards.address,
