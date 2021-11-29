@@ -124,17 +124,16 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
             "EXECUTION_TIME_UNDERESTIMATED"
         );
 
-        bytes32 actionHash =
-            keccak256(
-                abi.encode(
-                    target,
-                    value,
-                    signature,
-                    data,
-                    executionTime,
-                    withDelegatecall
-                )
-            );
+        bytes32 actionHash = keccak256(
+            abi.encode(
+                target,
+                value,
+                signature,
+                data,
+                executionTime,
+                withDelegatecall
+            )
+        );
         _queuedTransactions[actionHash] = true;
 
         emit QueuedAction(
@@ -167,17 +166,16 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
         uint256 executionTime,
         bool withDelegatecall
     ) public override onlyAdmin returns (bytes32) {
-        bytes32 actionHash =
-            keccak256(
-                abi.encode(
-                    target,
-                    value,
-                    signature,
-                    data,
-                    executionTime,
-                    withDelegatecall
-                )
-            );
+        bytes32 actionHash = keccak256(
+            abi.encode(
+                target,
+                value,
+                signature,
+                data,
+                executionTime,
+                withDelegatecall
+            )
+        );
         _queuedTransactions[actionHash] = false;
 
         emit CancelledAction(
@@ -210,17 +208,16 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
         uint256 executionTime,
         bool withDelegatecall
     ) public payable override onlyAdmin returns (bytes memory) {
-        bytes32 actionHash =
-            keccak256(
-                abi.encode(
-                    target,
-                    value,
-                    signature,
-                    data,
-                    executionTime,
-                    withDelegatecall
-                )
-            );
+        bytes32 actionHash = keccak256(
+            abi.encode(
+                target,
+                value,
+                signature,
+                data,
+                executionTime,
+                withDelegatecall
+            )
+        );
         require(_queuedTransactions[actionHash], "ACTION_NOT_QUEUED");
         require(block.timestamp >= executionTime, "TIMELOCK_NOT_FINISHED");
         require(
@@ -313,12 +310,15 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      * @param proposalId Id of the proposal against which to test
      * @return true of proposal is over grace period
      **/
-    function isProposalOverGracePeriod(
-        IGovernance governance,
-        uint256 proposalId
-    ) external view override returns (bool) {
-        IGovernance.ProposalWithoutVotes memory proposal =
-            governance.getProposalById(proposalId);
+    function isProposalOverGracePeriod(address governance, uint256 proposalId)
+        external
+        view
+        override
+        returns (bool)
+    {
+        IGovernance.ProposalWithoutVotes memory proposal = IGovernance(
+            governance
+        ).getProposalById(proposalId);
 
         return (block.timestamp > proposal.executionTime.add(GRACE_PERIOD));
     }
