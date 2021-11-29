@@ -469,7 +469,7 @@ contract Governance is Ownable, IGovernance {
         } else if (proposal.executed) {
             return ProposalState.Executed;
         } else if (
-            proposal.executor.isProposalOverGracePeriod(this, proposalId)
+            proposal.executor.isProposalOverGracePeriod(address(this), proposalId)
         ) {
             return ProposalState.Expired;
         } else {
