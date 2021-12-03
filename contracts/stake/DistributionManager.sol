@@ -4,10 +4,9 @@ pragma experimental ABIEncoderV2;
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {DistributionTypes} from "./DistributionTypes.sol";
-import {
-    Initializable
-} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "hardhat/console.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
+// import "hardhat/console.sol";
 
 /**
  * @title DistributionManager
@@ -67,8 +66,9 @@ contract DistributionManager is Initializable {
         DistributionTypes.AssetConfigInput[] memory assetsConfigInput
     ) internal {
         for (uint256 i = 0; i < assetsConfigInput.length; i++) {
-            AssetData storage assetConfig =
-                assets[assetsConfigInput[i].underlyingAsset];
+            AssetData storage assetConfig = assets[
+                assetsConfigInput[i].underlyingAsset
+            ];
 
             _updateAssetStateInternal(
                 assetsConfigInput[i].underlyingAsset,
@@ -105,13 +105,12 @@ contract DistributionManager is Initializable {
             return oldIndex;
         }
 
-        uint256 newIndex =
-            _getAssetIndex(
-                oldIndex,
-                assetConfig.emissionPerSecond,
-                lastUpdateTimestamp,
-                totalStaked
-            );
+        uint256 newIndex = _getAssetIndex(
+            oldIndex,
+            assetConfig.emissionPerSecond,
+            lastUpdateTimestamp,
+            totalStaked
+        );
 
         // console.log("old index %d, new index %d", oldIndex, newIndex);
 
@@ -143,8 +142,11 @@ contract DistributionManager is Initializable {
         uint256 userIndex = assetData.users[user];
         uint256 accruedRewards = 0;
 
-        uint256 newIndex =
-            _updateAssetStateInternal(asset, assetData, totalStaked);
+        uint256 newIndex = _updateAssetStateInternal(
+            asset,
+            assetData,
+            totalStaked
+        );
         if (userIndex != newIndex) {
             if (stakedByUser != 0) {
                 accruedRewards = _getRewards(stakedByUser, newIndex, userIndex);
@@ -203,13 +205,12 @@ contract DistributionManager is Initializable {
 
         for (uint256 i = 0; i < stakes.length; i++) {
             AssetData storage assetConfig = assets[stakes[i].underlyingAsset];
-            uint256 assetIndex =
-                _getAssetIndex(
-                    assetConfig.index,
-                    assetConfig.emissionPerSecond,
-                    assetConfig.lastUpdateTimestamp,
-                    stakes[i].totalStaked
-                );
+            uint256 assetIndex = _getAssetIndex(
+                assetConfig.index,
+                assetConfig.emissionPerSecond,
+                assetConfig.lastUpdateTimestamp,
+                stakes[i].totalStaked
+            );
 
             accruedRewards = accruedRewards.add(
                 _getRewards(
@@ -263,10 +264,9 @@ contract DistributionManager is Initializable {
             return currentIndex;
         }
 
-        uint256 currentTimestamp =
-            block.timestamp > DISTRIBUTION_END
-                ? DISTRIBUTION_END
-                : block.timestamp;
+        uint256 currentTimestamp = block.timestamp > DISTRIBUTION_END
+            ? DISTRIBUTION_END
+            : block.timestamp;
         uint256 timeDelta = currentTimestamp.sub(lastUpdateTimestamp);
         return
             emissionPerSecond
