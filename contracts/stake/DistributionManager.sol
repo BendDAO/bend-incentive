@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
-pragma experimental ABIEncoderV2;
+pragma abicoder v2;
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {DistributionTypes} from "./DistributionTypes.sol";
@@ -34,6 +34,7 @@ contract DistributionManager is Initializable {
     event AssetConfigUpdated(address indexed asset, uint256 emission);
     event AssetIndexUpdated(address indexed asset, uint256 index);
     event DistributionEndUpdated(uint256 newDistributionEnd);
+    event EmissionManagerUpdated(address newEmissionManager);
 
     event UserIndexUpdated(
         address indexed user,
@@ -52,6 +53,14 @@ contract DistributionManager is Initializable {
     ) public initializer {
         DISTRIBUTION_END = block.timestamp.add(distributionDuration);
         EMISSION_MANAGER = emissionManager;
+    }
+
+    function setEmissionManager(address emissionManager)
+        external
+        onlyEmissionManager
+    {
+        EMISSION_MANAGER = emissionManager;
+        emit EmissionManagerUpdated(emissionManager);
     }
 
     function setDistributionEnd(uint256 distributionEnd)

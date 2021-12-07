@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
+pragma abicoder v2;
 
-pragma experimental ABIEncoderV2;
-
-import {
-    IIncentivesController
-} from "../incentives/interfaces/IIncentivesController.sol";
+import {IIncentivesController} from "../incentives/interfaces/IIncentivesController.sol";
 import {DistributionTypes} from "../stake/DistributionTypes.sol";
 import {IBToken} from "../incentives/interfaces/IBToken.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";

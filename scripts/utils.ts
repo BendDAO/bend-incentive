@@ -140,6 +140,7 @@ export async function verifyContract(
   address: string,
   constructorArguments: any = []
 ) {
+  console.log(`Verify contract: ${address}`);
   try {
     await hre.run("verify:verify", {
       address,
