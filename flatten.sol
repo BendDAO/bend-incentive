@@ -3555,8 +3555,7 @@ interface IBToken {
 
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
-
-pragma experimental ABIEncoderV2;
+pragma abicoder v2;
 
 interface IIncentivesController {
     event RewardsAccrued(address indexed user, uint256 amount);
@@ -3620,21 +3619,20 @@ interface IIncentivesController {
 
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
-
-pragma experimental ABIEncoderV2;
+pragma abicoder v2;
 
 library DistributionTypes {
-  struct AssetConfigInput {
-    uint128 emissionPerSecond;
-    uint256 totalStaked;
-    address underlyingAsset;
-  }
+    struct AssetConfigInput {
+        uint128 emissionPerSecond;
+        uint256 totalStaked;
+        address underlyingAsset;
+    }
 
-  struct UserStakeInput {
-    address underlyingAsset;
-    uint256 stakedByUser;
-    uint256 totalStaked;
-  }
+    struct UserStakeInput {
+        address underlyingAsset;
+        uint256 stakedByUser;
+        uint256 totalStaked;
+    }
 }
 
 
@@ -3966,7 +3964,7 @@ library SafeERC20Upgradeable {
 
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
-pragma experimental ABIEncoderV2;
+pragma abicoder v2;
 
 
 
@@ -4260,7 +4258,7 @@ contract DistributionManager is Initializable {
 
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
-pragma experimental ABIEncoderV2;
+pragma abicoder v2;
 
 
 
@@ -4312,8 +4310,10 @@ contract StakedBendIncentivesController is
             "INVALID_CONFIGURATION"
         );
 
-        DistributionTypes.AssetConfigInput[] memory assetsConfig =
-            new DistributionTypes.AssetConfigInput[](assets.length);
+        DistributionTypes.AssetConfigInput[]
+            memory assetsConfig = new DistributionTypes.AssetConfigInput[](
+                assets.length
+            );
 
         for (uint256 i = 0; i < assets.length; i++) {
             assetsConfig[i].underlyingAsset = address(assets[i]);
@@ -4335,13 +4335,12 @@ contract StakedBendIncentivesController is
         uint256 totalSupply,
         uint256 userBalance
     ) external override {
-        uint256 accruedRewards =
-            _updateUserAssetInternal(
-                user,
-                msg.sender,
-                userBalance,
-                totalSupply
-            );
+        uint256 accruedRewards = _updateUserAssetInternal(
+            user,
+            msg.sender,
+            userBalance,
+            totalSupply
+        );
         if (accruedRewards != 0) {
             _usersUnclaimedRewards[user] = _usersUnclaimedRewards[user].add(
                 accruedRewards
@@ -4359,14 +4358,15 @@ contract StakedBendIncentivesController is
     {
         uint256 unclaimedRewards = _usersUnclaimedRewards[user];
 
-        DistributionTypes.UserStakeInput[] memory userState =
-            new DistributionTypes.UserStakeInput[](assets.length);
+        DistributionTypes.UserStakeInput[]
+            memory userState = new DistributionTypes.UserStakeInput[](
+                assets.length
+            );
         for (uint256 i = 0; i < assets.length; i++) {
             userState[i].underlyingAsset = assets[i];
             (userState[i].stakedByUser, userState[i].totalStaked) = IBToken(
                 assets[i]
-            )
-                .getScaledUserBalanceAndSupply(user);
+            ).getScaledUserBalanceAndSupply(user);
         }
         unclaimedRewards = unclaimedRewards.add(
             _getUnclaimedRewards(user, userState)
@@ -4400,14 +4400,15 @@ contract StakedBendIncentivesController is
         address user = msg.sender;
         uint256 unclaimedRewards = _usersUnclaimedRewards[user];
 
-        DistributionTypes.UserStakeInput[] memory userState =
-            new DistributionTypes.UserStakeInput[](assets.length);
+        DistributionTypes.UserStakeInput[]
+            memory userState = new DistributionTypes.UserStakeInput[](
+                assets.length
+            );
         for (uint256 i = 0; i < assets.length; i++) {
             userState[i].underlyingAsset = assets[i];
             (userState[i].stakedByUser, userState[i].totalStaked) = IBToken(
                 assets[i]
-            )
-                .getScaledUserBalanceAndSupply(user);
+            ).getScaledUserBalanceAndSupply(user);
         }
 
         uint256 accruedRewards = _claimRewards(user, userState);
@@ -4420,8 +4421,9 @@ contract StakedBendIncentivesController is
             return 0;
         }
 
-        uint256 amountToClaim =
-            amount > unclaimedRewards ? unclaimedRewards : amount;
+        uint256 amountToClaim = amount > unclaimedRewards
+            ? unclaimedRewards
+            : amount;
         _usersUnclaimedRewards[user] = unclaimedRewards - amountToClaim; // Safe due to the previous line
 
         IERC20Upgradeable(STAKE_TOKEN.STAKED_TOKEN()).safeTransferFrom(
@@ -4442,7 +4444,7 @@ contract StakedBendIncentivesController is
 
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
-pragma experimental ABIEncoderV2;
+pragma abicoder v2;
 
 
 
@@ -4530,13 +4532,12 @@ contract StakedBend is IStakedToken, GovernanceToken, DistributionManager {
         require(amount != 0, "INVALID_ZERO_AMOUNT");
         uint256 balanceOfUser = balanceOf(onBehalfOf);
 
-        uint256 accruedRewards =
-            _updateUserAssetInternal(
-                onBehalfOf,
-                address(this),
-                balanceOfUser,
-                totalSupply()
-            );
+        uint256 accruedRewards = _updateUserAssetInternal(
+            onBehalfOf,
+            address(this),
+            balanceOfUser,
+            totalSupply()
+        );
         if (accruedRewards != 0) {
             emit RewardsAccrued(onBehalfOf, accruedRewards);
             stakerRewardsToClaim[onBehalfOf] = stakerRewardsToClaim[onBehalfOf]
@@ -4580,8 +4581,9 @@ contract StakedBend is IStakedToken, GovernanceToken, DistributionManager {
         );
         uint256 balanceOfMessageSender = balanceOf(msg.sender);
 
-        uint256 amountToRedeem =
-            (amount > balanceOfMessageSender) ? balanceOfMessageSender : amount;
+        uint256 amountToRedeem = (amount > balanceOfMessageSender)
+            ? balanceOfMessageSender
+            : amount;
 
         _updateCurrentUnclaimedRewards(
             msg.sender,
@@ -4618,14 +4620,14 @@ contract StakedBend is IStakedToken, GovernanceToken, DistributionManager {
      * @param amount Amount to stake
      **/
     function claimRewards(address to, uint256 amount) external override {
-        uint256 newTotalRewards =
-            _updateCurrentUnclaimedRewards(
-                msg.sender,
-                balanceOf(msg.sender),
-                false
-            );
-        uint256 amountToClaim =
-            (amount == type(uint256).max) ? newTotalRewards : amount;
+        uint256 newTotalRewards = _updateCurrentUnclaimedRewards(
+            msg.sender,
+            balanceOf(msg.sender),
+            false
+        );
+        uint256 amountToClaim = (amount == type(uint256).max)
+            ? newTotalRewards
+            : amount;
 
         stakerRewardsToClaim[msg.sender] = newTotalRewards.sub(
             amountToClaim,
@@ -4685,15 +4687,15 @@ contract StakedBend is IStakedToken, GovernanceToken, DistributionManager {
         uint256 userBalance,
         bool updateStorage
     ) internal returns (uint256) {
-        uint256 accruedRewards =
-            _updateUserAssetInternal(
-                user,
-                address(this),
-                userBalance,
-                totalSupply()
-            );
-        uint256 unclaimedRewards =
-            stakerRewardsToClaim[user].add(accruedRewards);
+        uint256 accruedRewards = _updateUserAssetInternal(
+            user,
+            address(this),
+            userBalance,
+            totalSupply()
+        );
+        uint256 unclaimedRewards = stakerRewardsToClaim[user].add(
+            accruedRewards
+        );
 
         if (accruedRewards != 0) {
             if (updateStorage) {
@@ -4730,8 +4732,10 @@ contract StakedBend is IStakedToken, GovernanceToken, DistributionManager {
             return 0;
         }
 
-        uint256 minimalValidCooldownTimestamp =
-            block.timestamp.sub(COOLDOWN_SECONDS).sub(UNSTAKE_WINDOW);
+        uint256 minimalValidCooldownTimestamp = block
+            .timestamp
+            .sub(COOLDOWN_SECONDS)
+            .sub(UNSTAKE_WINDOW);
 
         if (minimalValidCooldownTimestamp > toCooldownTimestamp) {
             toCooldownTimestamp = 0;
@@ -4748,8 +4752,7 @@ contract StakedBend is IStakedToken, GovernanceToken, DistributionManager {
                     amountToReceive.mul(fromCooldownTimestamp).add(
                         toBalance.mul(toCooldownTimestamp)
                     )
-                )
-                    .div(amountToReceive.add(toBalance));
+                ).div(amountToReceive.add(toBalance));
             }
         }
         return toCooldownTimestamp;
@@ -4765,8 +4768,8 @@ contract StakedBend is IStakedToken, GovernanceToken, DistributionManager {
         view
         returns (uint256)
     {
-        DistributionTypes.UserStakeInput[] memory userStakeInputs =
-            new DistributionTypes.UserStakeInput[](1);
+        DistributionTypes.UserStakeInput[]
+            memory userStakeInputs = new DistributionTypes.UserStakeInput[](1);
         userStakeInputs[0] = DistributionTypes.UserStakeInput({
             underlyingAsset: address(this),
             stakedByUser: balanceOf(staker),
@@ -5312,8 +5315,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
-
-pragma experimental ABIEncoderV2;
+pragma abicoder v2;
 
 
 

@@ -1,19 +1,15 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
-pragma experimental ABIEncoderV2;
+pragma abicoder v2;
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import {
-    SafeERC20Upgradeable
-} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {DistributionTypes} from "../stake/DistributionTypes.sol";
 
 import {DistributionManager} from "../stake/DistributionManager.sol";
 
 import {IStakedTokenWithConfig} from "./interfaces/IStakedTokenWithConfig.sol";
-import {
-    IERC20Upgradeable
-} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 import {IBToken} from "./interfaces/IBToken.sol";
 import {IIncentivesController} from "./interfaces/IIncentivesController.sol";
@@ -64,8 +60,10 @@ contract StakedBendIncentivesController is
             "INVALID_CONFIGURATION"
         );
 
-        DistributionTypes.AssetConfigInput[] memory assetsConfig =
-            new DistributionTypes.AssetConfigInput[](assets.length);
+        DistributionTypes.AssetConfigInput[]
+            memory assetsConfig = new DistributionTypes.AssetConfigInput[](
+                assets.length
+            );
 
         for (uint256 i = 0; i < assets.length; i++) {
             assetsConfig[i].underlyingAsset = address(assets[i]);
@@ -87,13 +85,12 @@ contract StakedBendIncentivesController is
         uint256 totalSupply,
         uint256 userBalance
     ) external override {
-        uint256 accruedRewards =
-            _updateUserAssetInternal(
-                user,
-                msg.sender,
-                userBalance,
-                totalSupply
-            );
+        uint256 accruedRewards = _updateUserAssetInternal(
+            user,
+            msg.sender,
+            userBalance,
+            totalSupply
+        );
         if (accruedRewards != 0) {
             _usersUnclaimedRewards[user] = _usersUnclaimedRewards[user].add(
                 accruedRewards
@@ -111,14 +108,15 @@ contract StakedBendIncentivesController is
     {
         uint256 unclaimedRewards = _usersUnclaimedRewards[user];
 
-        DistributionTypes.UserStakeInput[] memory userState =
-            new DistributionTypes.UserStakeInput[](assets.length);
+        DistributionTypes.UserStakeInput[]
+            memory userState = new DistributionTypes.UserStakeInput[](
+                assets.length
+            );
         for (uint256 i = 0; i < assets.length; i++) {
             userState[i].underlyingAsset = assets[i];
             (userState[i].stakedByUser, userState[i].totalStaked) = IBToken(
                 assets[i]
-            )
-                .getScaledUserBalanceAndSupply(user);
+            ).getScaledUserBalanceAndSupply(user);
         }
         unclaimedRewards = unclaimedRewards.add(
             _getUnclaimedRewards(user, userState)
@@ -152,14 +150,15 @@ contract StakedBendIncentivesController is
         address user = msg.sender;
         uint256 unclaimedRewards = _usersUnclaimedRewards[user];
 
-        DistributionTypes.UserStakeInput[] memory userState =
-            new DistributionTypes.UserStakeInput[](assets.length);
+        DistributionTypes.UserStakeInput[]
+            memory userState = new DistributionTypes.UserStakeInput[](
+                assets.length
+            );
         for (uint256 i = 0; i < assets.length; i++) {
             userState[i].underlyingAsset = assets[i];
             (userState[i].stakedByUser, userState[i].totalStaked) = IBToken(
                 assets[i]
-            )
-                .getScaledUserBalanceAndSupply(user);
+            ).getScaledUserBalanceAndSupply(user);
         }
 
         uint256 accruedRewards = _claimRewards(user, userState);
@@ -172,8 +171,9 @@ contract StakedBendIncentivesController is
             return 0;
         }
 
-        uint256 amountToClaim =
-            amount > unclaimedRewards ? unclaimedRewards : amount;
+        uint256 amountToClaim = amount > unclaimedRewards
+            ? unclaimedRewards
+            : amount;
         _usersUnclaimedRewards[user] = unclaimedRewards - amountToClaim; // Safe due to the previous line
 
         IERC20Upgradeable(STAKE_TOKEN.STAKED_TOKEN()).safeTransferFrom(

@@ -99,7 +99,8 @@ async function deploy() {
       864000,
       172800,
       vault.address,
-      shortTimelockExecutor.address,
+      deployer.address,
+      // shortTimelockExecutor.address,
       3153600000,
       "Staked BEND",
       "stkBEND",
@@ -124,7 +125,8 @@ async function deploy() {
     [
       stakedBend.address,
       vault.address,
-      shortTimelockExecutor.address,
+      deployer.address,
+      // shortTimelockExecutor.address,
       ONE_YEAR * 100,
     ],
     network.name,
@@ -172,7 +174,8 @@ async function connect(contracts: Contracts) {
   await waitForTx(
     await vault.approve(bendToken.address, stakedBend.address, MAX_UINT_AMOUNT)
   );
-  waitForTx(await vault.transferOwnership(shortTimelockExecutor.address));
+
+  // waitForTx(await vault.transferOwnership(shortTimelockExecutor.address));
 }
 
 async function main() {

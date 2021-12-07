@@ -1,10 +1,10 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0xf9591ac3b4cD8B9447dC6D9109174102e7120F62",
-    "txHash": "0x9bad3e036288c4619bfef24c2173bea5e81f9231e099ddd5e93ba9c76b94e11a",
+    "address": "0x4a7cb7c71047e1499CE884fd6De2862CBA7bAd65",
+    "txHash": "0x00a8ba918ab22b376f25ce467f06b87149e05f1fdccc1d60828d65b5ad953a46",
     "deployTransaction": {
-      "hash": "0x9bad3e036288c4619bfef24c2173bea5e81f9231e099ddd5e93ba9c76b94e11a",
+      "hash": "0x00a8ba918ab22b376f25ce467f06b87149e05f1fdccc1d60828d65b5ad953a46",
       "type": 2,
       "accessList": [],
       "blockHash": null,
@@ -14,15 +14,15 @@
       "from": "0x8B0a2D45aC9D4BaCa1589EF82eC6A2C7c4Ef69Dc",
       "gasPrice": {
         "type": "BigNumber",
-        "hex": "0x3b9aca0d"
+        "hex": "0x3b9aca15"
       },
       "maxPriorityFeePerGas": {
         "type": "BigNumber",
-        "hex": "0x3b9ac9fd"
+        "hex": "0x3b9aca00"
       },
       "maxFeePerGas": {
         "type": "BigNumber",
-        "hex": "0x3b9aca0d"
+        "hex": "0x3b9aca15"
       },
       "gasLimit": {
         "type": "BigNumber",
@@ -33,36 +33,41 @@
         "type": "BigNumber",
         "hex": "0x00"
       },
-      "nonce": 417,
+      "nonce": 436,
       "data": "0x608060405234801561001057600080fd5b50600080546001600160a01b031916339081178255604051909182917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908290a350610759806100616000396000f3fe60806040526004361061007b5760003560e01c80639623609d1161004e5780639623609d1461011157806399a88ec414610124578063f2fde38b14610144578063f3b7dead146101645761007b565b8063204e1c7a14610080578063715018a6146100bc5780637eff275e146100d35780638da5cb5b146100f3575b600080fd5b34801561008c57600080fd5b506100a061009b366004610515565b610184565b6040516001600160a01b03909116815260200160405180910390f35b3480156100c857600080fd5b506100d1610215565b005b3480156100df57600080fd5b506100d16100ee366004610554565b610292565b3480156100ff57600080fd5b506000546001600160a01b03166100a0565b6100d161011f36600461058c565b61031c565b34801561013057600080fd5b506100d161013f366004610554565b6103ad565b34801561015057600080fd5b506100d161015f366004610515565b610405565b34801561017057600080fd5b506100a061017f366004610515565b6104ef565b6000806000836001600160a01b03166040516101aa90635c60da1b60e01b815260040190565b600060405180830381855afa9150503d80600081146101e5576040519150601f19603f3d011682016040523d82523d6000602084013e6101ea565b606091505b5091509150816101f957600080fd5b8080602001905181019061020d9190610538565b949350505050565b6000546001600160a01b031633146102485760405162461bcd60e51b815260040161023f906106c0565b60405180910390fd5b600080546040516001600160a01b03909116907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908390a3600080546001600160a01b0319169055565b6000546001600160a01b031633146102bc5760405162461bcd60e51b815260040161023f906106c0565b6040516308f2839760e41b81526001600160a01b038281166004830152831690638f283970906024015b600060405180830381600087803b15801561030057600080fd5b505af1158015610314573d6000803e3d6000fd5b505050505050565b6000546001600160a01b031633146103465760405162461bcd60e51b815260040161023f906106c0565b60405163278f794360e11b81526001600160a01b03841690634f1ef286903490610376908690869060040161065d565b6000604051808303818588803b15801561038f57600080fd5b505af11580156103a3573d6000803e3d6000fd5b5050505050505050565b6000546001600160a01b031633146103d75760405162461bcd60e51b815260040161023f906106c0565b604051631b2ce7f360e11b81526001600160a01b038281166004830152831690633659cfe6906024016102e6565b6000546001600160a01b0316331461042f5760405162461bcd60e51b815260040161023f906106c0565b6001600160a01b0381166104945760405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b606482015260840161023f565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0319166001600160a01b0392909216919091179055565b6000806000836001600160a01b03166040516101aa906303e1469160e61b815260040190565b600060208284031215610526578081fd5b81356105318161070b565b9392505050565b600060208284031215610549578081fd5b81516105318161070b565b60008060408385031215610566578081fd5b82356105718161070b565b915060208301356105818161070b565b809150509250929050565b6000806000606084860312156105a0578081fd5b83356105ab8161070b565b925060208401356105bb8161070b565b9150604084013567ffffffffffffffff808211156105d7578283fd5b818601915086601f8301126105ea578283fd5b8135818111156105fc576105fc6106f5565b604051601f8201601f19908116603f01168101908382118183101715610624576106246106f5565b8160405282815289602084870101111561063c578586fd5b82602086016020830137856020848301015280955050505050509250925092565b600060018060a01b038416825260206040818401528351806040850152825b818110156106985785810183015185820160600152820161067c565b818111156106a95783606083870101525b50601f01601f191692909201606001949350505050565b6020808252818101527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572604082015260600190565b634e487b7160e01b600052604160045260246000fd5b6001600160a01b038116811461072057600080fd5b5056fea2646970667358221220d849f96f3086b9f82cdcf665adb8c697ace05638da1c7c16ab2d26293717af6764736f6c63430008020033",
-      "r": "0x9e18082e8e12d3e16e101707c61efd1397057f68f6e43bc22782f1518dc65965",
-      "s": "0x4fb7a9e15fa99a4464fe46ebd78578f7753f35d32adb73a0290d09993ee5c5f5",
+      "r": "0xa43bdfad551e443c3025d34543065aab53951785af46431ac7dade4379fc76b4",
+      "s": "0x4d9bdb4d455756a706f410eece29ca7aee610723b883c120a2b5d3b7d8cd6833",
       "v": 1,
-      "creates": "0xf9591ac3b4cD8B9447dC6D9109174102e7120F62",
+      "creates": "0x4a7cb7c71047e1499CE884fd6De2862CBA7bAd65",
       "chainId": 4
     }
   },
   "proxies": [
     {
-      "address": "0x4F6354bBF4578ea84c4C13e2ac3D988a5B917df7",
-      "txHash": "0xb9577eade7fee10ae00098558aa234149c2627fa982f7c502a8565ed2a3104ca",
+      "address": "0xE5B09FAB26482bfa0e7E6d3483827AA0eC8eEa9c",
+      "txHash": "0x6bab09d0054866363259f884de093e106cb33faaa0652335126e4b1906fa1ba8",
       "kind": "transparent"
     },
     {
-      "address": "0x60065d24e92A5993f6F1E3f6A6Dde0BAa70F5AF9",
-      "txHash": "0x14a82efb5712af0e4d6efd681004a25bb973614766d7a6361e4d478892227c25",
+      "address": "0xB8901A44deD6fEF54c1503B7A2C56e47FB55E04d",
+      "txHash": "0x0fe6d5b0400c2a90cd04bcd6ae524e94c9b34bd41667e999c8c86e08634f0495",
       "kind": "transparent"
     },
     {
-      "address": "0x3914b761079Ad67c5e0928BB3337B481c69e3CdE",
-      "txHash": "0xd04bb2bcc43134d923164eac8db23f3aa556d530f7af601bdab51fe1064e8950",
+      "address": "0x075b239181860904d65cCBcf6948e6C4668934F5",
+      "txHash": "0xbce17d409e41762fc01605d3bce2d1cb40861157b7105b7224bb38911509dd6e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x06b0C0aEE6A2DDf5cb4fc76764e8107bA36B22b7",
+      "txHash": "0xe350688c6e106ac749166ca8822c607947993f1578bccf7108ef01c3a104b54e",
       "kind": "transparent"
     }
   ],
   "impls": {
     "bb524170718164467af51bdeb23a1c89bcea46a7ccf2a45b4dee2dcf028f2158": {
-      "address": "0xbaF2476744946A3e5c9D9d0C748ea46ac5ba1286",
-      "txHash": "0x3dad19e5ec3bc27fe2233049150303954b0558e31029458a9c96d2f232bc242b",
+      "address": "0x4F2375Abc0a0f33d4345973d20137BEC7F0eb79d",
+      "txHash": "0xa2beff09e038bb61b2f3203bb25f0bb2c33e40f06587519d4a59efbb435bf1be",
       "layout": {
         "storage": [
           {
@@ -140,7 +145,7 @@
           {
             "contract": "GovernanceToken",
             "label": "_votingSnapshots",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Snapshot)4238_storage))",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Snapshot)4242_storage))",
             "src": "contracts/gov/GovernanceToken.sol:35"
           },
           {
@@ -158,7 +163,7 @@
           {
             "contract": "GovernanceToken",
             "label": "_propositionPowerSnapshots",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Snapshot)4238_storage))",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Snapshot)4242_storage))",
             "src": "contracts/gov/GovernanceToken.sol:40"
           },
           {
@@ -187,13 +192,13 @@
           "t_uint256": {
             "label": "uint256"
           },
-          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Snapshot)4238_storage))": {
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Snapshot)4242_storage))": {
             "label": "mapping(address => mapping(uint256 => struct GovernancePowerDelegationERC20.Snapshot))"
           },
-          "t_mapping(t_uint256,t_struct(Snapshot)4238_storage)": {
+          "t_mapping(t_uint256,t_struct(Snapshot)4242_storage)": {
             "label": "mapping(uint256 => struct GovernancePowerDelegationERC20.Snapshot)"
           },
-          "t_struct(Snapshot)4238_storage": {
+          "t_struct(Snapshot)4242_storage": {
             "label": "struct GovernancePowerDelegationERC20.Snapshot",
             "members": [
               {
@@ -233,9 +238,9 @@
         }
       }
     },
-    "20e84511d312c6a088ee8749baf37103881f1b21fb0ab84f15b3b8ece7b96214": {
-      "address": "0xb804944d0FE72107b805D26221A57E241b61cCeB",
-      "txHash": "0x8ed2f4a583b219cc175841e0cf3e855abaff612f594988b4969336957c84a9d4",
+    "88d1ad71b7f4020476b4e42d02a7d52f04f6a84340d4519111755d8995e3308f": {
+      "address": "0xAfAebc22e8c9954134Ef539548bE8075bDfB1C60",
+      "txHash": "0xe85c5c83a2c2f4a6c34dffab41f4ed4f48226fc248e56b87531ea57cb2c21cce",
       "layout": {
         "storage": [
           {
@@ -313,7 +318,7 @@
           {
             "contract": "GovernanceToken",
             "label": "_votingSnapshots",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Snapshot)4238_storage))",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Snapshot)4242_storage))",
             "src": "contracts/gov/GovernanceToken.sol:35"
           },
           {
@@ -331,7 +336,7 @@
           {
             "contract": "GovernanceToken",
             "label": "_propositionPowerSnapshots",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Snapshot)4238_storage))",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Snapshot)4242_storage))",
             "src": "contracts/gov/GovernanceToken.sol:40"
           },
           {
@@ -350,61 +355,61 @@
             "contract": "DistributionManager",
             "label": "DISTRIBUTION_END",
             "type": "t_uint256",
-            "src": "contracts/stake/DistributionManager.sol:27"
+            "src": "contracts/stake/DistributionManager.sol:26"
           },
           {
             "contract": "DistributionManager",
             "label": "EMISSION_MANAGER",
             "type": "t_address",
-            "src": "contracts/stake/DistributionManager.sol:29"
+            "src": "contracts/stake/DistributionManager.sol:28"
           },
           {
             "contract": "DistributionManager",
             "label": "assets",
             "type": "t_mapping(t_address,t_struct(AssetData)7304_storage)",
-            "src": "contracts/stake/DistributionManager.sol:33"
+            "src": "contracts/stake/DistributionManager.sol:32"
           },
           {
             "contract": "StakedBend",
             "label": "STAKED_TOKEN",
             "type": "t_contract(IERC20Upgradeable)696",
-            "src": "contracts/stake/StakedBend.sol:29"
+            "src": "contracts/stake/StakedBend.sol:25"
           },
           {
             "contract": "StakedBend",
             "label": "REWARD_TOKEN",
             "type": "t_contract(IERC20Upgradeable)696",
-            "src": "contracts/stake/StakedBend.sol:30"
+            "src": "contracts/stake/StakedBend.sol:26"
           },
           {
             "contract": "StakedBend",
             "label": "COOLDOWN_SECONDS",
             "type": "t_uint256",
-            "src": "contracts/stake/StakedBend.sol:31"
+            "src": "contracts/stake/StakedBend.sol:27"
           },
           {
             "contract": "StakedBend",
             "label": "UNSTAKE_WINDOW",
             "type": "t_uint256",
-            "src": "contracts/stake/StakedBend.sol:34"
+            "src": "contracts/stake/StakedBend.sol:30"
           },
           {
             "contract": "StakedBend",
             "label": "REWARDS_VAULT",
             "type": "t_address",
-            "src": "contracts/stake/StakedBend.sol:37"
+            "src": "contracts/stake/StakedBend.sol:33"
           },
           {
             "contract": "StakedBend",
             "label": "stakerRewardsToClaim",
             "type": "t_mapping(t_address,t_uint256)",
-            "src": "contracts/stake/StakedBend.sol:39"
+            "src": "contracts/stake/StakedBend.sol:35"
           },
           {
             "contract": "StakedBend",
             "label": "stakersCooldowns",
             "type": "t_mapping(t_address,t_uint256)",
-            "src": "contracts/stake/StakedBend.sol:40"
+            "src": "contracts/stake/StakedBend.sol:36"
           }
         ],
         "types": {
@@ -450,13 +455,13 @@
           "t_bytes32": {
             "label": "bytes32"
           },
-          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Snapshot)4238_storage))": {
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Snapshot)4242_storage))": {
             "label": "mapping(address => mapping(uint256 => struct GovernancePowerDelegationERC20.Snapshot))"
           },
-          "t_mapping(t_uint256,t_struct(Snapshot)4238_storage)": {
+          "t_mapping(t_uint256,t_struct(Snapshot)4242_storage)": {
             "label": "mapping(uint256 => struct GovernancePowerDelegationERC20.Snapshot)"
           },
-          "t_struct(Snapshot)4238_storage": {
+          "t_struct(Snapshot)4242_storage": {
             "label": "struct GovernancePowerDelegationERC20.Snapshot",
             "members": [
               {
@@ -493,9 +498,9 @@
         }
       }
     },
-    "45ce0a5955be256bb04c60b507cdd1d8d3bb32ffcd8de460c6c09902c3ee6c85": {
-      "address": "0xeb82Cd107E9beF3E5fc63B604C144fe43c52Bc04",
-      "txHash": "0x84873318e2666d6bf3a6a8c3b596931bd8f79cfbbbd010ac555c8afb7c62a2ec",
+    "c6e9cdf23d8684652325471f44a2abd0d6a47bd03434ae48ced5df9ccc96c642": {
+      "address": "0x8B0DA84C2FBAeE536Bdb49bF25DcF5FF6c0d7465",
+      "txHash": "0xdf81fa729c7ee463cc5141c9c5ca0add4670bde11f8d275d35157896cf7600be",
       "layout": {
         "storage": [
           {
@@ -514,47 +519,47 @@
             "contract": "DistributionManager",
             "label": "DISTRIBUTION_END",
             "type": "t_uint256",
-            "src": "contracts/stake/DistributionManager.sol:27"
+            "src": "contracts/stake/DistributionManager.sol:26"
           },
           {
             "contract": "DistributionManager",
             "label": "EMISSION_MANAGER",
             "type": "t_address",
-            "src": "contracts/stake/DistributionManager.sol:29"
+            "src": "contracts/stake/DistributionManager.sol:28"
           },
           {
             "contract": "DistributionManager",
             "label": "assets",
             "type": "t_mapping(t_address,t_struct(AssetData)7304_storage)",
-            "src": "contracts/stake/DistributionManager.sol:33"
+            "src": "contracts/stake/DistributionManager.sol:32"
           },
           {
             "contract": "StakedBendIncentivesController",
             "label": "STAKE_TOKEN",
-            "type": "t_contract(IStakedTokenWithConfig)7222",
-            "src": "contracts/incentives/StakedBendIncentivesController.sol:34"
+            "type": "t_contract(IStakedTokenWithConfig)7223",
+            "src": "contracts/incentives/StakedBendIncentivesController.sol:30"
           },
           {
             "contract": "StakedBendIncentivesController",
             "label": "REWARD_TOKEN",
             "type": "t_contract(IERC20Upgradeable)696",
-            "src": "contracts/incentives/StakedBendIncentivesController.sol:35"
+            "src": "contracts/incentives/StakedBendIncentivesController.sol:31"
           },
           {
             "contract": "StakedBendIncentivesController",
             "label": "REWARDS_VAULT",
             "type": "t_address",
-            "src": "contracts/incentives/StakedBendIncentivesController.sol:36"
+            "src": "contracts/incentives/StakedBendIncentivesController.sol:32"
           },
           {
             "contract": "StakedBendIncentivesController",
             "label": "_usersUnclaimedRewards",
             "type": "t_mapping(t_address,t_uint256)",
-            "src": "contracts/incentives/StakedBendIncentivesController.sol:38"
+            "src": "contracts/incentives/StakedBendIncentivesController.sol:34"
           }
         ],
         "types": {
-          "t_contract(IStakedTokenWithConfig)7222": {
+          "t_contract(IStakedTokenWithConfig)7223": {
             "label": "contract IStakedTokenWithConfig"
           },
           "t_contract(IERC20Upgradeable)696": {
