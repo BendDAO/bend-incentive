@@ -10,10 +10,20 @@ import {
   waitForTx,
   makeBN18,
 } from "./utils";
-import { ZERO_ADDRESS, MAX_UINT_AMOUNT, ONE_YEAR } from "./constants";
+import {
+  ZERO_ADDRESS,
+  MAX_UINT_AMOUNT,
+  ONE_YEAR,
+  getStakedBendConfig,
+  getBTokenConfig,
+} from "./constants";
 import { Contract } from "ethers";
 import dotenv from "dotenv";
+import { makeBN } from "../test/utils";
 const envResult = dotenv.config();
+
+const COOLDOWN_SECONDS = "864000"; // 10 days
+const UNSTAKE_WINDOW = "172800"; // 2 days
 
 export interface Contracts {
   bendToken: Contract;
@@ -92,15 +102,14 @@ async function deploy() {
   );
 
   const stakedBend = await loadOrDeploy(
-    "StakedBend",
+    "StakedToken",
     [
       bendToken.address,
       bendToken.address,
-      864000,
-      172800,
+      COOLDOWN_SECONDS,
+      UNSTAKE_WINDOW,
       vault.address,
       deployer.address,
-      // shortTimelockExecutor.address,
       3153600000,
       "Staked BEND",
       "stkBEND",
@@ -109,8 +118,28 @@ async function deploy() {
     network.name,
     deployer,
     deploymentState,
-    { proxy: true }
+    { id: "StakedBend", proxy: true }
   );
+
+  // const stakedUni = await loadOrDeploy(
+  //   "StakedToken",
+  //   [
+  //     bendToken.address,
+  //     bendToken.address,
+  //     COOLDOWN_SECONDS,
+  //     UNSTAKE_WINDOW,
+  //     vault.address,
+  //     deployer.address,
+  //     3153600000,
+  //     "Staked BEND/ETH UNI",
+  //     "stkBUNI",
+  //     18,
+  //   ],
+  //   network.name,
+  //   deployer,
+  //   deploymentState,
+  //   { id: "StakedBuni", proxy: true }
+  // );
 
   const governanceStrategy = await loadOrDeploy(
     "GovernanceStrategy",
@@ -156,6 +185,7 @@ async function connect(contracts: Contracts) {
     stakedBend,
     incentivesController,
   } = contracts;
+
   waitForTx(
     await governance.authorizeExecutors([
       shortTimelockExecutor.address,
@@ -163,7 +193,9 @@ async function connect(contracts: Contracts) {
     ])
   );
   waitForTx(await governance.setGovernanceStrategy(governanceStrategy.address));
-  waitForTx(await governance.transferOwnership(longTimelockExecutor.address));
+  try {
+    waitForTx(await governance.transferOwnership(longTimelockExecutor.address));
+  } catch (error) {}
   waitForTx(
     await vault.approve(
       bendToken.address,
@@ -171,10 +203,36 @@ async function connect(contracts: Contracts) {
       MAX_UINT_AMOUNT
     )
   );
-  await waitForTx(
+  waitForTx(
     await vault.approve(bendToken.address, stakedBend.address, MAX_UINT_AMOUNT)
   );
 
+  waitForTx(
+    await stakedBend.configureAssets([
+      {
+        emissionPerSecond: getStakedBendConfig(network.name),
+        totalStaked: await stakedBend.totalSupply(),
+        underlyingAsset: stakedBend.address,
+      },
+    ])
+  );
+  waitForTx(await stakedBend.configure(getStakedBendConfig(network.name)));
+
+  let bTokensConfig = getBTokenConfig(network.name);
+  waitForTx(
+    await incentivesController.configureAssets(
+      bTokensConfig[0],
+      bTokensConfig[1]
+    )
+  );
+
+  // waitForTx(
+  //   await vault.transfer(
+  //     bendToken.address,
+  //     "0x668417616f1502D13EA1f9528F83072A133e8E01",
+  //     makeBN18(10000)
+  //   )
+  // );
   // waitForTx(await vault.transferOwnership(shortTimelockExecutor.address));
 }
 

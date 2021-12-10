@@ -38,7 +38,7 @@ export async function deployStakedToken(
   await waitForTx(
     await bendToken.mint(vaultOfRewards.address, bendAmountOfvault.toString())
   );
-  const stakedToken = await deployProxyContract("StakedBend", [
+  const stakedToken = await deployProxyContract("StakedToken", [
     bendToken.address,
     bendToken.address,
     COOLDOWN_SECONDS,

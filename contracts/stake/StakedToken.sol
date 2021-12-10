@@ -18,7 +18,7 @@ import {GovernanceToken} from "../gov/GovernanceToken.sol";
  * @notice Contract to stake Bend token, tokenize the position and get rewards, inheriting from a distribution manager contract
  * @author Bend
  **/
-contract StakedBend is IStakedToken, GovernanceToken, DistributionManager {
+contract StakedToken is IStakedToken, GovernanceToken, DistributionManager {
     using SafeMath for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -87,6 +87,21 @@ contract StakedBend is IStakedToken, GovernanceToken, DistributionManager {
     function configureAssets(
         DistributionTypes.AssetConfigInput[] calldata assetsConfigInput
     ) external override onlyEmissionManager {
+        _configureAssets(assetsConfigInput);
+    }
+
+    function configure(uint128 emissionPerSecond)
+        external
+        override
+        onlyEmissionManager
+    {
+        DistributionTypes.AssetConfigInput[]
+            memory assetsConfigInput = new DistributionTypes.AssetConfigInput[](
+                1
+            );
+        assetsConfigInput[0].emissionPerSecond = emissionPerSecond;
+        assetsConfigInput[0].totalStaked = totalSupply();
+        assetsConfigInput[0].underlyingAsset = address(this);
         _configureAssets(assetsConfigInput);
     }
 
