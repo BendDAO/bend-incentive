@@ -10,10 +10,20 @@ import {
   waitForTx,
   makeBN18,
 } from "./utils";
-import { ZERO_ADDRESS, MAX_UINT_AMOUNT, ONE_YEAR } from "./constants";
+import {
+  ZERO_ADDRESS,
+  MAX_UINT_AMOUNT,
+  ONE_YEAR,
+  getStakedBendConfig,
+  getBTokenConfig,
+} from "./constants";
 import { Contract } from "ethers";
 import dotenv from "dotenv";
+import { makeBN } from "../test/utils";
 const envResult = dotenv.config();
+
+const COOLDOWN_SECONDS = "864000"; // 10 days
+const UNSTAKE_WINDOW = "172800"; // 2 days
 
 export interface Contracts {
   bendToken: Contract;
@@ -51,84 +61,16 @@ async function deploy() {
   );
   const bendToken = await loadOrDeploy(
     "BendToken",
-    [vault.address, makeBN18(10000000)],
+    [vault.address, makeBN18(100000000)],
     network.name,
     deployer,
     deploymentState,
     { proxy: true }
-  );
-  const governance = await loadOrDeploy(
-    "Governance",
-    [15, GUARDIAN_MULTI_SIG_ADDR],
-    network.name,
-    deployer,
-    deploymentState
-  );
-  const shortTimelockExecutor = await loadOrDeploy(
-    "Executor",
-    [governance.address, 86400, 432000, 86400, 864000, 50, 19200, 50, 200],
-    network.name,
-    deployer,
-    deploymentState,
-    { id: "ShortTimelockExecutor" }
-  );
-  const longTimelockExecutor = await loadOrDeploy(
-    "Executor",
-    [
-      governance.address,
-      604800,
-      432000,
-      604800,
-      864000,
-      200,
-      64000,
-      1500,
-      2000,
-    ],
-    network.name,
-    deployer,
-    deploymentState,
-    { id: "LongTimelockExecutor" }
-  );
-
-  const stakedBend = await loadOrDeploy(
-    "StakedBend",
-    [
-      bendToken.address,
-      bendToken.address,
-      864000,
-      172800,
-      vault.address,
-      deployer.address,
-      // shortTimelockExecutor.address,
-      3153600000,
-      "Staked BEND",
-      "stkBEND",
-      18,
-    ],
-    network.name,
-    deployer,
-    deploymentState,
-    { proxy: true }
-  );
-
-  const governanceStrategy = await loadOrDeploy(
-    "GovernanceStrategy",
-    [bendToken.address, stakedBend.address],
-    network.name,
-    deployer,
-    deploymentState
   );
 
   const incentivesController = await loadOrDeploy(
-    "StakedBendIncentivesController",
-    [
-      stakedBend.address,
-      vault.address,
-      deployer.address,
-      // shortTimelockExecutor.address,
-      ONE_YEAR * 100,
-    ],
+    "BendProtocolIncentivesController",
+    [bendToken.address, vault.address, ONE_YEAR * 100],
     network.name,
     deployer,
     deploymentState,
@@ -136,46 +78,32 @@ async function deploy() {
   );
   return {
     bendToken,
-    governance,
-    governanceStrategy,
-    shortTimelockExecutor,
-    longTimelockExecutor,
     vault,
-    stakedBend,
     incentivesController,
   } as Contracts;
 }
 async function connect(contracts: Contracts) {
-  const {
-    bendToken,
-    governance,
-    governanceStrategy,
-    shortTimelockExecutor,
-    longTimelockExecutor,
-    vault,
-    stakedBend,
-    incentivesController,
-  } = contracts;
+  const { bendToken, vault, incentivesController } = contracts;
+
+  try {
+    waitForTx(
+      await vault.approve(
+        bendToken.address,
+        incentivesController.address,
+        makeBN(MAX_UINT_AMOUNT)
+      )
+    );
+  } catch (error) {
+    console.error(error);
+  }
+
+  let bTokensConfig = getBTokenConfig(network.name);
   waitForTx(
-    await governance.authorizeExecutors([
-      shortTimelockExecutor.address,
-      longTimelockExecutor.address,
-    ])
-  );
-  waitForTx(await governance.setGovernanceStrategy(governanceStrategy.address));
-  waitForTx(await governance.transferOwnership(longTimelockExecutor.address));
-  waitForTx(
-    await vault.approve(
-      bendToken.address,
-      incentivesController.address,
-      MAX_UINT_AMOUNT
+    await incentivesController.configureAssets(
+      bTokensConfig[0],
+      bTokensConfig[1]
     )
   );
-  await waitForTx(
-    await vault.approve(bendToken.address, stakedBend.address, MAX_UINT_AMOUNT)
-  );
-
-  // waitForTx(await vault.transferOwnership(shortTimelockExecutor.address));
 }
 
 async function main() {
