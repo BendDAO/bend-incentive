@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract, BigNumber } from "ethers";
 import {
-  deployStakedToken,
+  deployBendToken,
   deployIncentivesController,
   deployContract,
   deployVault,
@@ -70,9 +70,8 @@ const getRewardsBalanceScenarios: ScenarioAction[] = [
   },
 ];
 
-describe("StakedBendIncentivesController claimRewards tests", function () {
+describe("BendProtocolIncentivesController claimRewards tests", function () {
   let bendToken: Contract;
-  let stakedToken: Contract;
   let incentivesController: Contract;
   let bWeth: Contract;
   let deployer: SignerWithAddress;
@@ -84,17 +83,8 @@ describe("StakedBendIncentivesController claimRewards tests", function () {
     [deployer] = addresses;
     users = addresses.slice(1, addresses.length);
     const vault = await deployVault();
-    ({ bendToken, stakedToken } = await deployStakedToken(
-      vault,
-      makeBN18(1000000),
-      deployer.address
-    ));
-    incentivesController = await deployIncentivesController(
-      bendToken,
-      stakedToken,
-      vault,
-      deployer.address
-    );
+    bendToken = await deployBendToken(vault, makeBN18(1000000));
+    incentivesController = await deployIncentivesController(bendToken, vault);
 
     deployTime = await timeLatest();
     bWeth = await deployContract("BTokenMock", [
@@ -122,7 +112,7 @@ describe("StakedBendIncentivesController claimRewards tests", function () {
         );
       }
 
-      const userBalanceBefore = await stakedToken.balanceOf(userAddress);
+      const userBalanceBefore = await bendToken.balanceOf(userAddress);
       await bWeth.setUserBalanceAndSupply(
         userAddress,
         stakedByUser,
@@ -170,7 +160,7 @@ describe("StakedBendIncentivesController claimRewards tests", function () {
           userAddress
         );
 
-      const userBalanceAfter = await stakedToken.balanceOf(userAddress);
+      const userBalanceAfter = await bendToken.balanceOf(userAddress);
 
       const claimedAmount = userBalanceAfter.sub(userBalanceBefore);
 

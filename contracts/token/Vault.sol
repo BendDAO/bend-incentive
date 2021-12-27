@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IVault} from "./interfaces/IVault.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  * @title EcosystemReserve
@@ -11,12 +12,14 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  * @author Bend
  **/
 contract Vault is Ownable, IVault {
+    using SafeERC20 for IERC20;
+
     function approve(
         IERC20 token,
         address recipient,
         uint256 amount
     ) external override onlyOwner {
-        token.approve(recipient, amount);
+        token.safeApprove(recipient, amount);
     }
 
     function transfer(
@@ -24,6 +27,6 @@ contract Vault is Ownable, IVault {
         address recipient,
         uint256 amount
     ) external override onlyOwner {
-        token.transfer(recipient, amount);
+        token.safeTransfer(recipient, amount);
     }
 }
