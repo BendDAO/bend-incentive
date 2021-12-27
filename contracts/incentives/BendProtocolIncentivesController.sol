@@ -10,7 +10,7 @@ import {DistributionManager} from "./DistributionManager.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
-import {IBToken} from "./interfaces/IBToken.sol";
+import {IScaledBalanceToken} from "./interfaces/IScaledBalanceToken.sol";
 import {IIncentivesController} from "./interfaces/IIncentivesController.sol";
 
 /**
@@ -46,7 +46,7 @@ contract BendProtocolIncentivesController is
      * @param _emissionsPerSecond The emission for each asset
      */
     function configureAssets(
-        IBToken[] calldata _assets,
+        IScaledBalanceToken[] calldata _assets,
         uint256[] calldata _emissionsPerSecond
     ) external override onlyOwner {
         require(
@@ -117,9 +117,12 @@ contract BendProtocolIncentivesController is
             );
         for (uint256 i = 0; i < _assets.length; i++) {
             userState[i].underlyingAsset = _assets[i];
-            (userState[i].stakedByUser, userState[i].totalStaked) = IBToken(
-                _assets[i]
-            ).getScaledUserBalanceAndSupply(_user);
+            (
+                userState[i].stakedByUser,
+                userState[i].totalStaked
+            ) = IScaledBalanceToken(_assets[i]).getScaledUserBalanceAndSupply(
+                _user
+            );
         }
         unclaimedRewards = unclaimedRewards.add(
             _getUnclaimedRewards(_user, userState)
@@ -164,9 +167,12 @@ contract BendProtocolIncentivesController is
             );
         for (uint256 i = 0; i < _assets.length; i++) {
             userState[i].underlyingAsset = _assets[i];
-            (userState[i].stakedByUser, userState[i].totalStaked) = IBToken(
-                _assets[i]
-            ).getScaledUserBalanceAndSupply(user);
+            (
+                userState[i].stakedByUser,
+                userState[i].totalStaked
+            ) = IScaledBalanceToken(_assets[i]).getScaledUserBalanceAndSupply(
+                user
+            );
         }
 
         uint256 accruedRewards = _claimRewards(user, userState);
