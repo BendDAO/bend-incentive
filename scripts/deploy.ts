@@ -67,89 +67,10 @@ async function deploy() {
     deploymentState,
     { proxy: true }
   );
-  const governance = await loadOrDeploy(
-    "Governance",
-    [15, GUARDIAN_MULTI_SIG_ADDR],
-    network.name,
-    deployer,
-    deploymentState
-  );
-  const shortTimelockExecutor = await loadOrDeploy(
-    "Executor",
-    [governance.address, 86400, 432000, 86400, 864000, 50, 19200, 50, 200],
-    network.name,
-    deployer,
-    deploymentState,
-    { id: "ShortTimelockExecutor" }
-  );
-  const longTimelockExecutor = await loadOrDeploy(
-    "Executor",
-    [
-      governance.address,
-      604800,
-      432000,
-      604800,
-      864000,
-      200,
-      64000,
-      1500,
-      2000,
-    ],
-    network.name,
-    deployer,
-    deploymentState,
-    { id: "LongTimelockExecutor" }
-  );
-
-  const stakedBend = await loadOrDeploy(
-    "StakedToken",
-    [
-      bendToken.address,
-      bendToken.address,
-      COOLDOWN_SECONDS,
-      UNSTAKE_WINDOW,
-      vault.address,
-      3153600000,
-      "Staked BEND",
-      "stkBEND",
-      18,
-    ],
-    network.name,
-    deployer,
-    deploymentState,
-    { id: "StakedBend", proxy: true }
-  );
-
-  // const stakedUni = await loadOrDeploy(
-  //   "StakedToken",
-  //   [
-  //     bendToken.address,
-  //     bendToken.address,
-  //     COOLDOWN_SECONDS,
-  //     UNSTAKE_WINDOW,
-  //     vault.address,
-  //     3153600000,
-  //     "Staked BEND/ETH UNI",
-  //     "stkBUNI",
-  //     18,
-  //   ],
-  //   network.name,
-  //   deployer,
-  //   deploymentState,
-  //   { id: "StakedBuni", proxy: true }
-  // );
-
-  const governanceStrategy = await loadOrDeploy(
-    "GovernanceStrategy",
-    [bendToken.address, stakedBend.address],
-    network.name,
-    deployer,
-    deploymentState
-  );
 
   const incentivesController = await loadOrDeploy(
-    "StakedBendIncentivesController",
-    [stakedBend.address, vault.address, ONE_YEAR * 100],
+    "BendProtocolIncentivesController",
+    [bendToken.address, vault.address, ONE_YEAR * 100],
     network.name,
     deployer,
     deploymentState,
@@ -157,37 +78,13 @@ async function deploy() {
   );
   return {
     bendToken,
-    governance,
-    governanceStrategy,
-    shortTimelockExecutor,
-    longTimelockExecutor,
     vault,
-    stakedBend,
     incentivesController,
   } as Contracts;
 }
 async function connect(contracts: Contracts) {
-  const {
-    bendToken,
-    governance,
-    governanceStrategy,
-    shortTimelockExecutor,
-    longTimelockExecutor,
-    vault,
-    stakedBend,
-    incentivesController,
-  } = contracts;
+  const { bendToken, vault, incentivesController } = contracts;
 
-  waitForTx(
-    await governance.authorizeExecutors([
-      shortTimelockExecutor.address,
-      longTimelockExecutor.address,
-    ])
-  );
-  waitForTx(await governance.setGovernanceStrategy(governanceStrategy.address));
-  try {
-    waitForTx(await governance.transferOwnership(longTimelockExecutor.address));
-  } catch (error) {}
   waitForTx(
     await vault.approve(
       bendToken.address,
@@ -195,11 +92,6 @@ async function connect(contracts: Contracts) {
       MAX_UINT_AMOUNT
     )
   );
-  waitForTx(
-    await vault.approve(bendToken.address, stakedBend.address, MAX_UINT_AMOUNT)
-  );
-
-  waitForTx(await stakedBend.configureAsset(getStakedBendConfig(network.name)));
 
   let bTokensConfig = getBTokenConfig(network.name);
   waitForTx(
@@ -208,19 +100,6 @@ async function connect(contracts: Contracts) {
       bTokensConfig[1]
     )
   );
-
-  // waitForTx(
-  //   await vault.transfer(
-  //     bendToken.address,
-  //     "0x668417616f1502D13EA1f9528F83072A133e8E01",
-  //     makeBN18(10000)
-  //   )
-  // );
-
-  // transfer owner to governance
-  // waitForTx(await vault.transferOwnership(shortTimelockExecutor.address));
-  // waitForTx(await stakedBend.transferOwnership(shortTimelockExecutor.address));
-  // waitForTx(await stakedBuni.transferOwnership(shortTimelockExecutor.address));
 }
 
 async function main() {
