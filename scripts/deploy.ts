@@ -61,7 +61,7 @@ async function deploy() {
   );
   const bendToken = await loadOrDeploy(
     "BendToken",
-    [vault.address, makeBN18(10000000)],
+    [vault.address, makeBN18(100000000)],
     network.name,
     deployer,
     deploymentState,
@@ -85,13 +85,17 @@ async function deploy() {
 async function connect(contracts: Contracts) {
   const { bendToken, vault, incentivesController } = contracts;
 
-  waitForTx(
-    await vault.approve(
-      bendToken.address,
-      incentivesController.address,
-      MAX_UINT_AMOUNT
-    )
-  );
+  try {
+    waitForTx(
+      await vault.approve(
+        bendToken.address,
+        incentivesController.address,
+        makeBN(MAX_UINT_AMOUNT)
+      )
+    );
+  } catch (error) {
+    console.error(error);
+  }
 
   let bTokensConfig = getBTokenConfig(network.name);
   waitForTx(

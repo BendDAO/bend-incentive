@@ -4,10 +4,10 @@ pragma abicoder v2;
 
 import {IIncentivesController} from "../incentives/interfaces/IIncentivesController.sol";
 import {DistributionTypes} from "../incentives/DistributionTypes.sol";
-import {IBToken} from "../incentives/interfaces/IBToken.sol";
+import {IScaledBalanceToken} from "../incentives/interfaces/IScaledBalanceToken.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract BTokenMock is IBToken, ERC20 {
+contract BTokenMock is IScaledBalanceToken, ERC20 {
     IIncentivesController public aic;
     uint256 internal __totalSupply;
     mapping(address => uint256) private balances;

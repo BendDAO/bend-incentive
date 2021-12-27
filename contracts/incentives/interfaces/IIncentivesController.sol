@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-import {IBToken} from "./IBToken.sol";
+import {IScaledBalanceToken} from "./IScaledBalanceToken.sol";
 
 interface IIncentivesController {
     event RewardsAccrued(address indexed _user, uint256 _amount);
@@ -15,7 +15,7 @@ interface IIncentivesController {
      * @param _emissionsPerSecond The emission for each asset
      */
     function configureAssets(
-        IBToken[] calldata _assets,
+        IScaledBalanceToken[] calldata _assets,
         uint256[] calldata _emissionsPerSecond
     ) external;
 

@@ -159,7 +159,10 @@ async function getProxyImpl(address: string) {
     address,
     "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
   );
-  return hre.ethers.utils.hexStripZeros(implHex);
+  return hre.ethers.utils.hexZeroPad(
+    hre.ethers.utils.hexStripZeros(implHex),
+    20
+  );
 }
 
 export async function waitForTx(tx: ContractTransaction) {
