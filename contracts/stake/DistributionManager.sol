@@ -5,6 +5,7 @@ pragma abicoder v2;
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {DistributionTypes} from "./DistributionTypes.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 // import "hardhat/console.sol";
 
@@ -13,7 +14,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * @notice Accounting contract to manage multiple staking distributions
  * @author Bend
  **/
-contract DistributionManager is Initializable {
+contract DistributionManager is Initializable, OwnableUpgradeable {
     using SafeMath for uint256;
 
     struct AssetData {
@@ -25,8 +26,6 @@ contract DistributionManager is Initializable {
 
     uint256 public DISTRIBUTION_END;
 
-    address public EMISSION_MANAGER;
-
     uint8 public constant PRECISION = 18;
 
     mapping(address => AssetData) public assets;
@@ -34,7 +33,6 @@ contract DistributionManager is Initializable {
     event AssetConfigUpdated(address indexed asset, uint256 emission);
     event AssetIndexUpdated(address indexed asset, uint256 index);
     event DistributionEndUpdated(uint256 newDistributionEnd);
-    event EmissionManagerUpdated(address newEmissionManager);
 
     event UserIndexUpdated(
         address indexed user,
@@ -42,38 +40,22 @@ contract DistributionManager is Initializable {
         uint256 index
     );
 
-    modifier onlyEmissionManager() {
-        require(msg.sender == EMISSION_MANAGER, "ONLY_EMISSION_MANAGER");
-        _;
-    }
-
-    function __DistributionManager_init(
-        address emissionManager,
-        uint256 distributionDuration
-    ) public initializer {
+    function __DistributionManager_init(uint256 distributionDuration)
+        public
+        initializer
+    {
+        __Ownable_init();
         DISTRIBUTION_END = block.timestamp.add(distributionDuration);
-        EMISSION_MANAGER = emissionManager;
     }
 
-    function setEmissionManager(address emissionManager)
-        external
-        onlyEmissionManager
-    {
-        EMISSION_MANAGER = emissionManager;
-        emit EmissionManagerUpdated(emissionManager);
-    }
-
-    function setDistributionEnd(uint256 distributionEnd)
-        external
-        onlyEmissionManager
-    {
+    function setDistributionEnd(uint256 distributionEnd) external onlyOwner {
         DISTRIBUTION_END = distributionEnd;
         emit DistributionEndUpdated(distributionEnd);
     }
 
     function _configureAssets(
         DistributionTypes.AssetConfigInput[] memory assetsConfigInput
-    ) internal {
+    ) internal onlyOwner {
         for (uint256 i = 0; i < assetsConfigInput.length; i++) {
             AssetData storage assetConfig = assets[
                 assetsConfigInput[i].underlyingAsset

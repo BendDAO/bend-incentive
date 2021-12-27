@@ -4,11 +4,7 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {DistributionTypes} from "../DistributionTypes.sol";
 
 interface IStakedToken is IERC20Upgradeable {
-    function configureAssets(
-        DistributionTypes.AssetConfigInput[] calldata assetsConfigInput
-    ) external;
-
-    function configure(uint128 emissionPerSecond) external;
+    function configureAsset(uint128 emissionPerSecond) external;
 
     function stake(address to, uint256 amount) external;
 

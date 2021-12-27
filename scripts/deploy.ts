@@ -109,7 +109,6 @@ async function deploy() {
       COOLDOWN_SECONDS,
       UNSTAKE_WINDOW,
       vault.address,
-      deployer.address,
       3153600000,
       "Staked BEND",
       "stkBEND",
@@ -129,7 +128,6 @@ async function deploy() {
   //     COOLDOWN_SECONDS,
   //     UNSTAKE_WINDOW,
   //     vault.address,
-  //     deployer.address,
   //     3153600000,
   //     "Staked BEND/ETH UNI",
   //     "stkBUNI",
@@ -151,13 +149,7 @@ async function deploy() {
 
   const incentivesController = await loadOrDeploy(
     "StakedBendIncentivesController",
-    [
-      stakedBend.address,
-      vault.address,
-      deployer.address,
-      // shortTimelockExecutor.address,
-      ONE_YEAR * 100,
-    ],
+    [stakedBend.address, vault.address, ONE_YEAR * 100],
     network.name,
     deployer,
     deploymentState,
@@ -207,16 +199,7 @@ async function connect(contracts: Contracts) {
     await vault.approve(bendToken.address, stakedBend.address, MAX_UINT_AMOUNT)
   );
 
-  waitForTx(
-    await stakedBend.configureAssets([
-      {
-        emissionPerSecond: getStakedBendConfig(network.name),
-        totalStaked: await stakedBend.totalSupply(),
-        underlyingAsset: stakedBend.address,
-      },
-    ])
-  );
-  waitForTx(await stakedBend.configure(getStakedBendConfig(network.name)));
+  waitForTx(await stakedBend.configureAsset(getStakedBendConfig(network.name)));
 
   let bTokensConfig = getBTokenConfig(network.name);
   waitForTx(
@@ -233,7 +216,11 @@ async function connect(contracts: Contracts) {
   //     makeBN18(10000)
   //   )
   // );
+
+  // transfer owner to governance
   // waitForTx(await vault.transferOwnership(shortTimelockExecutor.address));
+  // waitForTx(await stakedBend.transferOwnership(shortTimelockExecutor.address));
+  // waitForTx(await stakedBuni.transferOwnership(shortTimelockExecutor.address));
 }
 
 async function main() {

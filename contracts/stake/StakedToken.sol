@@ -64,14 +64,13 @@ contract StakedToken is IStakedToken, GovernanceToken, DistributionManager {
         uint256 cooldownSeconds,
         uint256 unstakeWindow,
         address rewardsVault,
-        address emissionManager,
         uint128 distributionDuration,
         string memory name,
         string memory symbol,
         uint8 decimals
     ) external initializer {
         __ERC20Detailed_init(name, symbol, decimals);
-        __DistributionManager_init(emissionManager, distributionDuration);
+        __DistributionManager_init(distributionDuration);
         _setDomainSeparator(name, REVISION);
         STAKED_TOKEN = stakedToken;
         REWARD_TOKEN = rewardToken;
@@ -82,18 +81,13 @@ contract StakedToken is IStakedToken, GovernanceToken, DistributionManager {
 
     /**
      * @dev Configures the distribution of rewards for a list of assets
-     * @param assetsConfigInput The list of configurations to apply
+     * @param emissionPerSecond Representing the total rewards distributed per second per asset unit
      **/
-    function configureAssets(
-        DistributionTypes.AssetConfigInput[] calldata assetsConfigInput
-    ) external override onlyEmissionManager {
-        _configureAssets(assetsConfigInput);
-    }
 
-    function configure(uint128 emissionPerSecond)
+    function configureAsset(uint128 emissionPerSecond)
         external
         override
-        onlyEmissionManager
+        onlyOwner
     {
         DistributionTypes.AssetConfigInput[]
             memory assetsConfigInput = new DistributionTypes.AssetConfigInput[](
