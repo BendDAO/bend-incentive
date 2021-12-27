@@ -3,50 +3,50 @@ pragma solidity ^0.8.0;
 pragma abicoder v2;
 
 import {IIncentivesController} from "../incentives/interfaces/IIncentivesController.sol";
-import {DistributionTypes} from "../stake/DistributionTypes.sol";
+import {DistributionTypes} from "../incentives/DistributionTypes.sol";
 import {IBToken} from "../incentives/interfaces/IBToken.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract BTokenMock is IBToken, ERC20 {
-    IIncentivesController public _aic;
-    uint256 internal _totalSupply;
-    mapping(address => uint256) private _balances;
+    IIncentivesController public aic;
+    uint256 internal __totalSupply;
+    mapping(address => uint256) private balances;
 
     constructor(
-        string memory name_,
-        string memory symbol_,
-        IIncentivesController aic
-    ) ERC20(name_, symbol_) {
-        _aic = aic;
+        string memory _name,
+        string memory _symbol,
+        IIncentivesController _aic
+    ) ERC20(_name, _symbol) {
+        aic = _aic;
     }
 
     function handleActionOnAic(
-        address user,
-        uint256 totalSupply,
-        uint256 userBalance
+        address _user,
+        uint256 _totalSupply,
+        uint256 _userBalance
     ) external {
-        _aic.handleAction(user, totalSupply, userBalance);
+        aic.handleAction(_user, _totalSupply, _userBalance);
     }
 
     function setUserBalanceAndSupply(
-        address user,
-        uint256 userBalance,
-        uint256 totalSupply
+        address _user,
+        uint256 _userBalance,
+        uint256 _totalSupply
     ) public {
-        _balances[user] = userBalance;
-        _totalSupply = totalSupply;
+        balances[_user] = _userBalance;
+        __totalSupply = _totalSupply;
     }
 
-    function getScaledUserBalanceAndSupply(address user)
+    function getScaledUserBalanceAndSupply(address _user)
         external
         view
         override
         returns (uint256, uint256)
     {
-        return (_balances[user], _totalSupply);
+        return (balances[_user], __totalSupply);
     }
 
     function scaledTotalSupply() public view override returns (uint256) {
-        return _totalSupply;
+        return __totalSupply;
     }
 }

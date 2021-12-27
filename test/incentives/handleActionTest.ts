@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { Contract, BigNumber } from "ethers";
 import {
-  deployStakedToken,
+  deployBendToken,
   deployIncentivesController,
   deployContract,
   deployVault,
@@ -52,14 +52,12 @@ const handleActionScenarios: ScenarioAction[] = [
   },
 ];
 
-describe("StakedBendIncentivesController handleAction tests", function () {
+describe("BendProtocolIncentivesController handleAction tests", function () {
   let bendToken: Contract;
-  let stakedToken: Contract;
   let incentivesController: Contract;
   let bWeth: Contract;
   let deployer: SignerWithAddress;
   let deployTime: BigNumber;
-  let vault: SignerWithAddress;
   let users: SignerWithAddress[];
 
   before(async function () {
@@ -67,17 +65,8 @@ describe("StakedBendIncentivesController handleAction tests", function () {
     [deployer] = addresses;
     users = addresses.slice(1, addresses.length);
     const vault = await deployVault();
-    ({ bendToken, stakedToken } = await deployStakedToken(
-      vault,
-      makeBN18(1000000),
-      deployer.address
-    ));
-    incentivesController = await deployIncentivesController(
-      bendToken,
-      stakedToken,
-      vault,
-      deployer.address
-    );
+    bendToken = await deployBendToken(vault, makeBN18(1000000));
+    incentivesController = await deployIncentivesController(bendToken, vault);
 
     deployTime = await timeLatest();
   });

@@ -4,11 +4,11 @@ pragma solidity ^0.8.0;
 interface IBToken {
     /**
      * @dev Returns the scaled balance of the user and the scaled total supply.
-     * @param user The address of the user
+     * @param _user The address of the user
      * @return The scaled balance of the user
      * @return The scaled balance and the scaled total supply
      **/
-    function getScaledUserBalanceAndSupply(address user)
+    function getScaledUserBalanceAndSupply(address _user)
         external
         view
         returns (uint256, uint256);
