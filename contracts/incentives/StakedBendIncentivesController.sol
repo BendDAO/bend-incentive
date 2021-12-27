@@ -36,10 +36,9 @@ contract StakedBendIncentivesController is
     function initialize(
         IStakedTokenWithConfig stakeToken,
         address rewardsVault,
-        address emissionManager,
         uint128 distributionDuration
     ) public initializer {
-        __DistributionManager_init(emissionManager, distributionDuration);
+        __DistributionManager_init(distributionDuration);
         STAKE_TOKEN = stakeToken;
         REWARD_TOKEN = IERC20Upgradeable(stakeToken);
         REWARDS_VAULT = rewardsVault;
@@ -54,7 +53,7 @@ contract StakedBendIncentivesController is
     function configureAssets(
         IBToken[] calldata assets,
         uint256[] calldata emissionsPerSecond
-    ) external override onlyEmissionManager {
+    ) external override onlyOwner {
         require(
             assets.length == emissionsPerSecond.length,
             "INVALID_CONFIGURATION"
