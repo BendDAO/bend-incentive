@@ -30,6 +30,12 @@ contract BendProtocolIncentivesController is
 
     mapping(address => uint256) internal usersUnclaimedRewards;
 
+    /**
+     * @dev initial and configrate contract
+     * @param _rewardToken The reward token to incentivize
+     * @param _rewardsVault The vault of reward token
+     * @param _distributionDuration  Duration of the reward distribution
+     */
     function initialize(
         address _rewardToken,
         address _rewardsVault,
@@ -100,15 +106,14 @@ contract BendProtocolIncentivesController is
 
     /**
      * @dev Returns the total of rewards of an user, already accrued + not yet accrued
+     * @param _assets The assets to incentivize
      * @param _user The address of the user
      * @return The rewards
      **/
-    function getRewardsBalance(address[] calldata _assets, address _user)
-        external
-        view
-        override
-        returns (uint256)
-    {
+    function getRewardsBalance(
+        IScaledBalanceToken[] calldata _assets,
+        address _user
+    ) external view override returns (uint256) {
         uint256 unclaimedRewards = usersUnclaimedRewards[_user];
 
         DistributionTypes.UserStakeInput[]
@@ -116,7 +121,7 @@ contract BendProtocolIncentivesController is
                 _assets.length
             );
         for (uint256 i = 0; i < _assets.length; i++) {
-            userState[i].underlyingAsset = _assets[i];
+            userState[i].underlyingAsset = address(_assets[i]);
             (
                 userState[i].stakedByUser,
                 userState[i].totalStaked
@@ -147,14 +152,14 @@ contract BendProtocolIncentivesController is
 
     /**
      * @dev Claims reward for an user, on all the assets of the lending pool, accumulating the pending rewards
+     * @param _assets The assets to incentivize
      * @param _amount Amount of rewards to claim
      * @return Rewards claimed
      **/
-    function claimRewards(address[] calldata _assets, uint256 _amount)
-        external
-        override
-        returns (uint256)
-    {
+    function claimRewards(
+        IScaledBalanceToken[] calldata _assets,
+        uint256 _amount
+    ) external override returns (uint256) {
         if (_amount == 0) {
             return 0;
         }
@@ -166,7 +171,7 @@ contract BendProtocolIncentivesController is
                 _assets.length
             );
         for (uint256 i = 0; i < _assets.length; i++) {
-            userState[i].underlyingAsset = _assets[i];
+            userState[i].underlyingAsset = address(_assets[i]);
             (
                 userState[i].stakedByUser,
                 userState[i].totalStaked
