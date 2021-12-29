@@ -6,7 +6,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
- * @title EcosystemReserve
+ * @title Vault
  * @notice Stores all the BEND kept for incentives, just giving approval to the different
  * systems that will pull BEND funds for their specific use case
  * @author Bend
