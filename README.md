@@ -1,5 +1,4 @@
-# nftlend-stake
-
+# Bend-incentive
 ## Incentive Architecture
 
 
