@@ -93,9 +93,7 @@ async function connect(contracts: Contracts) {
         makeBN(MAX_UINT_AMOUNT)
       )
     );
-  } catch (error) {
-    console.error(error);
-  }
+  } catch (error) {}
 
   let bTokensConfig = getBTokenConfig(network.name);
   waitForTx(
