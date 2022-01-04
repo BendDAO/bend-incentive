@@ -98,15 +98,12 @@ contract DistributionManager is Initializable, OwnableUpgradeable {
         if (block.timestamp == lastUpdateTimestamp) {
             return oldIndex;
         }
-
         uint256 newIndex = _getAssetIndex(
             oldIndex,
             _assetConfig.emissionPerSecond,
             lastUpdateTimestamp,
             _totalStaked
         );
-
-        // console.log("old index %d, new index %d", oldIndex, newIndex);
 
         if (newIndex != oldIndex) {
             _assetConfig.index = newIndex;
@@ -153,7 +150,6 @@ contract DistributionManager is Initializable, OwnableUpgradeable {
             assetData.users[_user] = newIndex;
             emit UserIndexUpdated(_user, _asset, newIndex);
         }
-
         return accruedRewards;
     }
 

@@ -9,8 +9,6 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract BTokenMock is IScaledBalanceToken, ERC20 {
     IIncentivesController public aic;
-    uint256 internal __totalSupply;
-    mapping(address => uint256) private balances;
 
     constructor(
         string memory _name,
@@ -20,7 +18,7 @@ contract BTokenMock is IScaledBalanceToken, ERC20 {
         aic = _aic;
     }
 
-    function handleActionOnAic(
+    function handleAction(
         address _user,
         uint256 _totalSupply,
         uint256 _userBalance
@@ -28,13 +26,37 @@ contract BTokenMock is IScaledBalanceToken, ERC20 {
         aic.handleAction(_user, _totalSupply, _userBalance);
     }
 
-    function setUserBalanceAndSupply(
-        address _user,
-        uint256 _userBalance,
-        uint256 _totalSupply
-    ) public {
-        balances[_user] = _userBalance;
-        __totalSupply = _totalSupply;
+    function _transfer(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) internal override {
+        uint256 currentTotalSupply = super.totalSupply();
+        uint256 oldSenderBalance = super.balanceOf(sender);
+        uint256 oldRecipientBalance = super.balanceOf(recipient);
+        super._transfer(sender, recipient, amount);
+        aic.handleAction(sender, currentTotalSupply, oldSenderBalance);
+        if (sender != recipient) {
+            aic.handleAction(
+                recipient,
+                currentTotalSupply,
+                oldRecipientBalance
+            );
+        }
+    }
+
+    function mint(address account, uint256 amount) public {
+        uint256 oldTotalSupply = super.totalSupply();
+        uint256 oldAccountBalance = super.balanceOf(account);
+        super._mint(account, amount);
+        aic.handleAction(account, oldTotalSupply, oldAccountBalance);
+    }
+
+    function burn(address account, uint256 amount) public {
+        uint256 oldTotalSupply = super.totalSupply();
+        uint256 oldAccountBalance = super.balanceOf(account);
+        super._burn(account, amount);
+        aic.handleAction(account, oldTotalSupply, oldAccountBalance);
     }
 
     function getScaledUserBalanceAndSupply(address _user)
@@ -43,10 +65,10 @@ contract BTokenMock is IScaledBalanceToken, ERC20 {
         override
         returns (uint256, uint256)
     {
-        return (balances[_user], __totalSupply);
+        return (super.balanceOf(_user), super.totalSupply());
     }
 
     function scaledTotalSupply() public view override returns (uint256) {
-        return __totalSupply;
+        return super.totalSupply();
     }
 }

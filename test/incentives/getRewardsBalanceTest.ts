@@ -68,6 +68,7 @@ describe("BendProtocolIncentivesController getRewardsBalance tests", function ()
       incentivesController.address,
     ]);
   });
+  let totalSupply = makeBN(0);
   for (const { caseName, emissionPerSecond } of getRewardsBalanceScenarios) {
     it(caseName, async () => {
       await mineBlockAndIncreaseTime(100);
@@ -75,28 +76,21 @@ describe("BendProtocolIncentivesController getRewardsBalance tests", function ()
       const distributionEndTimestamp =
         await incentivesController.DISTRIBUTION_END();
       const userAddress = users[1].address;
-      const stakedByUser = makeBN(22 * caseName.length);
-      const totalStaked = makeBN(33 * caseName.length);
       const underlyingAsset = bWeth.address;
 
       // update emissionPerSecond in advance to not affect user calculations
-      await mineBlockAtTime((await timeLatest()).add(100).toNumber());
       if (emissionPerSecond) {
-        await bWeth.setUserBalanceAndSupply(userAddress, 0, totalStaked);
         await incentivesController.configureAssets(
           [underlyingAsset],
           [emissionPerSecond]
         );
       }
-      await bWeth.handleActionOnAic(userAddress, totalStaked, stakedByUser);
       await mineBlockAtTime((await timeLatest()).add(100).toNumber());
+      const balance = makeBN(Math.floor(Math.random() * 100000000));
+      totalSupply = totalSupply.add(balance);
 
       const lastTxReceipt = await waitForTx(
-        await bWeth.setUserBalanceAndSupply(
-          userAddress,
-          stakedByUser,
-          totalStaked
-        )
+        await bWeth.mint(userAddress, balance)
       );
       const lastTxTimestamp = await timeAtBlock(lastTxReceipt.blockNumber);
 
@@ -118,7 +112,7 @@ describe("BendProtocolIncentivesController getRewardsBalance tests", function ()
       )[0];
 
       const expectedAssetIndex = getNormalizedDistribution(
-        totalStaked,
+        totalSupply,
         assetData.index,
         assetData.emissionPerSecond,
         assetData.lastUpdateTimestamp,
@@ -126,7 +120,7 @@ describe("BendProtocolIncentivesController getRewardsBalance tests", function ()
         distributionEndTimestamp
       );
       const expectedAccruedRewards = getRewards(
-        stakedByUser,
+        balance,
         expectedAssetIndex,
         userIndex
       );

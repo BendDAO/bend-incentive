@@ -394,7 +394,6 @@ export async function compareAssetIndex(
   let txReceipt = await waitForTx(tx);
   let txTimestamp = await timeAtBlock(txReceipt.blockNumber);
   const distributionEndTimestamp = await distributionManager.DISTRIBUTION_END();
-
   const rewardsBalanceBefore =
     await distributionManager.getUserUnclaimedRewards(userAddress);
   const userIndexBefore = await getUserIndex(
@@ -402,22 +401,16 @@ export async function compareAssetIndex(
     userAddress,
     underlyingAsset
   );
-  const assetDataBefore = (
-    await getAssetsData(distributionManager, [underlyingAsset])
-  )[0];
-
+  const assetDataBefore = await distributionManager.assets(underlyingAsset);
   tx = await action();
   txReceipt = await waitForTx(tx);
   txTimestamp = await timeAtBlock(txReceipt.blockNumber);
-
   const userIndexAfter = await getUserIndex(
     distributionManager,
     userAddress,
     underlyingAsset
   );
-  const assetDataAfter = (
-    await getAssetsData(distributionManager, [underlyingAsset])
-  )[0];
+  const assetDataAfter = await distributionManager.assets(underlyingAsset);
 
   const rewardsBalanceAfter = await distributionManager.getUserUnclaimedRewards(
     userAddress
@@ -426,7 +419,6 @@ export async function compareAssetIndex(
   expect(assetDataAfter.emissionPerSecond).to.eq(
     assetDataBefore.emissionPerSecond
   );
-
   expect(assetDataAfter.lastUpdateTimestamp).to.eq(txTimestamp);
   expect(assetDataAfter.index).to.eq(
     getNormalizedDistribution(
@@ -455,15 +447,11 @@ export async function compareAssetIndex(
     expect(assetDataAfter.index).to.not.eq(assetDataBefore.index);
     expect(tx)
       .to.emit(distributionManager, "AssetIndexUpdated")
-      .withArgs(assetDataAfter.underlyingAsset, assetDataAfter.index);
+      .withArgs(underlyingAsset, assetDataAfter.index);
 
     expect(tx)
       .to.emit(distributionManager, "UserIndexUpdated")
-      .withArgs(
-        userAddress,
-        assetDataAfter.underlyingAsset,
-        assetDataAfter.index
-      );
+      .withArgs(userAddress, underlyingAsset, assetDataAfter.index);
   }
   const expectedAccruedRewards = getRewards(
     makeBN(userBalance),

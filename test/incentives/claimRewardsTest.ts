@@ -74,51 +74,44 @@ describe("BendProtocolIncentivesController claimRewards tests", function () {
   let bendToken: Contract;
   let incentivesController: Contract;
   let bWeth: Contract;
-  let deployer: SignerWithAddress;
-  let deployTime: BigNumber;
   let users: SignerWithAddress[];
 
   before(async function () {
     let addresses = await ethers.getSigners();
-    [deployer] = addresses;
     users = addresses.slice(1, addresses.length);
     const vault = await deployVault();
     bendToken = await deployBendToken(vault, makeBN18(1000000));
     incentivesController = await deployIncentivesController(bendToken, vault);
 
-    deployTime = await timeLatest();
     bWeth = await deployContract("BTokenMock", [
       "bWETH",
       "bWETH",
       incentivesController.address,
     ]);
   });
+  let i = 0;
+  let totalSupply = makeBN(0);
   for (const {
     caseName,
     amountToClaim,
     emissionPerSecond,
   } of getRewardsBalanceScenarios) {
     it(caseName, async () => {
+      i++;
       await mineBlockAndIncreaseTime(100);
-      const userAddress = users[0].address;
+      const userAddress = users[i].address;
       const underlyingAsset = bWeth.address;
-      const stakedByUser = makeBN(22 * caseName.length);
-      const totalStaked = makeBN(33 * caseName.length);
-
       if (emissionPerSecond) {
         await incentivesController.configureAssets(
           [underlyingAsset],
           [emissionPerSecond]
         );
       }
+      const balance = makeBN(Math.floor(Math.random() * 100000000));
+      totalSupply = totalSupply.add(balance);
+      await bWeth.mint(userAddress, balance);
 
       const userBalanceBefore = await bendToken.balanceOf(userAddress);
-      await bWeth.setUserBalanceAndSupply(
-        userAddress,
-        stakedByUser,
-        totalStaked
-      );
-      await bWeth.handleActionOnAic(userAddress, totalStaked, stakedByUser);
 
       const unclaimedRewardsBefore =
         await incentivesController.getRewardsBalance(
@@ -135,7 +128,7 @@ describe("BendProtocolIncentivesController claimRewards tests", function () {
       )[0];
 
       const tx = await incentivesController
-        .connect(users[0])
+        .connect(users[i])
         .claimRewards([underlyingAsset], amountToClaim);
       const claimRewardsReceipt = await waitForTx(tx);
 
@@ -165,7 +158,7 @@ describe("BendProtocolIncentivesController claimRewards tests", function () {
       const claimedAmount = userBalanceAfter.sub(userBalanceBefore);
 
       const expectedAccruedRewards = getRewards(
-        stakedByUser,
+        balance,
         userIndexAfter,
         userIndexBefore
       );
@@ -221,7 +214,7 @@ describe("BendProtocolIncentivesController claimRewards tests", function () {
       expect(assetDataAfter.lastUpdateTimestamp).to.eq(actionBlockTimestamp);
       expect(assetDataAfter.index).to.eq(
         getNormalizedDistribution(
-          totalStaked,
+          totalSupply,
           assetDataBefore.index,
           assetDataBefore.emissionPerSecond,
           assetDataBefore.lastUpdateTimestamp,
@@ -229,7 +222,6 @@ describe("BendProtocolIncentivesController claimRewards tests", function () {
           await incentivesController.DISTRIBUTION_END()
         )
       );
-
       expect(userIndexAfter).to.be.equal(
         assetDataAfter.index,
         "user index are not correctly updated"

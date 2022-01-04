@@ -27,28 +27,28 @@ const handleActionScenarios: ScenarioAction[] = [
     totalSupply: 0,
   },
   {
-    caseName: "Accrued rewards are 0, 0 emission",
+    caseName: "0 emission, accrued 0 rewards, ",
     emissionPerSecond: 0,
-    userBalance: 111,
-    totalSupply: 111,
+    userBalance: 100,
+    totalSupply: 100,
   },
   {
-    caseName: "Accrued rewards are 0, 0 user balance",
+    caseName: "0 user balance, accrued 0 rewards",
     emissionPerSecond: 100,
     userBalance: 0,
-    totalSupply: 111,
+    totalSupply: 100,
   },
   {
-    caseName: "1. Accrued rewards are not 0",
+    caseName: "reset emission to 0, accrued rewards not 0",
     emissionPerSecond: 0,
-    userBalance: 111,
-    totalSupply: 111,
+    userBalance: 100,
+    totalSupply: 200,
   },
   {
-    caseName: "2. Accrued rewards are not 0",
+    caseName: "reset emission, accrued rewards  not 0",
     emissionPerSecond: 1000,
-    userBalance: 222,
-    totalSupply: 333,
+    userBalance: 100,
+    totalSupply: 300,
   },
 ];
 
@@ -70,6 +70,7 @@ describe("BendProtocolIncentivesController handleAction tests", function () {
 
     deployTime = await timeLatest();
   });
+  let i = 0;
   for (const {
     caseName,
     totalSupply,
@@ -77,19 +78,14 @@ describe("BendProtocolIncentivesController handleAction tests", function () {
     emissionPerSecond,
   } of handleActionScenarios) {
     it(caseName, async () => {
-      const userAddress = users[1].address;
+      i++;
+      const userAddress = users[i].address;
       await mineBlockAndIncreaseTime(100);
       bWeth = await deployContract("BTokenMock", [
         "bWETH",
         "bWETH",
         incentivesController.address,
       ]);
-      await bWeth.setUserBalanceAndSupply(
-        userAddress,
-        userBalance,
-        totalSupply
-      );
-
       // update emissionPerSecond in advance to not affect user calculations
       await compareAssetIndex(
         emissionPerSecond,
@@ -98,7 +94,7 @@ describe("BendProtocolIncentivesController handleAction tests", function () {
         userAddress,
         totalSupply,
         userBalance,
-        () => bWeth.handleActionOnAic(userAddress, totalSupply, userBalance)
+        () => bWeth.handleAction(userAddress, totalSupply, userBalance)
       );
     });
   }
