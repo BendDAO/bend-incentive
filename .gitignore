@@ -11,3 +11,8 @@ artifacts
 .openzeppelin/unknown-*.json
 coverage.json
 coverage
+
+flattened
+flattened.tgz
+bend-incentive-flattened.tgz
+flatten.sol
