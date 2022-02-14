@@ -50,16 +50,16 @@ contract VeBend is ReentrancyGuard, Ownable {
         uint256 end;
     }
 
-    int256 private constant DEPOSIT_FOR_TYPE = 0;
-    int256 private constant CREATE_LOCK_TYPE = 1;
-    int256 private constant INCREASE_LOCK_AMOUNT = 2;
-    int256 private constant INCREASE_UNLOCK_TIME = 3;
+    uint256 private constant DEPOSIT_FOR_TYPE = 0;
+    uint256 private constant CREATE_LOCK_TYPE = 1;
+    uint256 private constant INCREASE_LOCK_AMOUNT = 2;
+    uint256 private constant INCREASE_UNLOCK_TIME = 3;
 
     event Deposit(
         address indexed provider,
         uint256 value,
         uint256 indexed locktime,
-        int256 _type,
+        uint256 _type,
         uint256 ts
     );
     event Withdraw(address indexed provider, uint256 value, uint256 ts);
@@ -77,7 +77,7 @@ contract VeBend is ReentrancyGuard, Ownable {
 
     //everytime user deposit/withdraw/change_locktime, these values will be updated;
     uint256 public epoch;
-    Point[] public pointHistory; // epoch -> unsigned point.
+    Point[] public supplyPointHistory; // epoch -> unsigned point.
     mapping(address => Point[]) public userPointHistory; // user -> Point[user_epoch]
     mapping(address => uint256) public userPointEpoch;
     mapping(uint256 => int256) public slopeChanges; // time -> signed slope change
@@ -96,8 +96,8 @@ contract VeBend is ReentrancyGuard, Ownable {
         string memory _symbol
     ) {
         token = _tokenAddr;
-        pointHistory[0].blk = block.number;
-        pointHistory[0].ts = block.timestamp;
+        supplyPointHistory[0].blk = block.number;
+        supplyPointHistory[0].ts = block.timestamp;
 
         uint256 _decimals = 18;
         assert(_decimals <= 255);
@@ -128,9 +128,9 @@ contract VeBend is ReentrancyGuard, Ownable {
      *@param _addr Address of the user wallet
      *@return Value of the slope
      */
-    function getLastUserSlope(address _addr) external view returns (uint256) {
+    function getLastUserSlope(address _addr) external view returns (int256) {
         uint256 uepoch = userPointEpoch[_addr];
-        return uint256(userPointHistory[_addr][uepoch].slope);
+        return userPointHistory[_addr][uepoch].slope;
     }
 
     /***
@@ -167,8 +167,8 @@ contract VeBend is ReentrancyGuard, Ownable {
         LockedBalance memory _oldLocked,
         LockedBalance memory _newLocked
     ) internal {
-        Point memory _uOld;
-        Point memory _uNew;
+        Point memory _userOldPoint;
+        Point memory _userNewPoint;
         int256 _oldDslope = 0;
         int256 _newDslope = 0;
         uint256 _epoch = epoch;
@@ -177,15 +177,15 @@ contract VeBend is ReentrancyGuard, Ownable {
             // Calculate slopes and biases
             // Kept at zero when they have to
             if (_oldLocked.end > block.timestamp && _oldLocked.amount > 0) {
-                _uOld.slope = _oldLocked.amount / int256(MAXTIME);
-                _uOld.bias =
-                    _uOld.slope *
+                _userOldPoint.slope = _oldLocked.amount / int256(MAXTIME);
+                _userOldPoint.bias =
+                    _userOldPoint.slope *
                     int256(_oldLocked.end - block.timestamp);
             }
             if (_newLocked.end > block.timestamp && _newLocked.amount > 0) {
-                _uNew.slope = _newLocked.amount / int256(MAXTIME);
-                _uNew.bias =
-                    _uNew.slope *
+                _userNewPoint.slope = _newLocked.amount / int256(MAXTIME);
+                _userNewPoint.bias =
+                    _userNewPoint.slope *
                     int256(_newLocked.end - block.timestamp);
             }
 
@@ -208,7 +208,7 @@ contract VeBend is ReentrancyGuard, Ownable {
             blk: block.number
         });
         if (_epoch > 0) {
-            _lastPoint = pointHistory[_epoch];
+            _lastPoint = supplyPointHistory[_epoch];
         }
         uint256 _lastCheckPoint = _lastPoint.ts;
         // _initialLastPoint is used for extrapolation to calculate block number
@@ -232,6 +232,7 @@ contract VeBend is ReentrancyGuard, Ownable {
             _ti += WEEK;
             int256 d_slope = 0;
             if (_ti > block.timestamp) {
+                // reach future time, reset to blok time
                 _ti = block.timestamp;
             } else {
                 d_slope = slopeChanges[_ti];
@@ -256,20 +257,21 @@ contract VeBend is ReentrancyGuard, Ownable {
                 ((_blockSlope * (_ti - _initialLastPoint.ts)) / MULTIPLIER);
             _epoch += 1;
             if (_ti == block.timestamp) {
+                // history filled over, break loop
                 _lastPoint.blk = block.number;
                 break;
             } else {
-                pointHistory[_epoch] = _lastPoint;
+                supplyPointHistory[_epoch] = _lastPoint;
             }
         }
         epoch = _epoch;
-        // Now pointHistory is filled until t=now
+        // Now supplyPointHistory is filled until t=now
 
         if (_addr != address(0)) {
             // If last point was in this block, the slope change has been applied already
             // But in such case we have 0 slope(s)
-            _lastPoint.slope += _uNew.slope - _uOld.slope;
-            _lastPoint.bias += _uNew.bias - _uOld.bias;
+            _lastPoint.slope += _userNewPoint.slope - _userOldPoint.slope;
+            _lastPoint.bias += _userNewPoint.bias - _userOldPoint.bias;
             if (_lastPoint.slope < 0) {
                 _lastPoint.slope = 0;
             }
@@ -278,37 +280,35 @@ contract VeBend is ReentrancyGuard, Ownable {
             }
         }
         // Record the changed point into history
-        pointHistory[_epoch] = _lastPoint;
+        supplyPointHistory[_epoch] = _lastPoint;
 
-        address _addr2 = _addr; //To avoid being "Stack Too Deep"
-
-        if (_addr2 != address(0)) {
+        if (_addr != address(0)) {
             // Schedule the slope changes (slope is going down)
             // We subtract new_user_slope from [_newLocked.end]
             // and add old_user_slope to [_oldLocked.end]
             if (_oldLocked.end > block.timestamp) {
-                // _oldDslope was <something> - _uOld.slope, so we cancel that
-                _oldDslope += _uOld.slope;
+                // _oldDslope was <something> - _userOldPoint.slope, so we cancel that
+                _oldDslope += _userOldPoint.slope;
                 if (_newLocked.end == _oldLocked.end) {
-                    _oldDslope -= _uNew.slope; // It was a new deposit, not extension
+                    _oldDslope -= _userNewPoint.slope; // It was a new deposit, not extension
                 }
                 slopeChanges[_oldLocked.end] = _oldDslope;
             }
             if (_newLocked.end > block.timestamp) {
                 if (_newLocked.end > _oldLocked.end) {
-                    _newDslope -= _uNew.slope; // old slope disappeared at this point
+                    _newDslope -= _userNewPoint.slope; // old slope disappeared at this point
                     slopeChanges[_newLocked.end] = _newDslope;
                 }
                 // else we recorded it already in _oldDslope
             }
 
             // Now handle user history
-            uint256 _user_epoch = userPointEpoch[_addr2] + 1;
+            uint256 _userEpoch = userPointEpoch[_addr] + 1;
 
-            userPointEpoch[_addr2] = _user_epoch;
-            _uNew.ts = block.timestamp;
-            _uNew.blk = block.number;
-            userPointHistory[_addr2][_user_epoch] = _uNew;
+            userPointEpoch[_addr] = _userEpoch;
+            _userNewPoint.ts = block.timestamp;
+            _userNewPoint.blk = block.number;
+            userPointHistory[_addr][_userEpoch] = _userNewPoint;
         }
     }
 
@@ -324,7 +324,7 @@ contract VeBend is ReentrancyGuard, Ownable {
         uint256 _value,
         uint256 _unlockTime,
         LockedBalance memory _lockedBalance,
-        int256 _type
+        uint256 _type
     ) internal {
         LockedBalance memory _locked = LockedBalance(
             _lockedBalance.amount,
@@ -359,10 +359,10 @@ contract VeBend is ReentrancyGuard, Ownable {
         emit Supply(_supplyBefore, _supplyBefore + _value);
     }
 
-    function checkpoint() public {
-        /***
-         *@notice Record global data to checkpoint
-         */
+    /***
+     *@notice Record total supply to checkpoint
+     */
+    function checkpointSupply() public {
         LockedBalance memory _a;
         LockedBalance memory _b;
         _checkpoint(address(0), _a, _b);
@@ -513,7 +513,7 @@ contract VeBend is ReentrancyGuard, Ownable {
                 break;
             }
             uint256 _mid = (_min + _max + 1) / 2;
-            if (pointHistory[_mid].blk <= _block) {
+            if (supplyPointHistory[_mid].blk <= _block) {
                 _min = _mid;
             } else {
                 _max = _mid - 1;
@@ -621,11 +621,11 @@ contract VeBend is ReentrancyGuard, Ownable {
 
         _st.maxEpoch = epoch;
         uint256 _epoch = findBlockEpoch(_block, _st.maxEpoch);
-        Point memory _point = pointHistory[_epoch];
+        Point memory _point = supplyPointHistory[_epoch];
         _st.dBlock = 0;
         _st.dt = 0;
         if (_epoch < _st.maxEpoch) {
-            Point memory _point_1 = pointHistory[_epoch + 1];
+            Point memory _point_1 = supplyPointHistory[_epoch + 1];
             _st.dBlock = _point_1.blk - _point.blk;
             _st.dt = _point_1.ts - _point.ts;
         } else {
@@ -689,7 +689,7 @@ contract VeBend is ReentrancyGuard, Ownable {
      */
     function totalSupply() external view returns (uint256) {
         uint256 _epoch = epoch;
-        Point memory _lastPoint = pointHistory[_epoch];
+        Point memory _lastPoint = supplyPointHistory[_epoch];
 
         return supplyAt(_lastPoint, block.timestamp);
     }
@@ -705,7 +705,7 @@ contract VeBend is ReentrancyGuard, Ownable {
         }
 
         uint256 _epoch = epoch;
-        Point memory _lastPoint = pointHistory[_epoch];
+        Point memory _lastPoint = supplyPointHistory[_epoch];
 
         return supplyAt(_lastPoint, _t);
     }
@@ -720,10 +720,10 @@ contract VeBend is ReentrancyGuard, Ownable {
         uint256 _epoch = epoch;
         uint256 _targetEpoch = findBlockEpoch(_block, _epoch);
 
-        Point memory _point = pointHistory[_targetEpoch];
+        Point memory _point = supplyPointHistory[_targetEpoch];
         uint256 dt = 0;
         if (_targetEpoch < _epoch) {
-            Point memory _pointNext = pointHistory[_targetEpoch + 1];
+            Point memory _pointNext = supplyPointHistory[_targetEpoch + 1];
             if (_point.blk != _pointNext.blk) {
                 dt =
                     ((_block - _point.blk) * (_pointNext.ts - _point.ts)) /
