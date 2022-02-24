@@ -30,11 +30,12 @@ pragma solidity ^0.8.0;
 
 //libraries
 import {ISmartWalletChecker} from "./interfaces/ISmartWalletChecker.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract VeBend is ReentrancyGuard, Ownable {
+    using SafeERC20 for IERC20;
     struct Point {
         int256 bias;
         int256 slope; // - dweight / dt
@@ -98,11 +99,7 @@ contract VeBend is ReentrancyGuard, Ownable {
         token = _tokenAddr;
         supplyPointHistory[0].blk = block.number;
         supplyPointHistory[0].ts = block.timestamp;
-
-        uint256 _decimals = 18;
-        assert(_decimals <= 255);
-        decimals = _decimals;
-
+        decimals = 18;
         name = _name;
         symbol = _symbol;
     }
@@ -352,7 +349,7 @@ contract VeBend is ReentrancyGuard, Ownable {
         _checkpoint(_addr, _oldLocked, _locked);
 
         if (_value != 0) {
-            assert(IERC20(token).transferFrom(_addr, address(this), _value));
+            IERC20(token).safeTransferFrom(_addr, address(this), _value);
         }
 
         emit Deposit(_addr, _value, _locked.end, _type, block.timestamp);
@@ -483,7 +480,7 @@ contract VeBend is ReentrancyGuard, Ownable {
         // Both can have >= 0 amount
         _checkpoint(msg.sender, _oldLocked, _locked);
 
-        assert(IERC20(token).transfer(msg.sender, _value));
+        IERC20(token).safeTransfer(msg.sender, _value);
 
         emit Withdraw(msg.sender, _value, block.timestamp);
         emit Supply(_supplyBefore, _supplyBefore - _value);
