@@ -278,8 +278,8 @@ contract VeBend is ReentrancyGuard, Ownable {
         }
         // Record the changed point into history
         supplyPointHistory[_epoch] = _lastPoint;
-
-        if (_addr != address(0)) {
+        address _addr2 = _addr; //To avoid being "Stack Too Deep"
+        if (_addr2 != address(0)) {
             // Schedule the slope changes (slope is going down)
             // We subtract new_user_slope from [_newLocked.end]
             // and add old_user_slope to [_oldLocked.end]
@@ -300,12 +300,12 @@ contract VeBend is ReentrancyGuard, Ownable {
             }
 
             // Now handle user history
-            uint256 _userEpoch = userPointEpoch[_addr] + 1;
+            uint256 _userEpoch = userPointEpoch[_addr2] + 1;
 
-            userPointEpoch[_addr] = _userEpoch;
+            userPointEpoch[_addr2] = _userEpoch;
             _userNewPoint.ts = block.timestamp;
             _userNewPoint.blk = block.number;
-            userPointHistory[_addr][_userEpoch] = _userNewPoint;
+            userPointHistory[_addr2][_userEpoch] = _userNewPoint;
         }
     }
 
