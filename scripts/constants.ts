@@ -11,6 +11,7 @@ export enum Network {
   ropsten = "ropsten",
   rinkeby = "rinkeby",
   mainnet = "mainnet",
+  develop = "develop",
 }
 
 export interface iParamsPerNetwork<T> {
@@ -20,10 +21,11 @@ export interface iParamsPerNetwork<T> {
   [Network.ropsten]: T;
   [Network.rinkeby]: T;
   [Network.mainnet]: T;
+  [Network.develop]: T;
 }
 
 export const getParamPerNetwork = <T>(
-  { kovan, ropsten, rinkeby, mainnet, hardhat, coverage }: iParamsPerNetwork<T>,
+  { kovan, ropsten, rinkeby, mainnet, develop, hardhat, coverage }: iParamsPerNetwork<T>,
   network: Network
 ) => {
   switch (network) {
@@ -39,6 +41,8 @@ export const getParamPerNetwork = <T>(
       return rinkeby;
     case Network.mainnet:
       return mainnet;
+    case Network.develop:
+        return develop;
     default:
       return mainnet;
   }
@@ -70,6 +74,7 @@ export const getBTokenConfig = (network: string): any[] =>
         ],
       ],
       [Network.mainnet]: [],
+      [Network.develop]: [],
     },
     Network[network as keyof typeof Network]
   );
@@ -83,6 +88,7 @@ export const getStakedBendConfig = (network: string): number =>
       [Network.ropsten]: 0,
       [Network.rinkeby]: 100,
       [Network.mainnet]: 0,
+      [Network.develop]: 100,
     },
     Network[network as keyof typeof Network]
   );
@@ -96,6 +102,7 @@ export const getUniswapV3Factory = (network: string): string =>
       [Network.ropsten]: "",
       [Network.rinkeby]: "0x815BCC87613315327E04e4A3b7c96a79Ae80760c",
       [Network.mainnet]: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
+      [Network.develop]: "",
     },
     Network[network as keyof typeof Network]
   );

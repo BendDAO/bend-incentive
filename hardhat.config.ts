@@ -33,6 +33,13 @@ export default {
           ? [process.env.RINKEBY_PRIVATE_KEY]
           : [],
     },
+    develop: {
+      url: process.env.DEVELOP_URL || "",
+      accounts:
+        process.env.DEVELOP_PRIVATE_KEY !== undefined
+          ? [process.env.DEVELOP_PRIVATE_KEY]
+          : [],
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
