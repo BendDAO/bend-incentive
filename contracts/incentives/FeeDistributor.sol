@@ -151,7 +151,10 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
                     dt = int256(t - pt.ts);
                 }
                 int256 _veSupply = pt.bias - pt.slope * dt;
-                veSupply[t] = uint256(_veSupply > 0 ? _veSupply : 0);
+                veSupply[t] = 0;
+                if (_veSupply > 0) {
+                    veSupply[t] = uint256(_veSupply);
+                }
             }
             t += WEEK;
         }
@@ -269,7 +272,10 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
                 // + i * 2 is for rounding errors
                 int256 dt = int256(weekCursor - oldUserPoint.ts);
                 int256 _balanceOf = oldUserPoint.bias - dt * oldUserPoint.slope;
-                uint256 balanceOf = uint256(_balanceOf > 0 ? _balanceOf : 0);
+                uint256 balanceOf = 0;
+                if (_balanceOf > 0) {
+                    balanceOf = uint256(_balanceOf);
+                }
                 if (balanceOf == 0 && userEpoch > maxUserEpoch) {
                     break;
                 }
