@@ -104,11 +104,10 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
         returns (uint256)
     {
         uint256 _userIndex = feeIndexs[_addr];
-        uint256 _userLocked = locked[_addr];
         uint256 _newIndex = _updateFeeIndex(feeDistributed);
         uint256 _accruedRewards = 0;
         if (_userIndex != _newIndex) {
-            _accruedRewards = _getRewards(_userLocked, _userIndex, _newIndex);
+            _accruedRewards = _getRewards(_addr, _userIndex, _newIndex);
             feeIndexs[_addr] = _newIndex;
             emit UserFeeIndexUpdated(_addr, _newIndex);
         }
@@ -116,10 +115,11 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
     }
 
     function _getRewards(
-        uint256 _userTotalLocked,
+        address _addr,
         uint256 _userFeeIndex,
         uint256 _feeIndex
-    ) internal pure returns (uint256) {
+    ) internal view returns (uint256) {
+        uint256 _userTotalLocked = locked[_addr];
         return
             _userTotalLocked *
             ((_feeIndex - _userFeeIndex) / 10**uint256(PRECISION));
@@ -162,15 +162,22 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
             _bendBalance > _totalLockAmount,
             "Insufficient Bend for locking"
         );
-        require(_lockupYears <= 4, "Maximum lock for four years");
+        require(_lockupYears >= 3, "Minimum lock for three years");
+        require(_lockupYears <= 10, "Maximum lock for ten years");
         require(
             lockups.length == 0 && totalLocked == 0,
             "Can't create lock twice"
         );
 
         totalLocked = _totalLockAmount;
+        for (uint256 i = 0; i < _beneficiaries.length; i++) {
+            ILockup.LockParam memory _lock = _beneficiaries[i];
+            locked[_lock.beneficiary] =
+                (totalLocked * _lock.thousandths) /
+                1000;
+        }
 
-        uint256 _lockAvgAmount = _totalLockAmount / _lockupYears;
+        uint256 _lockAvgAmount = totalLocked / _lockupYears;
         uint256 _unlockStartTime = block.timestamp;
 
         for (uint256 i = 0; i < _lockupYears; i++) {
@@ -216,10 +223,9 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
     }
 
     function claimable(address _addr) external view returns (uint256) {
-        uint256 _userLocked = locked[_addr];
         uint256 _userFeeIndex = feeIndexs[_addr];
         uint256 _feeIndex = _getFeeIndex();
-        return _getRewards(_userLocked, _userFeeIndex, _feeIndex);
+        return _getRewards(_addr, _userFeeIndex, _feeIndex);
     }
 
     function claim(bool weth) external nonReentrant {

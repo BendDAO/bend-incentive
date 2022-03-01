@@ -87,7 +87,7 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
         lockForVoting = _lockForVoting;
         for (uint256 i = 0; i < _beneficiaries.length; i++) {
             LockParam memory _lp = _beneficiaries[i];
-            uint256 _lockAmount = (_lp.percentage * _totalAmount) / 100;
+            uint256 _lockAmount = (_lp.thousandths * _totalAmount) / 1000;
             _createLock(_lp.beneficiary, _lockAmount);
         }
 
