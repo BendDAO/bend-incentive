@@ -94,7 +94,8 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
         bendToken.safeTransferFrom(msg.sender, address(this), _totalAmount);
 
         if (lockForVoting) {
-            veBend.createLock(_totalAmount, lockEndTime);
+            // Should be unlocked from vebend before linear unlocking
+            veBend.createLock(_totalAmount, _unlockStartTime);
         }
     }
 
