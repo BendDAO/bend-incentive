@@ -29,6 +29,8 @@ interface ILockup {
 
     function lockEndTime() external view returns (uint256);
 
+    function delegateSnapshotVotePower(bytes32 _id, address _delegate) external;
+
     function transferBeneficiary(
         address _oldBeneficiary,
         address _newBeneficiary

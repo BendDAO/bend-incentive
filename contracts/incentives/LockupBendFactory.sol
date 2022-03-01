@@ -10,6 +10,7 @@ import {LockupBend} from "./LockupBend.sol";
 import {IVeBend} from "./interfaces/IVeBend.sol";
 import {IFeeDistributor} from "./interfaces/IFeeDistributor.sol";
 import {IWETH} from "./interfaces/IWETH.sol";
+import {ISnapshotDelegation} from "./interfaces/ISnapshotDelegation.sol";
 
 contract LockupBendFactory is ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
@@ -36,14 +37,17 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
     uint256 public totalLocked;
 
     IWETH internal WETH;
+    ISnapshotDelegation internal snapshotDelegation;
 
     constructor(
         address _wethAddr,
+        address _snapshotDelegationAddr,
         address _bendTokenAddr,
         address _veBendAddr,
         address _feeDistributorAddr
     ) {
         WETH = IWETH(_wethAddr);
+        snapshotDelegation = ISnapshotDelegation(_snapshotDelegationAddr);
         bendToken = IERC20(_bendTokenAddr);
         veBend = IVeBend(_veBendAddr);
         feeDistributor = IFeeDistributor(_feeDistributorAddr);
@@ -128,6 +132,16 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
 
     // external functions
 
+    function delegateSnapshotVotePower(bytes32 _id, address _delegatee)
+        external
+        onlyOwner
+    {
+        for (uint256 i = 0; i < lockups.length; i++) {
+            ILockup _lockup = lockups[i];
+            _lockup.delegateSnapshotVotePower(_id, _delegatee);
+        }
+    }
+
     function transferBeneficiary(
         address _oldBeneficiary,
         address _newBeneficiary
@@ -162,6 +176,7 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
         for (uint256 i = 0; i < _lockupYears; i++) {
             LockupBend _lockupBendContract = new LockupBend(
                 address(WETH),
+                address(snapshotDelegation),
                 address(bendToken),
                 address(veBend),
                 address(feeDistributor)
