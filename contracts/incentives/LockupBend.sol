@@ -9,6 +9,7 @@ import {ILockup} from "./interfaces/ILockup.sol";
 import {IVeBend} from "./interfaces/IVeBend.sol";
 import {IFeeDistributor} from "./interfaces/IFeeDistributor.sol";
 import {IWETH} from "./interfaces/IWETH.sol";
+import {ISnapshotDelegation} from "./interfaces/ISnapshotDelegation.sol";
 
 contract LockupBend is ILockup, ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
@@ -19,6 +20,7 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
     IVeBend public veBend;
     IFeeDistributor public feeDistributor;
     IWETH internal WETH;
+    ISnapshotDelegation internal snapshotDelegation;
 
     mapping(address => Locked) public locked;
     uint256 public unlockStartTime;
@@ -27,6 +29,7 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
 
     constructor(
         address _wethAddr,
+        address _snapshotDelegationAddr,
         address _bendTokenAddr,
         address _veBendAddr,
         address _feeDistributorAddr
@@ -36,6 +39,15 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
         veBend = IVeBend(_veBendAddr);
         feeDistributor = IFeeDistributor(_feeDistributorAddr);
         bendToken.safeApprove(_veBendAddr, type(uint256).max);
+        snapshotDelegation = ISnapshotDelegation(_snapshotDelegationAddr);
+    }
+
+    function delegateSnapshotVotePower(bytes32 _id, address _delegatee)
+        external
+        override
+        onlyOwner
+    {
+        snapshotDelegation.setDelegate(_id, _delegatee);
     }
 
     function transferBeneficiary(
@@ -117,10 +129,10 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
         if (block.timestamp <= unlockStartTime) {
             return _locked.amount;
         }
-        if (block.timestamp >= _locked.end) {
+        if (block.timestamp >= lockEndTime) {
             return 0;
         }
-        return _locked.slope * (_locked.end - block.timestamp);
+        return _locked.slope * (lockEndTime - block.timestamp);
     }
 
     function withdrawable(address _beneficiary)
