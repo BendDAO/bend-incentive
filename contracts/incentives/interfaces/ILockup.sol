@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 interface ILockup {
     struct LockParam {
         address beneficiary;
-        uint256 percentage;
+        uint256 thousandths;
     }
 
     struct Locked {
