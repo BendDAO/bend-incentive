@@ -41,6 +41,8 @@ if (envResult.error || !envResult.parsed) {
 }
 const env = envResult.parsed;
 
+console.log("ENV:", env);
+
 const GUARDIAN_MULTI_SIG_ADDR =
   env[`${network.name.toUpperCase()}_GOVERNANCE_GUARDIAN`] || ZERO_ADDRESS;
 
@@ -96,12 +98,16 @@ async function connect(contracts: Contracts) {
   } catch (error) {}
 
   let bTokensConfig = getBTokenConfig(network.name);
-  waitForTx(
-    await incentivesController.configureAssets(
-      bTokensConfig[0],
-      bTokensConfig[1]
-    )
-  );
+  if (bTokensConfig.length > 0) {
+    waitForTx(
+      await incentivesController.configureAssets(
+        bTokensConfig[0],
+        bTokensConfig[1]
+      )
+    );
+  } else {
+    console.log("bTokensConfig is empty.");
+  }
 }
 
 async function main() {
