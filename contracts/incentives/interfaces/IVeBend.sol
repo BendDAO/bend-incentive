@@ -9,6 +9,15 @@ interface IVeBend {
         uint256 blk;
     }
 
+    struct LockedBalance {
+        int256 amount;
+        uint256 end;
+    }
+
+    function locked(address _addr) external returns (LockedBalance memory);
+
+    function createLock(uint256 _value, uint256 _unlockTime) external;
+
     function userPointEpoch(address _userAddress)
         external
         view
@@ -27,4 +36,6 @@ interface IVeBend {
         returns (Point memory);
 
     function checkpointSupply() external;
+
+    function withdraw() external;
 }

@@ -4,22 +4,14 @@ pragma solidity ^0.8.0;
 import {IVeBend} from "./interfaces/IVeBend.sol";
 import {IWETH} from "./interfaces/IWETH.sol";
 import {ILendPool} from "./interfaces/ILendPool.sol";
+import {IFeeDistributor} from "./interfaces/IFeeDistributor.sol";
 import {ILendPoolAddressesProvider} from "./interfaces/ILendPoolAddressesProvider.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
-contract FeeDistributor is ReentrancyGuard, Ownable {
-    event Checkpoint(uint256 time, uint256 tokenAmount);
-
-    event Claimed(
-        address indexed recipient,
-        uint256 amount,
-        uint256 claimEpoch,
-        uint256 maxEpoch
-    );
-
+contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
     uint256 public constant WEEK = 7 * 86400;
     uint256 public constant TOKEN_CHECKPOINT_DEADLINE = 86400;
 
@@ -28,7 +20,7 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
     mapping(address => uint256) public timeCursorOf;
     mapping(address => uint256) public userEpochOf;
 
-    uint256 public lastTokenTime;
+    uint256 public lastDistributeTime;
     uint256[] public tokensPerWeek;
     uint256 public tokenLastBalance;
 
@@ -59,10 +51,10 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
         _;
     }
 
-    function start() external onlyOwner {
+    function start() external override onlyOwner {
         uint256 t = (block.timestamp / WEEK) * WEEK;
         startTime = t;
-        lastTokenTime = t;
+        lastDistributeTime = t;
         timeCursor = t;
     }
 
@@ -70,16 +62,16 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
      *@notice Update fee checkpoint
      *@dev Up to 20 weeks since the last update
      */
-    function _checkpointBalance() internal {
+    function _checkpointDistribute() internal {
         uint256 tokenBalance = IERC20(token).balanceOf(address(this));
 
         uint256 toDistribute = tokenBalance - tokenLastBalance;
 
         tokenLastBalance = tokenBalance;
 
-        uint256 t = lastTokenTime;
+        uint256 t = lastDistributeTime;
         uint256 sinceLast = block.timestamp - t;
-        lastTokenTime = block.timestamp;
+        lastDistributeTime = block.timestamp;
         uint256 thisWeek = (t / WEEK) * WEEK;
         uint256 nextWeek = 0;
 
@@ -119,10 +111,10 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
         uint256 amount = IERC20(token).balanceOf(bendCollector);
         if (
             amount != 0 &&
-            (block.timestamp > lastTokenTime + TOKEN_CHECKPOINT_DEADLINE)
+            (block.timestamp > lastDistributeTime + TOKEN_CHECKPOINT_DEADLINE)
         ) {
             IERC20(token).transferFrom(bendCollector, address(this), amount);
-            _checkpointBalance();
+            _checkpointDistribute();
         }
     }
 
@@ -142,7 +134,7 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
             if (t > roundedTimestamp) {
                 break;
             } else {
-                uint256 epoch = _findTimestampEpoch(ve, t);
+                uint256 epoch = _findTimestampEpoch(t);
                 IVeBend.Point memory pt = ve.supplyPointHistory(epoch);
                 int256 dt = 0;
                 if (t > pt.ts) {
@@ -162,19 +154,19 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
         timeCursor = t;
     }
 
-    function _findTimestampEpoch(IVeBend ve, uint256 _timestamp)
+    function _findTimestampEpoch(uint256 _timestamp)
         internal
         view
         returns (uint256)
     {
         uint256 _min = 0;
-        uint256 _max = ve.epoch();
+        uint256 _max = veBend.epoch();
         for (uint256 i = 0; i < 128; i++) {
             if (_min >= _max) {
                 break;
             }
             uint256 _mid = (_min + _max + 2) / 2;
-            IVeBend.Point memory pt = ve.supplyPointHistory(_mid);
+            IVeBend.Point memory pt = veBend.supplyPointHistory(_mid);
             if (pt.ts <= _timestamp) {
                 _min = _mid;
             } else {
@@ -185,7 +177,6 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
     }
 
     function _findTimestampUserEpoch(
-        IVeBend ve,
         address _user,
         uint256 _timestamp,
         uint256 _maxUserEpoch
@@ -197,7 +188,7 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
                 break;
             }
             uint256 _mid = (_min + _max + 2) / 2;
-            IVeBend.Point memory pt = ve.userPointHistory(_user, _mid);
+            IVeBend.Point memory pt = veBend.userPointHistory(_user, _mid);
             if (pt.ts <= _timestamp) {
                 _min = _mid;
             } else {
@@ -207,29 +198,27 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
         return _min;
     }
 
-    function _claim(
-        address _addr,
-        IVeBend _ve,
-        uint256 _lastTokenTime
-    ) internal returns (uint256) {
+    struct Claimable {
+        uint256 amount;
+        uint256 userEpoch;
+        uint256 maxUserEpoch;
+        uint256 weekCursor;
+    }
+
+    function _claim(address _addr) internal view returns (Claimable memory) {
         // Minimal userEpoch is 0 (if user had no point)
         uint256 userEpoch = 0;
         uint256 toDistribute = 0;
 
-        uint256 maxUserEpoch = _ve.userPointEpoch(_addr);
+        uint256 maxUserEpoch = veBend.userPointEpoch(_addr);
         if (maxUserEpoch == 0) {
             // No lock = no fees
-            return 0;
+            return Claimable(0, 0, 0, 0);
         }
         uint256 weekCursor = timeCursorOf[_addr];
         if (weekCursor == 0) {
             // Need to do the initial binary search
-            userEpoch = _findTimestampUserEpoch(
-                _ve,
-                _addr,
-                startTime,
-                maxUserEpoch
-            );
+            userEpoch = _findTimestampUserEpoch(_addr, startTime, maxUserEpoch);
         } else {
             userEpoch = userEpochOf[_addr];
         }
@@ -238,14 +227,17 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
             userEpoch = 1;
         }
 
-        IVeBend.Point memory userPoint = _ve.userPointHistory(_addr, userEpoch);
+        IVeBend.Point memory userPoint = veBend.userPointHistory(
+            _addr,
+            userEpoch
+        );
 
         if (weekCursor == 0) {
             weekCursor = ((userPoint.ts + WEEK - 1) / WEEK) * WEEK;
         }
 
-        if (weekCursor >= _lastTokenTime) {
-            return 0;
+        if (weekCursor >= lastDistributeTime) {
+            return Claimable(0, userEpoch, maxUserEpoch, weekCursor);
         }
 
         if (weekCursor < startTime) {
@@ -256,7 +248,7 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
 
         // Iterate over weeks
         for (uint256 i = 0; i < 50; i++) {
-            if (weekCursor >= _lastTokenTime) {
+            if (weekCursor >= lastDistributeTime) {
                 break;
             }
             if (weekCursor >= userPoint.ts && userEpoch <= maxUserEpoch) {
@@ -265,7 +257,7 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
                 if (userEpoch > maxUserEpoch) {
                     userPoint = emptyPoint;
                 } else {
-                    userPoint = _ve.userPointHistory(_addr, userEpoch);
+                    userPoint = veBend.userPointHistory(_addr, userEpoch);
                 }
             } else {
                 // Calc
@@ -290,12 +282,12 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
         }
 
         userEpoch = Math.min(maxUserEpoch, userEpoch - 1);
-        userEpochOf[_addr] = userEpoch;
-        timeCursorOf[_addr] = weekCursor;
+        return Claimable(toDistribute, userEpoch, maxUserEpoch, weekCursor);
+    }
 
-        emit Claimed(_addr, toDistribute, userEpoch, maxUserEpoch);
-
-        return toDistribute;
+    function claimable(address _addr) external view override returns (uint256) {
+        Claimable memory _claimable = _claim(_addr);
+        return _claimable.amount;
     }
 
     /***
@@ -304,12 +296,13 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
         For accounts with many veBend related actions, this function
         may need to be called more than once to claim all available
         fees. In the `Claimed` event that fires, if `claimEpoch` is
-        less than `max_epoch`, the account may claim again.
+        less than `maxEpoch`, the account may claim again.
      *@param weth Whether claim weth or raw eth
      *@return uint256 Amount of fees claimed in the call
      */
     function claim(bool weth)
         external
+        override
         nonReentrant
         shouldStarted
         returns (uint256)
@@ -324,9 +317,13 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
         // Transfer fee and update checkpoint
         distribute();
 
-        lastTokenTime = (lastTokenTime / WEEK) * WEEK;
+        lastDistributeTime = (lastDistributeTime / WEEK) * WEEK;
 
-        uint256 amount = _claim(_addr, veBend, lastTokenTime);
+        Claimable memory _claimable = _claim(_addr);
+
+        uint256 amount = _claimable.amount;
+        userEpochOf[_addr] = _claimable.userEpoch;
+        timeCursorOf[_addr] = _claimable.weekCursor;
 
         if (amount != 0) {
             if (weth) {
@@ -337,6 +334,12 @@ contract FeeDistributor is ReentrancyGuard, Ownable {
                 _safeTransferETH(_addr, amount);
             }
             tokenLastBalance -= amount;
+            emit Claimed(
+                _addr,
+                amount,
+                _claimable.userEpoch,
+                _claimable.maxUserEpoch
+            );
         }
 
         return amount;
