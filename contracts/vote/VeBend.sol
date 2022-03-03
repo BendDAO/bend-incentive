@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
+pragma abicoder v2;
 
 /***
  *@title VeBend
@@ -29,43 +30,22 @@ pragma solidity ^0.8.0;
 // for individual wallet addresses
 
 //libraries
-import {ISmartWalletChecker} from "./interfaces/ISmartWalletChecker.sol";
+import {IVeBend} from "./interfaces/IVeBend.sol";
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract VeBend is ReentrancyGuard, Ownable {
+contract VeBend is IVeBend, ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
-    struct Point {
-        int256 bias;
-        int256 slope; // - dweight / dt
-        uint256 ts; //timestamp
-        uint256 blk; // block
-    }
+
     // We cannot really do block numbers per se b/c slope is per time, not per block
     // and per block could be fairly bad b/c Ethereum changes blocktimes.
     // What we can do is to extrapolate ***At functions
-
-    struct LockedBalance {
-        int256 amount;
-        uint256 end;
-    }
 
     uint256 private constant DEPOSIT_FOR_TYPE = 0;
     uint256 private constant CREATE_LOCK_TYPE = 1;
     uint256 private constant INCREASE_LOCK_AMOUNT = 2;
     uint256 private constant INCREASE_UNLOCK_TIME = 3;
-
-    event Deposit(
-        address indexed provider,
-        uint256 value,
-        uint256 indexed locktime,
-        uint256 _type,
-        uint256 ts
-    );
-    event Withdraw(address indexed provider, uint256 value, uint256 ts);
-
-    event Supply(uint256 prevSupply, uint256 supply);
 
     uint256 public constant WEEK = 7 * 86400; // all future times are rounded by week
     uint256 public constant MAXTIME = 4 * 365 * 86400; // 4 years
@@ -77,7 +57,7 @@ contract VeBend is ReentrancyGuard, Ownable {
     mapping(address => LockedBalance) public locked;
 
     //everytime user deposit/withdraw/change_locktime, these values will be updated;
-    uint256 public epoch;
+    uint256 public override epoch;
     Point[] public supplyPointHistory; // epoch -> unsigned point.
     mapping(address => Point[]) public userPointHistory; // user -> Point[user_epoch]
     mapping(address => uint256) public userPointEpoch;
@@ -104,20 +84,40 @@ contract VeBend is ReentrancyGuard, Ownable {
         symbol = _symbol;
     }
 
-    /***
-     *@dev Check if the call is from a whitelisted smart contract, revert if not
-     *@param _addr Address to be checked
-     */
-    function assertNotContract(address _addr) internal {
-        if (_addr != tx.origin) {
-            address checker = smartWalletChecker; //not going to be deployed at the moment of launch.
-            if (checker != address(0)) {
-                if (ISmartWalletChecker(checker).check(_addr)) {
-                    return;
-                }
-            }
-            revert("Smart contract depositors not allowed");
-        }
+    function getLocked(address _addr)
+        external
+        view
+        override
+        returns (LockedBalance memory)
+    {
+        return locked[_addr];
+    }
+
+    function getUserPointEpoch(address _userAddress)
+        external
+        view
+        override
+        returns (uint256)
+    {
+        return userPointEpoch[_userAddress];
+    }
+
+    function getSupplyPointHistory(uint256 _index)
+        external
+        view
+        override
+        returns (Point memory)
+    {
+        return supplyPointHistory[_index];
+    }
+
+    function getUserPointHistory(address _userAddress, uint256 _index)
+        external
+        view
+        override
+        returns (Point memory)
+    {
+        return userPointHistory[_userAddress][_index];
     }
 
     /***
@@ -317,7 +317,8 @@ contract VeBend is ReentrancyGuard, Ownable {
      *@param _lockedBalance Previous locked amount / timestamp
      */
     function _depositFor(
-        address _addr,
+        address _provider,
+        address _beneficiary,
         uint256 _value,
         uint256 _unlockTime,
         LockedBalance memory _lockedBalance,
@@ -339,50 +340,53 @@ contract VeBend is ReentrancyGuard, Ownable {
         if (_unlockTime != 0) {
             _locked.end = _unlockTime;
         }
-        locked[_addr] = _locked;
+        locked[_beneficiary] = _locked;
 
         // Possibilities
         // Both _oldLocked.end could be current or expired (>/< block.timestamp)
         // value == 0 (extend lock) or value > 0 (add to lock or extend lock)
         // _locked.end > block.timestamp (always)
 
-        _checkpoint(_addr, _oldLocked, _locked);
+        _checkpoint(_beneficiary, _oldLocked, _locked);
 
         if (_value != 0) {
-            IERC20(token).safeTransferFrom(_addr, address(this), _value);
+            IERC20(token).safeTransferFrom(_provider, address(this), _value);
         }
 
-        emit Deposit(_addr, _value, _locked.end, _type, block.timestamp);
+        emit Deposit(
+            _provider,
+            _beneficiary,
+            _value,
+            _locked.end,
+            _type,
+            block.timestamp
+        );
         emit Supply(_supplyBefore, _supplyBefore + _value);
     }
 
     /***
      *@notice Record total supply to checkpoint
      */
-    function checkpointSupply() public {
+    function checkpointSupply() public override {
         LockedBalance memory _a;
         LockedBalance memory _b;
         _checkpoint(address(0), _a, _b);
     }
 
-    /***
-     *@dev Deposit `_value` tokens for `_addr` and add to the lock
-     *     Anyone (even a smart contract) can deposit for someone else, but
-     *     cannot extend their locktime and deposit for a brand new user
-     *@param _addr User's wallet address
-     *@param _value Amount to add to user's lock
-     */
-    function depositFor(address _addr, uint256 _value) external nonReentrant {
-        LockedBalance memory _locked = locked[_addr];
+    function createLock(
+        address _beneficiary,
+        uint256 _value,
+        uint256 _unlockTime
+    ) external override nonReentrant {
+        _createLock(_beneficiary, _value, _unlockTime);
+    }
 
-        require(_value > 0, "dev: need non-zero value");
-        require(_locked.amount > 0, "No existing lock found");
-        require(
-            _locked.end > block.timestamp,
-            "Cannot add to expired lock. Withdraw"
-        );
-
-        _depositFor(_addr, _value, 0, locked[_addr], DEPOSIT_FOR_TYPE);
+    function createLock(uint256 _value, uint256 _unlockTime)
+        external
+        override
+        nonReentrant
+    {
+        _createLock(msg.sender, _value, _unlockTime);
     }
 
     /***
@@ -390,13 +394,13 @@ contract VeBend is ReentrancyGuard, Ownable {
      *@param _value Amount to deposit
      *@param _unlockTime Epoch time when tokens unlock, rounded down to whole weeks
      */
-    function createLock(uint256 _value, uint256 _unlockTime)
-        external
-        nonReentrant
-    {
-        assertNotContract(msg.sender);
+    function _createLock(
+        address _beneficiary,
+        uint256 _value,
+        uint256 _unlockTime
+    ) internal nonReentrant {
         _unlockTime = (_unlockTime / WEEK) * WEEK; // Locktime is rounded down to weeks
-        LockedBalance memory _locked = locked[msg.sender];
+        LockedBalance memory _locked = locked[_beneficiary];
 
         require(_value > 0, "dev: need non-zero value");
         require(_locked.amount == 0, "Withdraw old tokens first");
@@ -409,7 +413,26 @@ contract VeBend is ReentrancyGuard, Ownable {
             "Voting lock can be 4 years max"
         );
 
-        _depositFor(msg.sender, _value, _unlockTime, _locked, CREATE_LOCK_TYPE);
+        _depositFor(
+            msg.sender,
+            _beneficiary,
+            _value,
+            _unlockTime,
+            _locked,
+            CREATE_LOCK_TYPE
+        );
+    }
+
+    function increaseAmount(uint256 _value) external override nonReentrant {
+        _increaseAmount(msg.sender, _value);
+    }
+
+    function increaseAmount(address _beneficiary, uint256 _value)
+        external
+        override
+        nonReentrant
+    {
+        _increaseAmount(_beneficiary, _value);
     }
 
     /***
@@ -417,9 +440,11 @@ contract VeBend is ReentrancyGuard, Ownable {
      *        without modifying the unlock time
      *@param _value Amount of tokens to deposit and add to the lock
      */
-    function increaseAmount(uint256 _value) external nonReentrant {
-        assertNotContract(msg.sender);
-        LockedBalance memory _locked = locked[msg.sender];
+    function _increaseAmount(address _beneficiary, uint256 _value)
+        internal
+        nonReentrant
+    {
+        LockedBalance memory _locked = locked[_beneficiary];
 
         assert(_value > 0);
         require(_locked.amount > 0, "No existing lock found");
@@ -428,15 +453,25 @@ contract VeBend is ReentrancyGuard, Ownable {
             "Cannot add to expired lock. Withdraw"
         );
 
-        _depositFor(msg.sender, _value, 0, _locked, INCREASE_LOCK_AMOUNT);
+        _depositFor(
+            msg.sender,
+            _beneficiary,
+            _value,
+            0,
+            _locked,
+            INCREASE_LOCK_AMOUNT
+        );
     }
 
     /***
      *@dev Extend the unlock time for `msg.sender` to `_unlockTime`
      *@param _unlockTime New epoch time for unlocking
      */
-    function increaseUnlockTime(uint256 _unlockTime) external nonReentrant {
-        assertNotContract(msg.sender); //@shun: need to convert to solidity
+    function increaseUnlockTime(uint256 _unlockTime)
+        external
+        override
+        nonReentrant
+    {
         LockedBalance memory _locked = locked[msg.sender];
         _unlockTime = (_unlockTime / WEEK) * WEEK; // Locktime is rounded down to weeks
 
@@ -448,14 +483,21 @@ contract VeBend is ReentrancyGuard, Ownable {
             "Voting lock can be 4 years max"
         );
 
-        _depositFor(msg.sender, 0, _unlockTime, _locked, INCREASE_UNLOCK_TIME);
+        _depositFor(
+            msg.sender,
+            msg.sender,
+            0,
+            _unlockTime,
+            _locked,
+            INCREASE_UNLOCK_TIME
+        );
     }
 
     /***
      *@dev Withdraw all tokens for `msg.sender`
      *@dev Only possible if the lock has expired
      */
-    function withdraw() external nonReentrant {
+    function withdraw() external override nonReentrant {
         LockedBalance memory _locked = LockedBalance(
             locked[msg.sender].amount,
             locked[msg.sender].end
@@ -736,10 +778,6 @@ contract VeBend is ReentrancyGuard, Ownable {
         // Now dt contains info on how far are we beyond point
 
         return supplyAt(_point, _point.ts + dt);
-    }
-
-    function getUserPointEpoch(address _user) external view returns (uint256) {
-        return userPointEpoch[_user];
     }
 
     /***
