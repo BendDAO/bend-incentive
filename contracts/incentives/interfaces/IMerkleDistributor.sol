@@ -12,18 +12,17 @@ interface IMerkleDistributor {
     function merkleRoot() external view returns (bytes32);
 
     // Returns true if the index has been marked claimed.
-    function isClaimed(uint256 index) external view returns (bool);
+    function isClaimed(address account) external view returns (bool);
 
     // Claim the given amount of the token to the given address. Reverts if the inputs are invalid.
     function claim(
-        uint256 index,
         address account,
         uint256 amount,
         bytes32[] calldata merkleProof
     ) external;
 
     // This event is triggered whenever a call to #claim succeeds.
-    event Claimed(uint256 index, address account, uint256 amount);
+    event Claimed(bytes32 merkleRoot, address account, uint256 amount);
     event MerkleRootSet(bytes32 merkleRoot);
     event EndTimestampSet(uint256 endTimestamp);
     event TokensWithdrawn(uint256 amount);

@@ -6,18 +6,31 @@ import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProo
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IMerkleDistributor} from "./interfaces/IMerkleDistributor.sol";
+import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 
-contract MerkleDistributor is IMerkleDistributor, Ownable, ReentrancyGuard {
+contract MerkleDistributor is
+    IMerkleDistributor,
+    Pausable,
+    Ownable,
+    ReentrancyGuard
+{
     using SafeERC20 for IERC20;
     IERC20 public immutable override token;
     bool public isMerkleRootSet;
     bytes32 public override merkleRoot;
     uint256 public endTimestamp;
-    // This is a packed array of booleans.
-    mapping(uint256 => uint256) private claimedBitMap;
+    mapping(bytes32 => mapping(address => bool)) public claimed;
 
     constructor(IERC20 _token) {
         token = _token;
+    }
+
+    function pauseAirdrop() external onlyOwner whenNotPaused {
+        _pause();
+    }
+
+    function unpauseAirdrop() external onlyOwner whenPaused {
+        _unpause();
     }
 
     /**
@@ -47,44 +60,47 @@ contract MerkleDistributor is IMerkleDistributor, Ownable, ReentrancyGuard {
         emit EndTimestampSet(_endTimestamp);
     }
 
-    function isClaimed(uint256 index) public view override returns (bool) {
-        require(isMerkleRootSet, "Airdrop: Merkle root not set");
-        uint256 claimedWordIndex = index / 256;
-        uint256 claimedBitIndex = index % 256;
-        uint256 claimedWord = claimedBitMap[claimedWordIndex];
-        uint256 mask = (1 << claimedBitIndex);
-        return claimedWord & mask == mask;
+    function _isClaimed(bytes32 _merkleRoot, address _account)
+        internal
+        view
+        returns (bool)
+    {
+        bool _claimed = claimed[_merkleRoot][_account];
+        return _claimed;
     }
 
-    function _setClaimed(uint256 index) private {
-        uint256 claimedWordIndex = index / 256;
-        uint256 claimedBitIndex = index % 256;
-        claimedBitMap[claimedWordIndex] =
-            claimedBitMap[claimedWordIndex] |
-            (1 << claimedBitIndex);
+    function isClaimed(address _account) public view override returns (bool) {
+        require(isMerkleRootSet, "Airdrop: Merkle root not set");
+        return _isClaimed(merkleRoot, _account);
+    }
+
+    function _setClaimed(bytes32 _merkleRoot, address _account) private {
+        claimed[_merkleRoot][_account] = true;
     }
 
     function claim(
-        uint256 index,
         address account,
         uint256 amount,
         bytes32[] calldata merkleProof
-    ) external override nonReentrant {
+    ) external override whenNotPaused nonReentrant {
         require(block.timestamp <= endTimestamp, "Airdrop: Too late to claim");
-        require(!isClaimed(index), "MerkleDistributor: Drop already claimed.");
+        require(
+            !isClaimed(account),
+            "MerkleDistributor: Drop already claimed."
+        );
 
         // Verify the merkle proof.
-        bytes32 node = keccak256(abi.encodePacked(index, account, amount));
+        bytes32 node = keccak256(abi.encodePacked(account, amount));
         require(
             MerkleProof.verify(merkleProof, merkleRoot, node),
             "MerkleDistributor: Invalid proof."
         );
 
         // Mark it claimed and send the token.
-        _setClaimed(index);
+        _setClaimed(merkleRoot, account);
         token.safeTransfer(account, amount);
 
-        emit Claimed(index, account, amount);
+        emit Claimed(merkleRoot, account, amount);
     }
 
     /**
