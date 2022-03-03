@@ -18,12 +18,7 @@ import {
   getBTokenConfig,
 } from "./constants";
 import { Contract } from "ethers";
-import dotenv from "dotenv";
 import { makeBN } from "../test/utils";
-const envResult = dotenv.config();
-
-const COOLDOWN_SECONDS = "864000"; // 10 days
-const UNSTAKE_WINDOW = "172800"; // 2 days
 
 export interface Contracts {
   bendToken: Contract;
@@ -36,17 +31,7 @@ export interface Contracts {
   incentivesController: Contract;
 }
 
-if (envResult.error || !envResult.parsed) {
-  throw envResult.error;
-}
-const env = envResult.parsed;
-
-console.log("ENV:", env);
-
-const GUARDIAN_MULTI_SIG_ADDR =
-  env[`${network.name.toUpperCase()}_GOVERNANCE_GUARDIAN`] || ZERO_ADDRESS;
-
-async function deploy() {
+async function deployCore() {
   const [deployer] = await ethers.getSigners();
 
   console.log("Deploying contracts with the account:", deployer.address);
@@ -78,6 +63,16 @@ async function deploy() {
     deploymentState,
     { proxy: true }
   );
+
+  await loadOrDeploy(
+    "MerkleDistributor",
+    [bendToken.address],
+    network.name,
+    deployer,
+    deploymentState,
+    { proxy: false }
+  );
+
   return {
     bendToken,
     vault,
@@ -111,7 +106,7 @@ async function connect(contracts: Contracts) {
 }
 
 async function main() {
-  let contracts = await deploy();
+  let contracts = await deployCore();
   await connect(contracts);
 }
 // We recommend this pattern to be able to use async/await everywhere

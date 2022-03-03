@@ -16,10 +16,12 @@ export function makeBN18(num: string | number) {
   return ethers.utils.parseUnits(num.toString(), 18);
 }
 
-export async function load(name: string,
+export async function load(
+  name: string,
   network: string,
   deployer: Signer,
-  deploymentStateItem: DeploymentStateItem) {
+  deploymentStateItem: DeploymentStateItem
+) {
   const factory = await hre.ethers.getContractFactory(name);
   const contract = new hre.ethers.Contract(
     deploymentStateItem.address,
@@ -35,10 +37,7 @@ export async function loadOrDeploy(
   params: any[],
   network: string,
   deployer: Signer,
-  deploymentState: Record<
-    string,
-    DeploymentStateItem
-  >,
+  deploymentState: Record<string, DeploymentStateItem>,
   options: {
     id?: string;
     proxy?: boolean;
@@ -71,20 +70,20 @@ export async function loadOrDeploy(
           await verifyContract(address);
           deploymentState[
             id
-          ].verification = `${ETHERSCAN_BASE_URL}/${address}#code`;
+          ].verification = `${ETHERSCAN_BASE_URL}/address/${address}#code`;
         }
         if (!deploymentState[id].proxyVerification) {
           await verifyContract(contract.address);
           deploymentState[
             id
-          ].proxyVerification = `${ETHERSCAN_BASE_URL}/${contract.address}#code`;
+          ].proxyVerification = `${ETHERSCAN_BASE_URL}/address/${contract.address}#code`;
         }
       } else {
         if (!deploymentState[id].verification) {
           await verifyContract(contract.address, params);
           deploymentState[
             id
-          ].verification = `${ETHERSCAN_BASE_URL}/${contract.address}#code`;
+          ].verification = `${ETHERSCAN_BASE_URL}/address/${contract.address}#code`;
         }
       }
     }
@@ -141,10 +140,9 @@ function saveDeployment(deploymentState: {}, outputFile: string) {
   fs.writeFileSync(outputFile, deploymentStateJSON);
 }
 
-export function loadPreviousDeployment(network: string) : Record<
-string,
-DeploymentStateItem
-> {
+export function loadPreviousDeployment(
+  network: string
+): Record<string, DeploymentStateItem> {
   let previousDeployment = {};
   const outputFile = `${outputDir}/${network}.json`;
   if (fs.existsSync(outputFile)) {
