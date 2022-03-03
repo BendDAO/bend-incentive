@@ -7,7 +7,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ILockup} from "./interfaces/ILockup.sol";
 import {LockupBend} from "./LockupBend.sol";
-import {IVeBend} from "./interfaces/IVeBend.sol";
+import {IVeBend} from "../vote/interfaces/IVeBend.sol";
 import {IFeeDistributor} from "./interfaces/IFeeDistributor.sol";
 import {IWETH} from "./interfaces/IWETH.sol";
 import {ISnapshotDelegation} from "./interfaces/ISnapshotDelegation.sol";
