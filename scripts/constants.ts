@@ -74,7 +74,24 @@ export const getBTokenConfig = (network: string): any[] =>
         ],
       ],
       [Network.mainnet]: [],
-      [Network.develop]: [],
+      [Network.develop]: [
+        [
+          "0x929Da10A2864aDe23FD78FA7d3899AeD100BBf9F", // bDAI
+          "0x6a942FF1f4711Bf87573C3D9cF11305FABf3d6E7", // bDebtDAI
+          "0xD3E9500DB1D0ED37f19FEd8d77B4117bf9A7dd53", // bUSDC
+          "0xf9C4A656deC2c94E01BCA7Ee65dB90F0989F7D22", // bDebtUSDC
+          "0x050925BAac473Ef020F5Babf3e6CbA68095b90df", // bWETH
+          "0x4b47DC724d9Fdefd1d96edf1A91B4B588d506242", // bDebtWETH
+        ],
+        [
+          makeBN(10000000000000000), // bDAI
+          makeBN(30000000000000000), // bDebtDAI
+          makeBN(10000000000000000), // bUSDC
+          makeBN(30000000000000000), // bDebtUSDC
+          makeBN(10000000000000000), // bWETH
+          makeBN(30000000000000000), // bDebtWETH
+        ],
+      ],
     },
     Network[network as keyof typeof Network]
   );

@@ -5,8 +5,29 @@ const outputDir = "./deployments";
 import { Contract, ContractTransaction, BigNumber, ethers } from "ethers";
 import { NomicLabsHardhatPluginError } from "hardhat/plugins";
 
+export interface DeploymentStateItem {
+  address: string;
+  txHash: string;
+  verification?: string;
+  proxyVerification?: string;
+}
+
 export function makeBN18(num: string | number) {
   return ethers.utils.parseUnits(num.toString(), 18);
+}
+
+export async function load(name: string,
+  network: string,
+  deployer: Signer,
+  deploymentStateItem: DeploymentStateItem) {
+  const factory = await hre.ethers.getContractFactory(name);
+  const contract = new hre.ethers.Contract(
+    deploymentStateItem.address,
+    factory.interface,
+    deployer
+  );
+
+  return contract;
 }
 
 export async function loadOrDeploy(
@@ -16,12 +37,7 @@ export async function loadOrDeploy(
   deployer: Signer,
   deploymentState: Record<
     string,
-    {
-      address: string;
-      txHash: string;
-      verification?: string;
-      proxyVerification?: string;
-    }
+    DeploymentStateItem
   >,
   options: {
     id?: string;
@@ -125,7 +141,10 @@ function saveDeployment(deploymentState: {}, outputFile: string) {
   fs.writeFileSync(outputFile, deploymentStateJSON);
 }
 
-export function loadPreviousDeployment(network: string) {
+export function loadPreviousDeployment(network: string) : Record<
+string,
+DeploymentStateItem
+> {
   let previousDeployment = {};
   const outputFile = `${outputDir}/${network}.json`;
   if (fs.existsSync(outputFile)) {
