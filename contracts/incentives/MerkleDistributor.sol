@@ -38,11 +38,8 @@ contract MerkleDistributor is
      * @param _merkleRoot merkle root
      */
     function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
-        require(!isMerkleRootSet, "Owner: Merkle root already set");
-
         isMerkleRootSet = true;
         merkleRoot = _merkleRoot;
-
         emit MerkleRootSet(_merkleRoot);
     }
 
