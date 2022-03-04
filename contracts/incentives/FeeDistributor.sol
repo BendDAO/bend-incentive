@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
 
-import {IVeBend} from "./interfaces/IVeBend.sol";
+import {IVeBend} from "../vote/interfaces/IVeBend.sol";
 import {IWETH} from "./interfaces/IWETH.sol";
 import {ILendPool} from "./interfaces/ILendPool.sol";
 import {IFeeDistributor} from "./interfaces/IFeeDistributor.sol";
@@ -135,7 +135,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
                 break;
             } else {
                 uint256 epoch = _findTimestampEpoch(t);
-                IVeBend.Point memory pt = ve.supplyPointHistory(epoch);
+                IVeBend.Point memory pt = ve.getSupplyPointHistory(epoch);
                 int256 dt = 0;
                 if (t > pt.ts) {
                     // If the point is at 0 epoch, it can actually be earlier than the first deposit
@@ -166,7 +166,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
                 break;
             }
             uint256 _mid = (_min + _max + 2) / 2;
-            IVeBend.Point memory pt = veBend.supplyPointHistory(_mid);
+            IVeBend.Point memory pt = veBend.getSupplyPointHistory(_mid);
             if (pt.ts <= _timestamp) {
                 _min = _mid;
             } else {
@@ -188,7 +188,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
                 break;
             }
             uint256 _mid = (_min + _max + 2) / 2;
-            IVeBend.Point memory pt = veBend.userPointHistory(_user, _mid);
+            IVeBend.Point memory pt = veBend.getUserPointHistory(_user, _mid);
             if (pt.ts <= _timestamp) {
                 _min = _mid;
             } else {
@@ -210,7 +210,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
         uint256 userEpoch = 0;
         uint256 toDistribute = 0;
 
-        uint256 maxUserEpoch = veBend.userPointEpoch(_addr);
+        uint256 maxUserEpoch = veBend.getUserPointEpoch(_addr);
         if (maxUserEpoch == 0) {
             // No lock = no fees
             return Claimable(0, 0, 0, 0);
@@ -227,7 +227,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
             userEpoch = 1;
         }
 
-        IVeBend.Point memory userPoint = veBend.userPointHistory(
+        IVeBend.Point memory userPoint = veBend.getUserPointHistory(
             _addr,
             userEpoch
         );
@@ -257,7 +257,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
                 if (userEpoch > maxUserEpoch) {
                     userPoint = emptyPoint;
                 } else {
-                    userPoint = veBend.userPointHistory(_addr, userEpoch);
+                    userPoint = veBend.getUserPointHistory(_addr, userEpoch);
                 }
             } else {
                 // Calc
