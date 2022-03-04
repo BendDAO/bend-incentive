@@ -21,13 +21,9 @@ import { Contract } from "ethers";
 import { makeBN } from "../test/utils";
 
 export interface Contracts {
+  airdrop: Contract;
   bendToken: Contract;
-  governance: Contract;
-  governanceStrategy: Contract;
-  shortTimelockExecutor: Contract;
-  longTimelockExecutor: Contract;
   vault: Contract;
-  stakedBend: Contract;
   incentivesController: Contract;
 }
 
@@ -64,7 +60,7 @@ async function deployCore() {
     { proxy: true }
   );
 
-  await loadOrDeploy(
+  const airdrop = await loadOrDeploy(
     "MerkleDistributor",
     [bendToken.address],
     network.name,
@@ -74,6 +70,7 @@ async function deployCore() {
   );
 
   return {
+    airdrop,
     bendToken,
     vault,
     incentivesController,
