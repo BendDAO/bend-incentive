@@ -106,7 +106,7 @@ export async function loadOrDeploy(
     address: contract.address,
     txHash: contract.deployTransaction.hash,
   };
-
+  saveDeployment(deploymentState, outputFile);
   await verifyContract(id, network, contract.address, params, deploymentState);
 
   return contract;
@@ -143,9 +143,9 @@ export async function verifyContract(
   let proxyAddress = ZERO_ADDRESS;
   let implAddress = await getProxyImpl(address);
   if (implAddress != ZERO_ADDRESS) {
+    proxyAddress = address;
     address = implAddress;
     constructorArguments = [];
-    proxyAddress = address;
   } else {
     proxyAddress == ZERO_ADDRESS;
   }
