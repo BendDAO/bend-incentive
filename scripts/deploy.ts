@@ -40,7 +40,8 @@ async function deployCore() {
     [],
     network.name,
     deployer,
-    deploymentState
+    deploymentState,
+    { proxy: false }
   );
   const bendToken = await loadOrDeploy(
     "BendToken",
@@ -66,7 +67,7 @@ async function deployCore() {
     network.name,
     deployer,
     deploymentState,
-    { proxy: false }
+    { proxy: true }
   );
 
   return {

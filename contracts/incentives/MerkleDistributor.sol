@@ -1,27 +1,27 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity ^0.8.0;
 
-import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {IMerkleDistributor} from "./interfaces/IMerkleDistributor.sol";
-import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
+import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 contract MerkleDistributor is
     IMerkleDistributor,
-    Pausable,
-    Ownable,
-    ReentrancyGuard
+    PausableUpgradeable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable
 {
-    using SafeERC20 for IERC20;
-    IERC20 public immutable override token;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    address public override token;
     bool public isMerkleRootSet;
     bytes32 public override merkleRoot;
     uint256 public endTimestamp;
     mapping(bytes32 => mapping(address => bool)) public claimed;
 
-    constructor(IERC20 _token) {
+    function initialize(address _token) external initializer {
         token = _token;
     }
 
@@ -76,6 +76,7 @@ contract MerkleDistributor is
     }
 
     function claim(
+        uint256 index,
         address account,
         uint256 amount,
         bytes32[] calldata merkleProof
@@ -87,7 +88,7 @@ contract MerkleDistributor is
         );
 
         // Verify the merkle proof.
-        bytes32 node = keccak256(abi.encodePacked(account, amount));
+        bytes32 node = keccak256(abi.encodePacked(index, account, amount));
         require(
             MerkleProof.verify(merkleProof, merkleRoot, node),
             "MerkleDistributor: Invalid proof."
@@ -95,7 +96,7 @@ contract MerkleDistributor is
 
         // Mark it claimed and send the token.
         _setClaimed(merkleRoot, account);
-        token.safeTransfer(account, amount);
+        IERC20Upgradeable(token).safeTransfer(account, amount);
 
         emit Claimed(merkleRoot, account, amount);
     }
@@ -103,13 +104,15 @@ contract MerkleDistributor is
     /**
      * @notice Transfer tokens back to owner
      */
-    function withdrawTokenRewards() external onlyOwner {
+    function withdrawTokenRewards(address _to) external override onlyOwner {
         require(
             block.timestamp > (endTimestamp + 1 days),
             "Owner: Too early to remove rewards"
         );
-        uint256 balanceToWithdraw = token.balanceOf(address(this));
-        token.safeTransfer(msg.sender, balanceToWithdraw);
+        uint256 balanceToWithdraw = IERC20Upgradeable(token).balanceOf(
+            address(this)
+        );
+        IERC20Upgradeable(token).safeTransfer(_to, balanceToWithdraw);
 
         emit TokensWithdrawn(balanceToWithdraw);
     }
