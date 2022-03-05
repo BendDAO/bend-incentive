@@ -8,6 +8,8 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {IMerkleDistributor} from "./interfaces/IMerkleDistributor.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
+// import "hardhat/console.sol";
+
 contract MerkleDistributor is
     IMerkleDistributor,
     PausableUpgradeable,
@@ -22,6 +24,9 @@ contract MerkleDistributor is
     mapping(bytes32 => mapping(address => bool)) public claimed;
 
     function initialize(address _token) external initializer {
+        __Pausable_init();
+        __Ownable_init();
+        __ReentrancyGuard_init();
         token = _token;
     }
 
@@ -50,7 +55,7 @@ contract MerkleDistributor is
     function setEndTimestamp(uint256 _endTimestamp) external onlyOwner {
         require(
             block.timestamp < _endTimestamp,
-            "Owner: Can't set past timestamp"
+            "Owner: Can't set past timestamp."
         );
         endTimestamp = _endTimestamp;
 
@@ -67,7 +72,7 @@ contract MerkleDistributor is
     }
 
     function isClaimed(address _account) public view override returns (bool) {
-        require(isMerkleRootSet, "Airdrop: Merkle root not set");
+        require(isMerkleRootSet, "Airdrop: Merkle root not set.");
         return _isClaimed(merkleRoot, _account);
     }
 
@@ -81,7 +86,7 @@ contract MerkleDistributor is
         uint256 amount,
         bytes32[] calldata merkleProof
     ) external override whenNotPaused nonReentrant {
-        require(block.timestamp <= endTimestamp, "Airdrop: Too late to claim");
+        require(block.timestamp <= endTimestamp, "Airdrop: Too late to claim.");
         require(
             !isClaimed(account),
             "MerkleDistributor: Drop already claimed."
@@ -98,7 +103,7 @@ contract MerkleDistributor is
         _setClaimed(merkleRoot, account);
         IERC20Upgradeable(token).safeTransfer(account, amount);
 
-        emit Claimed(merkleRoot, account, amount);
+        emit Claimed(merkleRoot, index, account, amount);
     }
 
     /**
@@ -107,7 +112,7 @@ contract MerkleDistributor is
     function withdrawTokenRewards(address _to) external override onlyOwner {
         require(
             block.timestamp > (endTimestamp + 1 days),
-            "Owner: Too early to remove rewards"
+            "Owner: Too early to remove rewards."
         );
         uint256 balanceToWithdraw = IERC20Upgradeable(token).balanceOf(
             address(this)
