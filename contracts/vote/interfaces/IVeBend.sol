@@ -36,7 +36,7 @@ interface IVeBend {
 
     function increaseAmount(uint256 _value) external;
 
-    function increaseAmount(address _beneficiary, uint256 _value) external;
+    function increaseAmountFor(address _beneficiary, uint256 _value) external;
 
     function increaseUnlockTime(uint256 _unlockTime) external;
 
