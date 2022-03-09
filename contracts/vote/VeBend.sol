@@ -433,14 +433,13 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
         );
     }
 
-    function increaseAmount(uint256 _value) external override nonReentrant {
+    function increaseAmount(uint256 _value) external override {
         _increaseAmount(msg.sender, _value);
     }
 
-    function increaseAmount(address _beneficiary, uint256 _value)
+    function increaseAmountFor(address _beneficiary, uint256 _value)
         external
         override
-        nonReentrant
     {
         _increaseAmount(_beneficiary, _value);
     }

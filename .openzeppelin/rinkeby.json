@@ -87,6 +87,11 @@
       "address": "0x14b4B7319451fe3B9b1A98909A5DcE9F410aF282",
       "txHash": "0x53108737041cbf06f44930fbe05d23f3adb6047ef51a2df42a300cbc648846e0",
       "kind": "transparent"
+    },
+    {
+      "address": "0x52163eedA5Ab66aeaCe49C6cbEaa062540962660",
+      "txHash": "0x9b31b9050b2a5a3e29899d962559263f9c68d8041de1994f43d87c21fd68d1ad",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -742,6 +747,197 @@
           },
           "t_array(t_uint256)50_storage": {
             "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "1c26c49f53794a60e7ec8aad25d13a64ec6a4c0ab8317bc2cb33f4a8735cc023": {
+      "address": "0xeC92df75caDf8d2C25b6CB89b78C2CCb20BA7Ced",
+      "txHash": "0x2489f0af6189d35ccc0d0f8175e2c4c27ede8e5025549211cc6e958a1cb014b8",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "VeBend",
+            "label": "token",
+            "type": "t_address",
+            "src": "contracts/vote/VeBend.sol:54"
+          },
+          {
+            "contract": "VeBend",
+            "label": "supply",
+            "type": "t_uint256",
+            "src": "contracts/vote/VeBend.sol:55"
+          },
+          {
+            "contract": "VeBend",
+            "label": "locked",
+            "type": "t_mapping(t_address,t_struct(LockedBalance)10960_storage)",
+            "src": "contracts/vote/VeBend.sol:57"
+          },
+          {
+            "contract": "VeBend",
+            "label": "epoch",
+            "type": "t_uint256",
+            "src": "contracts/vote/VeBend.sol:60"
+          },
+          {
+            "contract": "VeBend",
+            "label": "supplyPointHistory",
+            "type": "t_array(t_struct(Point)10955_storage)100000000000000000000000000000_storage",
+            "src": "contracts/vote/VeBend.sol:61"
+          },
+          {
+            "contract": "VeBend",
+            "label": "userPointHistory",
+            "type": "t_mapping(t_address,t_array(t_struct(Point)10955_storage)1000000000_storage)",
+            "src": "contracts/vote/VeBend.sol:62"
+          },
+          {
+            "contract": "VeBend",
+            "label": "userPointEpoch",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/vote/VeBend.sol:63"
+          },
+          {
+            "contract": "VeBend",
+            "label": "slopeChanges",
+            "type": "t_mapping(t_uint256,t_int256)",
+            "src": "contracts/vote/VeBend.sol:64"
+          },
+          {
+            "contract": "VeBend",
+            "label": "name",
+            "type": "t_string_storage",
+            "src": "contracts/vote/VeBend.sol:66"
+          },
+          {
+            "contract": "VeBend",
+            "label": "symbol",
+            "type": "t_string_storage",
+            "src": "contracts/vote/VeBend.sol:67"
+          },
+          {
+            "contract": "VeBend",
+            "label": "decimals",
+            "type": "t_uint256",
+            "src": "contracts/vote/VeBend.sol:68"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_struct(LockedBalance)10960_storage)": {
+            "label": "mapping(address => struct IVeBend.LockedBalance)"
+          },
+          "t_struct(LockedBalance)10960_storage": {
+            "label": "struct IVeBend.LockedBalance",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_int256"
+              },
+              {
+                "label": "end",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_int256": {
+            "label": "int256"
+          },
+          "t_array(t_struct(Point)10955_storage)100000000000000000000000000000_storage": {
+            "label": "struct IVeBend.Point[100000000000000000000000000000]"
+          },
+          "t_struct(Point)10955_storage": {
+            "label": "struct IVeBend.Point",
+            "members": [
+              {
+                "label": "bias",
+                "type": "t_int256"
+              },
+              {
+                "label": "slope",
+                "type": "t_int256"
+              },
+              {
+                "label": "ts",
+                "type": "t_uint256"
+              },
+              {
+                "label": "blk",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_array(t_struct(Point)10955_storage)1000000000_storage)": {
+            "label": "mapping(address => struct IVeBend.Point[1000000000])"
+          },
+          "t_array(t_struct(Point)10955_storage)1000000000_storage": {
+            "label": "struct IVeBend.Point[1000000000]"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_uint256,t_int256)": {
+            "label": "mapping(uint256 => int256)"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
           }
         }
       }

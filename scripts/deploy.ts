@@ -25,6 +25,7 @@ export interface Contracts {
   bendToken: Contract;
   vault: Contract;
   incentivesController: Contract;
+  vebend: Contract;
 }
 
 async function deployCore() {
@@ -70,11 +71,21 @@ async function deployCore() {
     { proxy: true }
   );
 
+  const vebend = await loadOrDeploy(
+    "VeBend",
+    [bendToken.address],
+    network.name,
+    deployer,
+    deploymentState,
+    { proxy: true }
+  );
+
   return {
     airdrop,
     bendToken,
     vault,
     incentivesController,
+    vebend,
   } as Contracts;
 }
 async function connect(contracts: Contracts) {
