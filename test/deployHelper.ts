@@ -11,7 +11,7 @@ export async function deployBendTokenTester(
   vault: Contract,
   amount: BigNumber
 ) {
-  return deployProxyContract("BendTokenTester", [vault.address, amount]);
+  return await deployProxyContract("BendTokenTester", [vault.address, amount]);
 }
 
 export async function deployVault() {
@@ -36,8 +36,12 @@ export async function deployIncentivesController(
   return incentivesController;
 }
 
+export async function deployVeBend(bendToken: Contract) {
+  return await deployProxyContract("VeBend", [bendToken.address]);
+}
+
 export async function deployMerkleDistributor(bendToken: Contract) {
-  return deployProxyContract("MerkleDistributor", [bendToken.address]);
+  return await deployProxyContract("MerkleDistributor", [bendToken.address]);
 }
 
 export async function deployProxyContract(name: string, args?: unknown[]) {
