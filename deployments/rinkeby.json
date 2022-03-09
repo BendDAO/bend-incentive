@@ -17,9 +17,9 @@
     "proxyVerification": "https://rinkeby.etherscan.io/address/0xD800e97aE32b06C1e89ca5126c7bF6aEF89D6B24#code"
   },
   "MerkleDistributor": {
-    "address": "0x14b4B7319451fe3B9b1A98909A5DcE9F410aF282",
-    "txHash": "0x53108737041cbf06f44930fbe05d23f3adb6047ef51a2df42a300cbc648846e0",
-    "verification": "https://rinkeby.etherscan.io/address/0x351782bed5c2387249c7a6afe2a58c290a3bb4f4#code",
-    "proxyVerification": "https://rinkeby.etherscan.io/address/0x14b4B7319451fe3B9b1A98909A5DcE9F410aF282#code"
+    "address": "0x498f2c760D56272Fc589580900F5458B04CF876A",
+    "txHash": "0xc91cefbbad90ad9acfa820c96758c943c09bf3cb42d6b1044c2475376baac937",
+    "verification": "https://rinkeby.etherscan.io/address/0x46de1bd4deec9b6db703547679b8756242014d25#code",
+    "proxyVerification": "https://rinkeby.etherscan.io/address/0x498f2c760D56272Fc589580900F5458B04CF876A#code"
   }
 }
