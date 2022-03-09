@@ -31,12 +31,12 @@ pragma abicoder v2;
 
 //libraries
 import {IVeBend} from "./interfaces/IVeBend.sol";
-import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract VeBend is IVeBend, ReentrancyGuard, Ownable {
-    using SafeERC20 for IERC20;
+contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     // We cannot really do block numbers per se b/c slope is per time, not per block
     // and per block could be fairly bad b/c Ethereum changes blocktimes.
@@ -58,8 +58,8 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
 
     //everytime user deposit/withdraw/change_locktime, these values will be updated;
     uint256 public override epoch;
-    Point[] public supplyPointHistory; // epoch -> unsigned point.
-    mapping(address => Point[]) public userPointHistory; // user -> Point[user_epoch]
+    Point[100000000000000000000000000000] public supplyPointHistory; // epoch -> unsigned point.
+    mapping(address => Point[1000000000]) public userPointHistory; // user -> Point[user_epoch]
     mapping(address => uint256) public userPointEpoch;
     mapping(uint256 => int256) public slopeChanges; // time -> signed slope change
 
@@ -69,19 +69,22 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
 
     // Checker for whitelisted (smart contract) wallets which are allowed to deposit
     // The goal is to prevent tokenizing the escrow
-    address public smartWalletChecker;
+    // address public smartWalletChecker;
 
-    constructor(
-        address _tokenAddr,
-        string memory _name,
-        string memory _symbol
-    ) {
+    function initialize(address _tokenAddr) external initializer {
+        __Ownable_init();
+        __ReentrancyGuard_init();
         token = _tokenAddr;
-        supplyPointHistory[0].blk = block.number;
-        supplyPointHistory[0].ts = block.timestamp;
+        // supplyPointHistory = new Point[](1);
+        supplyPointHistory[0] = Point({
+            bias: 0,
+            slope: 0,
+            ts: block.timestamp,
+            blk: block.number
+        });
         decimals = 18;
-        name = _name;
-        symbol = _symbol;
+        name = "Vote-escrowed Bend";
+        symbol = "veBend";
     }
 
     function getLocked(address _addr)
@@ -153,6 +156,15 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
         return locked[_addr].end;
     }
 
+    //Struct to avoid "Stack Too Deep"
+    struct CheckpointParameters {
+        Point userOldPoint;
+        Point userNewPoint;
+        int256 oldDslope;
+        int256 newDslope;
+        uint256 epoch;
+    }
+
     /***
      *@dev Record global and per-user data to checkpoint
      *@param _addr User's wallet address. No user checkpoint if 0x0
@@ -164,37 +176,34 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
         LockedBalance memory _oldLocked,
         LockedBalance memory _newLocked
     ) internal {
-        Point memory _userOldPoint;
-        Point memory _userNewPoint;
-        int256 _oldDslope = 0;
-        int256 _newDslope = 0;
-        uint256 _epoch = epoch;
+        CheckpointParameters memory _st;
+        _st.epoch = epoch;
 
         if (_addr != address(0)) {
             // Calculate slopes and biases
             // Kept at zero when they have to
             if (_oldLocked.end > block.timestamp && _oldLocked.amount > 0) {
-                _userOldPoint.slope = _oldLocked.amount / int256(MAXTIME);
-                _userOldPoint.bias =
-                    _userOldPoint.slope *
+                _st.userOldPoint.slope = _oldLocked.amount / int256(MAXTIME);
+                _st.userOldPoint.bias =
+                    _st.userOldPoint.slope *
                     int256(_oldLocked.end - block.timestamp);
             }
             if (_newLocked.end > block.timestamp && _newLocked.amount > 0) {
-                _userNewPoint.slope = _newLocked.amount / int256(MAXTIME);
-                _userNewPoint.bias =
-                    _userNewPoint.slope *
+                _st.userNewPoint.slope = _newLocked.amount / int256(MAXTIME);
+                _st.userNewPoint.bias =
+                    _st.userNewPoint.slope *
                     int256(_newLocked.end - block.timestamp);
             }
 
             // Read values of scheduled changes in the slope
             // _oldLocked.end can be in the past and in the future
             // _newLocked.end can ONLY by in the FUTURE unless everything expired than zeros
-            _oldDslope = slopeChanges[_oldLocked.end];
+            _st.oldDslope = slopeChanges[_oldLocked.end];
             if (_newLocked.end != 0) {
                 if (_newLocked.end == _oldLocked.end) {
-                    _newDslope = _oldDslope;
+                    _st.newDslope = _st.oldDslope;
                 } else {
-                    _newDslope = slopeChanges[_newLocked.end];
+                    _st.newDslope = slopeChanges[_newLocked.end];
                 }
             }
         }
@@ -204,14 +213,17 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
             ts: block.timestamp,
             blk: block.number
         });
-        if (_epoch > 0) {
-            _lastPoint = supplyPointHistory[_epoch];
+        if (_st.epoch > 0) {
+            _lastPoint = supplyPointHistory[_st.epoch];
         }
         uint256 _lastCheckPoint = _lastPoint.ts;
         // _initialLastPoint is used for extrapolation to calculate block number
         // (approximately, for *At methods) and save them
         // as we cannot figure that out exactly from inside the contract
-        Point memory _initialLastPoint = _lastPoint;
+        // Point memory _initialLastPoint = _lastPoint;
+        uint256 _initBlk = _lastPoint.blk;
+        uint256 _initTs = _lastPoint.ts;
+
         uint256 _blockSlope = 0; // dblock/dt
         if (block.timestamp > _lastPoint.ts) {
             _blockSlope =
@@ -250,25 +262,25 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
             _lastCheckPoint = _ti;
             _lastPoint.ts = _ti;
             _lastPoint.blk =
-                _initialLastPoint.blk +
-                ((_blockSlope * (_ti - _initialLastPoint.ts)) / MULTIPLIER);
-            _epoch += 1;
+                _initBlk +
+                ((_blockSlope * (_ti - _initTs)) / MULTIPLIER);
+            _st.epoch += 1;
             if (_ti == block.timestamp) {
                 // history filled over, break loop
                 _lastPoint.blk = block.number;
                 break;
             } else {
-                supplyPointHistory[_epoch] = _lastPoint;
+                supplyPointHistory[_st.epoch] = _lastPoint;
             }
         }
-        epoch = _epoch;
+        epoch = _st.epoch;
         // Now supplyPointHistory is filled until t=now
 
         if (_addr != address(0)) {
             // If last point was in this block, the slope change has been applied already
             // But in such case we have 0 slope(s)
-            _lastPoint.slope += _userNewPoint.slope - _userOldPoint.slope;
-            _lastPoint.bias += _userNewPoint.bias - _userOldPoint.bias;
+            _lastPoint.slope += _st.userNewPoint.slope - _st.userOldPoint.slope;
+            _lastPoint.bias += _st.userNewPoint.bias - _st.userOldPoint.bias;
             if (_lastPoint.slope < 0) {
                 _lastPoint.slope = 0;
             }
@@ -277,35 +289,34 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
             }
         }
         // Record the changed point into history
-        supplyPointHistory[_epoch] = _lastPoint;
-        address _addr2 = _addr; //To avoid being "Stack Too Deep"
-        if (_addr2 != address(0)) {
+        supplyPointHistory[_st.epoch] = _lastPoint;
+        if (_addr != address(0)) {
             // Schedule the slope changes (slope is going down)
             // We subtract new_user_slope from [_newLocked.end]
             // and add old_user_slope to [_oldLocked.end]
             if (_oldLocked.end > block.timestamp) {
                 // _oldDslope was <something> - _userOldPoint.slope, so we cancel that
-                _oldDslope += _userOldPoint.slope;
+                _st.oldDslope += _st.userOldPoint.slope;
                 if (_newLocked.end == _oldLocked.end) {
-                    _oldDslope -= _userNewPoint.slope; // It was a new deposit, not extension
+                    _st.oldDslope -= _st.userNewPoint.slope; // It was a new deposit, not extension
                 }
-                slopeChanges[_oldLocked.end] = _oldDslope;
+                slopeChanges[_oldLocked.end] = _st.oldDslope;
             }
             if (_newLocked.end > block.timestamp) {
                 if (_newLocked.end > _oldLocked.end) {
-                    _newDslope -= _userNewPoint.slope; // old slope disappeared at this point
-                    slopeChanges[_newLocked.end] = _newDslope;
+                    _st.newDslope -= _st.userNewPoint.slope; // old slope disappeared at this point
+                    slopeChanges[_newLocked.end] = _st.newDslope;
                 }
                 // else we recorded it already in _oldDslope
             }
 
             // Now handle user history
-            uint256 _userEpoch = userPointEpoch[_addr2] + 1;
+            uint256 _userEpoch = userPointEpoch[_addr] + 1;
 
-            userPointEpoch[_addr2] = _userEpoch;
-            _userNewPoint.ts = block.timestamp;
-            _userNewPoint.blk = block.number;
-            userPointHistory[_addr2][_userEpoch] = _userNewPoint;
+            userPointEpoch[_addr] = _userEpoch;
+            _st.userNewPoint.ts = block.timestamp;
+            _st.userNewPoint.blk = block.number;
+            userPointHistory[_addr][_userEpoch] = _st.userNewPoint;
         }
     }
 
@@ -348,9 +359,12 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
         // _locked.end > block.timestamp (always)
 
         _checkpoint(_beneficiary, _oldLocked, _locked);
-
         if (_value != 0) {
-            IERC20(token).safeTransferFrom(_provider, address(this), _value);
+            IERC20Upgradeable(token).safeTransferFrom(
+                _provider,
+                address(this),
+                _value
+            );
         }
 
         emit Deposit(
@@ -373,19 +387,15 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
         _checkpoint(address(0), _a, _b);
     }
 
-    function createLock(
+    function createLockFor(
         address _beneficiary,
         uint256 _value,
         uint256 _unlockTime
-    ) external override nonReentrant {
+    ) external override {
         _createLock(_beneficiary, _value, _unlockTime);
     }
 
-    function createLock(uint256 _value, uint256 _unlockTime)
-        external
-        override
-        nonReentrant
-    {
+    function createLock(uint256 _value, uint256 _unlockTime) external override {
         _createLock(msg.sender, _value, _unlockTime);
     }
 
@@ -522,7 +532,7 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
         // Both can have >= 0 amount
         _checkpoint(msg.sender, _oldLocked, _locked);
 
-        IERC20(token).safeTransfer(msg.sender, _value);
+        IERC20Upgradeable(token).safeTransfer(msg.sender, _value);
 
         emit Withdraw(msg.sender, _value, block.timestamp);
         emit Supply(_supplyBefore, _supplyBefore - _value);
@@ -643,6 +653,7 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
         // Binary search
         _st.min = 0;
         _st.max = userPointEpoch[_addr];
+
         for (uint256 i; i <= 128; i++) {
             // Will be always enough for 128-bit numbers
             if (_st.min >= _st.max) {
@@ -655,7 +666,6 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
                 _st.max = _mid - 1;
             }
         }
-
         Point memory _upoint = userPointHistory[_addr][_st.min];
 
         _st.maxEpoch = epoch;
@@ -778,13 +788,5 @@ contract VeBend is IVeBend, ReentrancyGuard, Ownable {
         // Now dt contains info on how far are we beyond point
 
         return supplyAt(_point, _point.ts + dt);
-    }
-
-    /***
-     *@notice Set an external contract to check for approved smart contract wallets
-     *@param _addr Address of Smart contract checker
-     */
-    function commitSmartWalletChecker(address _addr) external onlyOwner {
-        smartWalletChecker = _addr;
     }
 }

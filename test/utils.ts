@@ -24,8 +24,8 @@ export async function timeAtBlock(blockNumber?: number) {
 }
 
 export async function mineBlockAndIncreaseTime(seconds: number) {
-  await hre.ethers.provider.send("evm_mine", []);
   await hre.ethers.provider.send("evm_increaseTime", [seconds]);
+  await hre.ethers.provider.send("evm_mine", []);
 }
 
 export async function increaseTime(seconds: number) {
@@ -87,6 +87,22 @@ export function getDifference(x: BigNumber, y: BigNumber) {
 }
 export function assertAlmostEqual(x: BigNumber, y: BigNumber, error = 1000) {
   assert.isAtMost(getDifference(x, y), error);
+}
+
+export function assertAlmostEqualTol(x: BigNumber, y: BigNumber, tol = 0.1) {
+  tol *= 10 ** 10;
+  let target = x
+    .sub(y)
+    .abs()
+    .mul(10 ** 10);
+  if (!x.eq(0)) {
+    let valueToCheck = target.div(x).toNumber();
+    assert.isAtMost(valueToCheck, tol);
+  }
+  if (!y.eq(0)) {
+    let valueToCheck = target.div(y).toNumber();
+    assert.isAtMost(valueToCheck, tol);
+  }
 }
 
 export const evmSnapshot = async () => {

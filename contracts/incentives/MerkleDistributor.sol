@@ -8,8 +8,6 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {IMerkleDistributor} from "./interfaces/IMerkleDistributor.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
-// import "hardhat/console.sol";
-
 contract MerkleDistributor is
     IMerkleDistributor,
     PausableUpgradeable,

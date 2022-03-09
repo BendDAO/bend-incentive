@@ -28,7 +28,7 @@ interface IVeBend {
 
     function createLock(uint256 _value, uint256 _unlockTime) external;
 
-    function createLock(
+    function createLockFor(
         address _beneficiary,
         uint256 _value,
         uint256 _unlockTime
