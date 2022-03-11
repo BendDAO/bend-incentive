@@ -6,12 +6,18 @@ import {IWETH} from "./interfaces/IWETH.sol";
 import {ILendPool} from "./interfaces/ILendPool.sol";
 import {IFeeDistributor} from "./interfaces/IFeeDistributor.sol";
 import {ILendPoolAddressesProvider} from "./interfaces/ILendPoolAddressesProvider.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+import "hardhat/console.sol";
 
-contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
+contract FeeDistributor is
+    IFeeDistributor,
+    ReentrancyGuardUpgradeable,
+    OwnableUpgradeable
+{
+    using SafeERC20Upgradeable for IERC20Upgradeable;
     uint256 public constant WEEK = 7 * 86400;
     uint256 public constant TOKEN_CHECKPOINT_DEADLINE = 86400;
 
@@ -21,41 +27,45 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
     mapping(address => uint256) public userEpochOf;
 
     uint256 public lastDistributeTime;
-    uint256[] public tokensPerWeek;
+    uint256[1000000000000000] public tokensPerWeek;
     uint256 public tokenLastBalance;
 
-    uint256[] public veSupply; // VE total supply at week bounds
+    uint256[1000000000000000] public veSupply; // VE total supply at week bounds
 
     IVeBend public veBend;
-    IWETH internal WETH;
+    IWETH public WETH;
     ILendPoolAddressesProvider public addressesProvider;
     address public token;
     address public bendCollector;
 
-    constructor(
-        ILendPoolAddressesProvider _addressesProvider,
-        IVeBend _veBendAddress,
+    function initialize(
         IWETH _weth,
-        address _bendCollector,
-        address _tokenAddress
-    ) {
+        address _tokenAddress,
+        IVeBend _veBendAddress,
+        ILendPoolAddressesProvider _addressesProvider,
+        address _bendCollector
+    ) external initializer {
+        __Ownable_init();
+        __ReentrancyGuard_init();
         addressesProvider = _addressesProvider;
         veBend = _veBendAddress;
         WETH = _weth;
         bendCollector = _bendCollector;
         token = _tokenAddress;
-    }
 
-    modifier shouldStarted() {
-        require(startTime <= block.timestamp, "Distribute not started!");
-        _;
-    }
-
-    function start() external override onlyOwner {
         uint256 t = (block.timestamp / WEEK) * WEEK;
         startTime = t;
         lastDistributeTime = t;
         timeCursor = t;
+    }
+
+    function checkpointDistribute() external {
+        assert(
+            msg.sender == owner() ||
+                block.timestamp > lastDistributeTime + TOKEN_CHECKPOINT_DEADLINE
+        );
+        _checkpointDistribute();
+        _checkpointTotalSupply();
     }
 
     /***
@@ -63,7 +73,9 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
      *@dev Up to 20 weeks since the last update
      */
     function _checkpointDistribute() internal {
-        uint256 tokenBalance = IERC20(token).balanceOf(address(this));
+        uint256 tokenBalance = IERC20Upgradeable(token).balanceOf(
+            address(this)
+        );
 
         uint256 toDistribute = tokenBalance - tokenLastBalance;
 
@@ -107,15 +119,28 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
      *@dev Manual transfer and update in extreme cases, The checkpoint can be updated at most once every 24 hours
      */
 
-    function distribute() public shouldStarted {
-        uint256 amount = IERC20(token).balanceOf(bendCollector);
+    function distribute() external {
+        _distribute();
+        _checkpointTotalSupply();
+    }
+
+    function _distribute() internal {
+        uint256 amount = IERC20Upgradeable(token).balanceOf(bendCollector);
         if (
             amount != 0 &&
             (block.timestamp > lastDistributeTime + TOKEN_CHECKPOINT_DEADLINE)
         ) {
-            IERC20(token).transferFrom(bendCollector, address(this), amount);
+            IERC20Upgradeable(token).safeTransferFrom(
+                bendCollector,
+                address(this),
+                amount
+            );
             _checkpointDistribute();
         }
+    }
+
+    function checkpointTotalSupply() external {
+        _checkpointTotalSupply();
     }
 
     /***
@@ -206,7 +231,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
     }
 
     function _claim(address _addr) internal view returns (Claimable memory) {
-        // Minimal userEpoch is 0 (if user had no point)
+        uint256 roundedTimestamp = (lastDistributeTime / WEEK) * WEEK;
         uint256 userEpoch = 0;
         uint256 toDistribute = 0;
 
@@ -236,25 +261,25 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
             weekCursor = ((userPoint.ts + WEEK - 1) / WEEK) * WEEK;
         }
 
-        if (weekCursor >= lastDistributeTime) {
+        if (weekCursor >= roundedTimestamp) {
             return Claimable(0, userEpoch, maxUserEpoch, weekCursor);
         }
 
         if (weekCursor < startTime) {
             weekCursor = startTime;
         }
-        IVeBend.Point memory emptyPoint;
         IVeBend.Point memory oldUserPoint;
 
         // Iterate over weeks
         for (uint256 i = 0; i < 50; i++) {
-            if (weekCursor >= lastDistributeTime) {
+            if (weekCursor >= roundedTimestamp) {
                 break;
             }
             if (weekCursor >= userPoint.ts && userEpoch <= maxUserEpoch) {
                 userEpoch += 1;
                 oldUserPoint = userPoint;
                 if (userEpoch > maxUserEpoch) {
+                    IVeBend.Point memory emptyPoint;
                     userPoint = emptyPoint;
                 } else {
                     userPoint = veBend.getUserPointHistory(_addr, userEpoch);
@@ -300,13 +325,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
      *@param weth Whether claim weth or raw eth
      *@return uint256 Amount of fees claimed in the call
      */
-    function claim(bool weth)
-        external
-        override
-        nonReentrant
-        shouldStarted
-        returns (uint256)
-    {
+    function claim(bool weth) external override nonReentrant returns (uint256) {
         address _addr = msg.sender;
 
         // update veBend total supply checkpoint when a new epoch start
@@ -315,9 +334,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuard, Ownable {
         }
 
         // Transfer fee and update checkpoint
-        distribute();
-
-        lastDistributeTime = (lastDistributeTime / WEEK) * WEEK;
+        _distribute();
 
         Claimable memory _claimable = _claim(_addr);
 

@@ -20,6 +20,8 @@ import {
   assertAlmostEqualTol,
 } from "../utils";
 
+import { forEach } from "p-iteration";
+
 const H = 3600;
 const DAY = 86400;
 const WEEK = 7 * DAY;
@@ -314,7 +316,7 @@ describe("VeBend tests", function () {
       expect(bobBalance).to.be.equal(0);
       expect(totalSupply).to.be.equal(aliceBalance);
 
-      stages.get("alice_unlock")?.forEach(async (value, index) => {
+      await forEach(stages.get("alice_unlock") || [], async (value, index) => {
         let blockNum = value[0];
         let aliceBalance = await vebend.balanceOfAt(alice.address, blockNum);
         let bobBalance = await vebend.balanceOfAt(bob.address, blockNum);
@@ -358,28 +360,31 @@ describe("VeBend tests", function () {
 
       // @ts-expect-error
       let t0 = stages.get("bob_deposit")[0][1];
-      stages.get("alice_bob_unlock")?.forEach(async (value, index) => {
-        let blockNum = value[0];
-        let blockTime = value[1];
-        let totalSupply = await vebend.totalSupplyAt(blockNum);
-        let aliceBalance = await vebend.balanceOfAt(alice.address, blockNum);
-        let bobBalance = await vebend.balanceOfAt(bob.address, blockNum);
-        expect(totalSupply).to.be.equal(aliceBalance.add(bobBalance));
-        // @ts-expect-error
-        let dt = blockTime - t0;
+      await forEach(
+        stages.get("alice_bob_unlock") || [],
+        async (value, index) => {
+          let blockNum = value[0];
+          let blockTime = value[1];
+          let totalSupply = await vebend.totalSupplyAt(blockNum);
+          let aliceBalance = await vebend.balanceOfAt(alice.address, blockNum);
+          let bobBalance = await vebend.balanceOfAt(bob.address, blockNum);
+          expect(totalSupply).to.be.equal(aliceBalance.add(bobBalance));
+          // @ts-expect-error
+          let dt = blockTime - t0;
 
-        let error_1h = H / (2 * WEEK - index * DAY);
-        assertAlmostEqualTol(
-          aliceBalance,
-          computeVeBendAmount(2 * WEEK - dt),
-          error_1h
-        );
-        assertAlmostEqualTol(
-          bobBalance,
-          computeVeBendAmount(WEEK - dt),
-          error_1h
-        );
-      });
+          let error_1h = H / (2 * WEEK - index * DAY);
+          assertAlmostEqualTol(
+            aliceBalance,
+            computeVeBendAmount(2 * WEEK - dt),
+            error_1h
+          );
+          assertAlmostEqualTol(
+            bobBalance,
+            computeVeBendAmount(WEEK - dt),
+            error_1h
+          );
+        }
+      );
 
       // @ts-expect-error
       blockNum = stages.get("bob_withdraw")[0][0];
@@ -392,25 +397,28 @@ describe("VeBend tests", function () {
 
       // @ts-expect-error
       t0 = stages.get("bob_withdraw")[0][1];
-      stages.get("alice_unlock_2")?.forEach(async (value, index) => {
-        let blockNum = value[0];
-        let blockTime = value[1];
-        let totalSupply = await vebend.totalSupplyAt(blockNum);
-        let aliceBalance = await vebend.balanceOfAt(alice.address, blockNum);
-        let bobBalance = await vebend.balanceOfAt(bob.address, blockNum);
+      await forEach(
+        stages.get("alice_unlock_2") || [],
+        async (value, index) => {
+          let blockNum = value[0];
+          let blockTime = value[1];
+          let totalSupply = await vebend.totalSupplyAt(blockNum);
+          let aliceBalance = await vebend.balanceOfAt(alice.address, blockNum);
+          let bobBalance = await vebend.balanceOfAt(bob.address, blockNum);
 
-        expect(totalSupply).to.be.equal(aliceBalance);
-        expect(bobBalance).to.be.equal(0);
-        // @ts-expect-error
-        let dt = blockTime - t0;
+          expect(totalSupply).to.be.equal(aliceBalance);
+          expect(bobBalance).to.be.equal(0);
+          // @ts-expect-error
+          let dt = blockTime - t0;
 
-        let error_1h = H / (WEEK - index * DAY + DAY);
-        assertAlmostEqualTol(
-          totalSupply,
-          computeVeBendAmount(WEEK - dt - 2 * H),
-          error_1h
-        );
-      });
+          let error_1h = H / (WEEK - index * DAY + DAY);
+          assertAlmostEqualTol(
+            totalSupply,
+            computeVeBendAmount(WEEK - dt - 2 * H),
+            error_1h
+          );
+        }
+      );
 
       // @ts-expect-error
       blockNum = stages.get("bob_withdraw_2")[0][0];
