@@ -62,7 +62,7 @@ describe("BendProtocolIncentivesController getRewardsBalance tests", function ()
     incentivesController = await deployIncentivesController(bendToken, vault);
 
     deployTime = await timeLatest();
-    bWeth = await deployContract("BTokenMock", [
+    bWeth = await deployContract("BTokenIncentiveTester", [
       "bWETH",
       "bWETH",
       incentivesController.address,

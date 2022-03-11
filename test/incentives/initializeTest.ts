@@ -28,7 +28,7 @@ describe("BendProtocolIncentivesController tests", function () {
     vault = await deployVault();
     bendToken = await deployBendToken(vault, makeBN18(1000000));
     incentivesController = await deployIncentivesController(bendToken, vault);
-    bWeth = await deployContract("BTokenMock", [
+    bWeth = await deployContract("BTokenIncentiveTester", [
       "bWETH",
       "bWETH",
       incentivesController.address,

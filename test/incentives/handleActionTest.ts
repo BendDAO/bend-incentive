@@ -81,7 +81,7 @@ describe("BendProtocolIncentivesController handleAction tests", function () {
       i++;
       const userAddress = users[i].address;
       await mineBlockAndIncreaseTime(100);
-      bWeth = await deployContract("BTokenMock", [
+      bWeth = await deployContract("BTokenIncentiveTester", [
         "bWETH",
         "bWETH",
         incentivesController.address,

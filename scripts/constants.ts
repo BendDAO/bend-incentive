@@ -25,7 +25,15 @@ export interface iParamsPerNetwork<T> {
 }
 
 export const getParamPerNetwork = <T>(
-  { kovan, ropsten, rinkeby, mainnet, develop, hardhat, coverage }: iParamsPerNetwork<T>,
+  {
+    kovan,
+    ropsten,
+    rinkeby,
+    mainnet,
+    develop,
+    hardhat,
+    coverage,
+  }: iParamsPerNetwork<T>,
   network: Network
 ) => {
   switch (network) {
@@ -42,7 +50,7 @@ export const getParamPerNetwork = <T>(
     case Network.mainnet:
       return mainnet;
     case Network.develop:
-        return develop;
+      return develop;
     default:
       return mainnet;
   }
@@ -96,20 +104,6 @@ export const getBTokenConfig = (network: string): any[] =>
     Network[network as keyof typeof Network]
   );
 
-export const getStakedBendConfig = (network: string): number =>
-  getParamPerNetwork<number>(
-    {
-      [Network.coverage]: 0,
-      [Network.hardhat]: 0,
-      [Network.kovan]: 0,
-      [Network.ropsten]: 0,
-      [Network.rinkeby]: 100,
-      [Network.mainnet]: 0,
-      [Network.develop]: 100,
-    },
-    Network[network as keyof typeof Network]
-  );
-
 export const getUniswapV3Factory = (network: string): string =>
   getParamPerNetwork<string>(
     {
@@ -120,6 +114,25 @@ export const getUniswapV3Factory = (network: string): string =>
       [Network.rinkeby]: "0x815BCC87613315327E04e4A3b7c96a79Ae80760c",
       [Network.mainnet]: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
       [Network.develop]: "",
+    },
+    Network[network as keyof typeof Network]
+  );
+
+export const getFeeDistributorParams = (network: string): string[] =>
+  getParamPerNetwork<string[]>(
+    {
+      [Network.coverage]: [],
+      [Network.hardhat]: [],
+      [Network.kovan]: [],
+      [Network.ropsten]: [],
+      [Network.rinkeby]: [
+        "0xaD1908f909B5C5D2B1032a215d611773F26f089F", //WETH
+        "0x1BBcE5469B8BCc5078AE2398476350936d1393Af", //bWETH
+        "0xE55870eBB007a50B0dfAbAdB1a21e4bFcee5299b", //lendPoolAddressesProvider,
+        "0x7A02EE743Aadca63d60945971B7eD12c7f26b6d2", //bendCollector
+      ],
+      [Network.mainnet]: [],
+      [Network.develop]: [],
     },
     Network[network as keyof typeof Network]
   );
