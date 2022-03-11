@@ -16,16 +16,16 @@
     "verification": "https://rinkeby.etherscan.io/address/0xe253a2b24eb2d497d84650246eb347d94a3bf6ec#code",
     "proxyVerification": "https://rinkeby.etherscan.io/address/0xD800e97aE32b06C1e89ca5126c7bF6aEF89D6B24#code"
   },
-  "MerkleDistributor": {
-    "address": "0x498f2c760D56272Fc589580900F5458B04CF876A",
-    "txHash": "0xc91cefbbad90ad9acfa820c96758c943c09bf3cb42d6b1044c2475376baac937",
-    "verification": "https://rinkeby.etherscan.io/address/0x46de1bd4deec9b6db703547679b8756242014d25#code",
-    "proxyVerification": "https://rinkeby.etherscan.io/address/0x498f2c760D56272Fc589580900F5458B04CF876A#code"
-  },
   "VeBend": {
     "address": "0x52163eedA5Ab66aeaCe49C6cbEaa062540962660",
     "txHash": "0x9b31b9050b2a5a3e29899d962559263f9c68d8041de1994f43d87c21fd68d1ad",
     "verification": "https://rinkeby.etherscan.io/address/0xec92df75cadf8d2c25b6cb89b78c2ccb20ba7ced#code",
     "proxyVerification": "https://rinkeby.etherscan.io/address/0x52163eedA5Ab66aeaCe49C6cbEaa062540962660#code"
+  },
+  "MerkleDistributor": {
+    "address": "0x040307738eEF65a258Ef2aB8b7C2D88d6a8B2583",
+    "txHash": "0x9f7ae1af122d7e7ed66b9b4854948ebddd2a6e24ba9b78df1997ed85362be960",
+    "verification": "https://rinkeby.etherscan.io/address/0xc8ea065576167af0f57908c49ad96bf937037f84#code",
+    "proxyVerification": "https://rinkeby.etherscan.io/address/0x040307738eEF65a258Ef2aB8b7C2D88d6a8B2583#code"
   }
 }
