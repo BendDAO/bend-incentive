@@ -112,6 +112,11 @@
       "address": "0xc823f63531199F83e297654DCEd6183D580d3085",
       "txHash": "0x810502151e19140cb12d30d514dca6c3acf134dba84acd4bbaa4088665bb112c",
       "kind": "transparent"
+    },
+    {
+      "address": "0x48Ec60509eecd210Ee6c699F44C0dE26223b7f2a",
+      "txHash": "0x5eeee8500a97242e3c67961ea9d7c14a00bd6db91788d680c16739775a11014e",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -1345,6 +1350,166 @@
           },
           "t_array(t_uint256)50_storage": {
             "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "7edddc406b3133078dc0b181e8e11fcc9cefc6e67916b5c61424b971322c0f8f": {
+      "address": "0x045ac48Bd2d7977Da120cBAb96d94f7D13f96345",
+      "txHash": "0x7c73d4b6c5455a7bdc7f69746179d72dff75f3e0d750b201206d64cab6528cda",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "startTime",
+            "type": "t_uint256",
+            "src": "contracts/incentives/FeeDistributor.sol:24"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "timeCursor",
+            "type": "t_uint256",
+            "src": "contracts/incentives/FeeDistributor.sol:25"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "timeCursorOf",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/incentives/FeeDistributor.sol:26"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "userEpochOf",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/incentives/FeeDistributor.sol:27"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "lastDistributeTime",
+            "type": "t_uint256",
+            "src": "contracts/incentives/FeeDistributor.sol:29"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "tokensPerWeek",
+            "type": "t_array(t_uint256)1000000000000000_storage",
+            "src": "contracts/incentives/FeeDistributor.sol:30"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "tokenLastBalance",
+            "type": "t_uint256",
+            "src": "contracts/incentives/FeeDistributor.sol:31"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "veSupply",
+            "type": "t_array(t_uint256)1000000000000000_storage",
+            "src": "contracts/incentives/FeeDistributor.sol:33"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "veBend",
+            "type": "t_contract(IVeBend)11698",
+            "src": "contracts/incentives/FeeDistributor.sol:35"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "WETH",
+            "type": "t_contract(IWETH)8461",
+            "src": "contracts/incentives/FeeDistributor.sol:36"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "addressesProvider",
+            "type": "t_contract(ILendPoolAddressesProvider)8219",
+            "src": "contracts/incentives/FeeDistributor.sol:37"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "token",
+            "type": "t_address",
+            "src": "contracts/incentives/FeeDistributor.sol:38"
+          },
+          {
+            "contract": "FeeDistributor",
+            "label": "bendCollector",
+            "type": "t_address",
+            "src": "contracts/incentives/FeeDistributor.sol:39"
+          }
+        ],
+        "types": {
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)1000000000000000_storage": {
+            "label": "uint256[1000000000000000]"
+          },
+          "t_contract(IVeBend)11698": {
+            "label": "contract IVeBend"
+          },
+          "t_contract(IWETH)8461": {
+            "label": "contract IWETH"
+          },
+          "t_contract(ILendPoolAddressesProvider)8219": {
+            "label": "contract ILendPoolAddressesProvider"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
           }
         }
       }

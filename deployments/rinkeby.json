@@ -27,5 +27,11 @@
     "txHash": "0x9f7ae1af122d7e7ed66b9b4854948ebddd2a6e24ba9b78df1997ed85362be960",
     "verification": "https://rinkeby.etherscan.io/address/0xc8ea065576167af0f57908c49ad96bf937037f84#code",
     "proxyVerification": "https://rinkeby.etherscan.io/address/0x040307738eEF65a258Ef2aB8b7C2D88d6a8B2583#code"
+  },
+  "FeeDistributor": {
+    "address": "0x48Ec60509eecd210Ee6c699F44C0dE26223b7f2a",
+    "txHash": "0x5eeee8500a97242e3c67961ea9d7c14a00bd6db91788d680c16739775a11014e",
+    "verification": "https://rinkeby.etherscan.io/address/0x045ac48bd2d7977da120cbab96d94f7d13f96345#code",
+    "proxyVerification": "https://rinkeby.etherscan.io/address/0x48Ec60509eecd210Ee6c699F44C0dE26223b7f2a#code"
   }
 }

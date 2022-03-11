@@ -14,8 +14,8 @@ import {
   ZERO_ADDRESS,
   MAX_UINT_AMOUNT,
   ONE_YEAR,
-  getStakedBendConfig,
   getBTokenConfig,
+  getFeeDistributorParams,
 } from "./constants";
 import { Contract } from "ethers";
 import { makeBN } from "../test/utils";
@@ -26,6 +26,7 @@ export interface Contracts {
   vault: Contract;
   incentivesController: Contract;
   vebend: Contract;
+  feeDistributor: Contract;
 }
 
 async function deployCore() {
@@ -80,12 +81,25 @@ async function deployCore() {
     { proxy: true }
   );
 
+  let [WETH, bWETH, addressesProvider, bendCollector] = getFeeDistributorParams(
+    network.name
+  );
+  const feeDistributor = await loadOrDeploy(
+    "FeeDistributor",
+    [WETH, bWETH, vebend.address, addressesProvider, bendCollector],
+    network.name,
+    deployer,
+    deploymentState,
+    { proxy: true }
+  );
+
   return {
     airdrop,
     bendToken,
     vault,
     incentivesController,
     vebend,
+    feeDistributor,
   } as Contracts;
 }
 async function connect(contracts: Contracts) {

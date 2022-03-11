@@ -40,6 +40,22 @@ export async function deployVeBend(bendToken: Contract) {
   return await deployProxyContract("VeBend", [bendToken.address]);
 }
 
+export async function deployFeeDistributor(
+  lendPoolAddressesProvider: Contract,
+  vebend: Contract,
+  weth: Contract,
+  bendCollector: string,
+  bToken: Contract
+) {
+  return await deployProxyContract("FeeDistributorTester", [
+    weth.address,
+    bToken.address,
+    vebend.address,
+    lendPoolAddressesProvider.address,
+    bendCollector,
+  ]);
+}
+
 export async function deployMerkleDistributor(bendToken: Contract) {
   return await deployProxyContract("MerkleDistributor", [bendToken.address]);
 }

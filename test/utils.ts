@@ -2,6 +2,7 @@ import hre from "hardhat";
 import { assert } from "chai";
 
 import { ethers, ContractTransaction, BigNumber } from "ethers";
+import { Func } from "mocha";
 
 export function makeBN(num: string | number, precision: number = 0) {
   return ethers.utils.parseUnits(num.toString(), precision);
@@ -102,6 +103,19 @@ export function assertAlmostEqualTol(x: BigNumber, y: BigNumber, tol = 0.1) {
   if (!y.eq(0)) {
     let valueToCheck = target.div(y).toNumber();
     assert.isAtMost(valueToCheck, tol);
+  }
+}
+
+export class Snapshots {
+  ids = new Map<string, string>();
+
+  async capture(tag: string) {
+    this.ids.set(tag, await evmSnapshot());
+  }
+
+  async revert(tag: string) {
+    await evmRevert(this.ids.get(tag) || "1");
+    await this.capture(tag);
   }
 }
 
