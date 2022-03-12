@@ -89,6 +89,7 @@ contract MerkleDistributor is
             !isClaimed(account),
             "MerkleDistributor: Drop already claimed."
         );
+        require(msg.sender == tx.origin, "Smart contract claims not allowed");
 
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
