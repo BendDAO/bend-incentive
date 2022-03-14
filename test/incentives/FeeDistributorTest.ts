@@ -10,6 +10,12 @@ import {
 } from "../deployHelper";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
+import fc from "fast-check";
+
+fc.configureGlobal({
+  numRuns: 10,
+});
+
 import {
   makeBN,
   makeBN18,
@@ -228,10 +234,6 @@ describe("FeeDistributor tests", () => {
     });
 
     it("start distribute after lock", async () => {
-      // Move to timing which is good for testing - beginning of a UTC week
-      // await moveToNextWeek();
-      // await feeDistributor.start();
-
       await vebend
         .connect(alice)
         .createLock(makeBN18(10000), (await timeLatest()).add(8 * WEEK));
@@ -327,5 +329,55 @@ describe("FeeDistributor tests", () => {
         0.0000001
       );
     });
+  });
+
+  makeSuite("#proptety based  tests", () => {
+    it("check total supply", async () => {
+      await fc.assert(
+        fc
+          .asyncProperty(
+            fc.array(fc.double(1, 100), { minLength: 10, maxLength: 10 }),
+            fc.array(fc.integer(1, 52), { minLength: 10, maxLength: 10 }),
+            fc.array(fc.integer(1, 30), { minLength: 10, maxLength: 10 }),
+            async (lockAmount, lockWeeks, sleepBeforeLock) => {
+              let finalLock = makeBN(0);
+              for (let i = 0; i < 10; i++) {
+                let time = await timeLatest();
+                let sleep = DAY * sleepBeforeLock[i];
+                await increaseTime(sleep);
+                time = time.add(sleep);
+
+                let lockTime = time.add(WEEK * lockWeeks[i]);
+                if (lockTime.gt(finalLock)) {
+                  finalLock = lockTime;
+                }
+                await vebend
+                  .connect(users[i])
+                  .createLock(makeBN18(lockAmount[i]), lockTime);
+              }
+
+              while ((await timeLatest()).lt(finalLock)) {
+                let weekEpoch = (await timeLatest())
+                  .add(WEEK)
+                  .div(WEEK)
+                  .mul(WEEK);
+                await mineBlockAtTime(weekEpoch.toNumber());
+                let blockNum = await latestBlockNum();
+                await increaseTime(1);
+
+                for (let j = 0; j < 3; j++) {
+                  await feeDistributor.checkpointTotalSupply();
+                }
+                expect(await feeDistributor.veSupply(weekEpoch)).to.be.equal(
+                  await vebend.totalSupplyAt(blockNum)
+                );
+              }
+            }
+          )
+          .beforeEach(async () => {
+            await snapshots.revert("init");
+          })
+      );
+    }).timeout(100000);
   });
 });
