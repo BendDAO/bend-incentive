@@ -4,7 +4,7 @@ import { assert } from "chai";
 import { ethers, ContractTransaction, BigNumber } from "ethers";
 import { Func } from "mocha";
 
-export function makeBN(num: string | number, precision: number = 0) {
+export function makeBN(num: string | number | any, precision: number = 0) {
   return ethers.utils.parseUnits(num.toString(), precision);
 }
 
