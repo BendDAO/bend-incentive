@@ -27,6 +27,7 @@ export interface Contracts {
   incentivesController: Contract;
   vebend: Contract;
   feeDistributor: Contract;
+  keeper: Contract;
 }
 
 async function deployCore() {
@@ -93,6 +94,14 @@ async function deployCore() {
     { proxy: true }
   );
 
+  const keeper = await loadOrDeploy(
+    "BendKeeper",
+    [86400, feeDistributor.address],
+    network.name,
+    deployer,
+    deploymentState
+  );
+
   return {
     airdrop,
     bendToken,
@@ -100,6 +109,7 @@ async function deployCore() {
     incentivesController,
     vebend,
     feeDistributor,
+    keeper,
   } as Contracts;
 }
 async function connect(contracts: Contracts) {
