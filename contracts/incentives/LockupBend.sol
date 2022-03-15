@@ -56,10 +56,6 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
     ) external override onlyOwner {
         _withdraw(_oldBeneficiary);
         Locked memory _oldLocked = locked[_oldBeneficiary];
-
-        // require(lockEndTime > block.timestamp, "Lock expired");
-        // require(_oldLocked.amount > 0, "Nothing is locked");
-
         Locked memory _newLocked = Locked(_oldLocked.amount, _oldLocked.slope);
         locked[_newBeneficiary] = _newLocked;
         _oldLocked.amount = 0;
