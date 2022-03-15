@@ -11,6 +11,8 @@ interface IFeeDistributor {
         uint256 maxEpoch
     );
 
+    function distribute() external;
+
     function claim(bool weth) external returns (uint256);
 
     function claimable(address _addr) external view returns (uint256);

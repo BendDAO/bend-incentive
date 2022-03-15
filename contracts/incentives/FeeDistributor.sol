@@ -119,7 +119,7 @@ contract FeeDistributor is
      *@dev Manual transfer and update in extreme cases, The checkpoint can be updated at most once every 24 hours
      */
 
-    function distribute() external {
+    function distribute() external override {
         _distribute();
         _checkpointTotalSupply();
     }

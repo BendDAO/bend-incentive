@@ -33,6 +33,13 @@ export default {
           ? [process.env.RINKEBY_PRIVATE_KEY]
           : [],
     },
+    kovan: {
+      url: process.env.KOVAN_URL || "",
+      accounts:
+        process.env.KOVAN_PRIVATE_KEY !== undefined
+          ? [process.env.KOVAN_PRIVATE_KEY]
+          : [],
+    },
     develop: {
       url: process.env.DEVELOP_URL || "",
       accounts:
