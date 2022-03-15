@@ -28,7 +28,7 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
     IVeBend public veBend;
     IFeeDistributor public feeDistributor;
 
-    ILockup[] public lockups;
+    ILockup[4] public lockups;
 
     mapping(address => uint256) public feeIndexs;
     mapping(address => uint256) public locked;
@@ -154,20 +154,14 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
 
     function createLock(
         ILockup.LockParam[] memory _beneficiaries,
-        uint256 _totalLockAmount,
-        uint256 _lockupYears
+        uint256 _totalLockAmount
     ) external onlyOwner {
         uint256 _bendBalance = bendToken.balanceOf(address(this));
         require(
             _bendBalance > _totalLockAmount,
             "Insufficient Bend for locking"
         );
-        require(_lockupYears >= 3, "Minimum lock for three years");
-        require(_lockupYears <= 10, "Maximum lock for ten years");
-        require(
-            lockups.length == 0 && totalLocked == 0,
-            "Can't create lock twice"
-        );
+        require(totalLocked == 0, "Can't create lock twice");
 
         totalLocked = _totalLockAmount;
         for (uint256 i = 0; i < _beneficiaries.length; i++) {
@@ -176,6 +170,8 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
                 (totalLocked * _lock.thousandths) /
                 1000;
         }
+
+        uint256 _lockupYears = lockups.length;
 
         uint256 _lockAvgAmount = totalLocked / _lockupYears;
         uint256 _unlockStartTime = block.timestamp;
@@ -194,15 +190,7 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
                 type(uint256).max
             );
         }
-        // The first year is linearly unlocked and not locked in vebend
-        lockups[0].createLock(
-            _beneficiaries,
-            _lockAvgAmount,
-            _unlockStartTime,
-            false
-        );
-        // Subsequent annual unlocking from vebend and then linear unlocking to the user for one year
-        for (uint256 i = 1; i < _lockupYears - 1; i++) {
+        for (uint256 i = 0; i < _lockupYears - 1; i++) {
             _unlockStartTime += SECONDS_IN_ONE_YEAR;
             lockups[i].createLock(
                 _beneficiaries,
