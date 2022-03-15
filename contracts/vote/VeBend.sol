@@ -83,8 +83,8 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
             blk: block.number
         });
         decimals = 18;
-        name = "Vote-escrowed Bend";
-        symbol = "veBend";
+        name = "Vote-escrowed BEND";
+        symbol = "veBEND";
     }
 
     function getLocked(address _addr)

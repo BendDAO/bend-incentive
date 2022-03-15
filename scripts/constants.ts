@@ -61,7 +61,16 @@ export const getBTokenConfig = (network: string): any[] =>
     {
       [Network.coverage]: [],
       [Network.hardhat]: [],
-      [Network.kovan]: [],
+      [Network.kovan]: [
+        [
+          "0xD85EcC6Ce72285388da039f69A6A647b5513974C", // bWETH
+          "0x9aF480FcC5Cc4ffE0F7156CBEffbC6298077376B", // bDebtWETH
+        ],
+        [
+          makeBN(10000000000000000), // bWETH
+          makeBN(30000000000000000), // bDebtWETH
+        ],
+      ],
       [Network.ropsten]: [],
       [Network.rinkeby]: [
         [
@@ -123,7 +132,12 @@ export const getFeeDistributorParams = (network: string): string[] =>
     {
       [Network.coverage]: [],
       [Network.hardhat]: [],
-      [Network.kovan]: [],
+      [Network.kovan]: [
+        "0x2F4dA7F22E603aac1A9840D384d63c91a40ddD8D", //WETH
+        "0xD85EcC6Ce72285388da039f69A6A647b5513974C", //bWETH
+        "0xFBcd346b1EeFd2c065be476C8a77262889028977", //lendPoolAddressesProvider,
+        "0xBC6E81c410FF3b32cDa031267772713f93599077", //bendCollector
+      ],
       [Network.ropsten]: [],
       [Network.rinkeby]: [
         "0xaD1908f909B5C5D2B1032a215d611773F26f089F", //WETH
