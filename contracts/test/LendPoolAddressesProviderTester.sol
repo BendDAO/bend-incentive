@@ -6,8 +6,10 @@ import {LendPoolTester} from "./LendPoolTester.sol";
 contract LendPoolAddressesProviderTester is ILendPoolAddressesProvider {
     address public lendPool;
 
-    constructor() {
-        lendPool = address(new LendPoolTester());
+    constructor(address _reverve, address _underlying) {
+        LendPoolTester _lendPool = new LendPoolTester();
+        _lendPool.registerReserve(_reverve, _underlying);
+        lendPool = address(_lendPool);
     }
 
     function getLendPool() external view override returns (address) {
