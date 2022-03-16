@@ -44,7 +44,7 @@ contract DistributionManager is Initializable, OwnableUpgradeable {
     );
 
     function __DistributionManager_init(uint256 _distributionDuration)
-        public
+        internal
         initializer
     {
         __Ownable_init();

@@ -9,7 +9,7 @@ contract ERC20Detailed is ERC20PermitUpgradeable {
         string memory _name,
         string memory _symbol,
         uint8 _decimals
-    ) public initializer {
+    ) internal initializer {
         __ERC20_init(_name, _symbol);
         __ERC20Permit_init(_name);
         __decimals = _decimals;
