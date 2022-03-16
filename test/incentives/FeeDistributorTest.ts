@@ -201,8 +201,11 @@ describe("FeeDistributor tests", () => {
         .connect(alice)
         .createLock(makeBN18(10000), (await timeLatest()).add(3 * WEEK));
       await increaseTime(2 * WEEK);
+      let aliceClaimable = await feeDistributor.claimable(alice.address);
       await feeDistributor.connect(alice).claim(true);
-      expect(await WETH.balanceOf(alice.address)).to.be.equal(0);
+      let aliceBalance = await WETH.balanceOf(alice.address);
+      expect(aliceClaimable).to.be.equal(0);
+      expect(aliceBalance).to.be.equal(0);
     });
 
     it("start distribute before lock", async () => {
@@ -227,12 +230,17 @@ describe("FeeDistributor tests", () => {
       }
 
       await increaseTime(WEEK);
-      await feeDistributor.checkpointDistribute();
+      await feeDistributor.distribute();
 
-      expect(await bToken.balanceOf(alice.address)).to.be.equal(0);
+      expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
+
+      let aliceClaimable = await feeDistributor.claimable(alice.address);
+
       await feeDistributor.connect(alice).claim(true);
 
       let aliceBalance = await WETH.balanceOf(alice.address);
+
+      expect(aliceClaimable).to.be.equal(aliceBalance);
       assertAlmostEqualTol(aliceBalance, makeBN18(205), 0.0000001);
     });
 
@@ -254,12 +262,15 @@ describe("FeeDistributor tests", () => {
       await feeDistributor.distribute();
       expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
       await increaseTime(WEEK);
-      await feeDistributor.checkpointDistribute();
+      await feeDistributor.distribute();
 
-      expect(await bToken.balanceOf(alice.address)).to.be.equal(0);
+      expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
+
+      let aliceClaimable = await feeDistributor.claimable(alice.address);
       await feeDistributor.connect(alice).claim(true);
 
       let aliceBalance = await WETH.balanceOf(alice.address);
+      expect(aliceClaimable).to.be.equal(aliceBalance);
       assertAlmostEqualTol(aliceBalance, makeBN18(10), 0.0000001);
     });
 
@@ -285,14 +296,16 @@ describe("FeeDistributor tests", () => {
       expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
 
       await increaseTime(WEEK);
-      await feeDistributor.checkpointDistribute();
+      await feeDistributor.distribute();
 
-      expect(await bToken.balanceOf(alice.address)).to.be.equal(0);
+      expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
+      let aliceClaimable = await feeDistributor.claimable(alice.address);
       await feeDistributor.connect(alice).claim(true);
 
       let tokensExcluded = await feeDistributor.tokensPerWeek(excludTime);
 
       let aliceBalance = await WETH.balanceOf(alice.address);
+      expect(aliceClaimable).to.be.equal(aliceBalance);
       assertAlmostEqualTol(
         aliceBalance.add(tokensExcluded),
         makeBN18(10),
@@ -318,11 +331,13 @@ describe("FeeDistributor tests", () => {
       expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
 
       await increaseTime(WEEK);
-      await feeDistributor.checkpointDistribute();
-
+      await feeDistributor.distribute();
       expect(await bToken.balanceOf(alice.address)).to.be.equal(0);
+
       let aliceBalanceBefore = await provider.getBalance(alice.address);
       let bobBalanceBefore = await provider.getBalance(bob.address);
+      let aliceClaimable = await feeDistributor.claimable(alice.address);
+      let bobClaimable = await feeDistributor.claimable(bob.address);
       await feeDistributor.connect(alice).claim(false);
       await feeDistributor.connect(bob).claim(false);
 
@@ -330,6 +345,9 @@ describe("FeeDistributor tests", () => {
       let bobBalanceAfter = await provider.getBalance(bob.address);
       let aliceBalance = aliceBalanceAfter.sub(aliceBalanceBefore);
       let bobBalance = bobBalanceAfter.sub(bobBalanceBefore);
+
+      assertAlmostEqualTol(aliceClaimable, aliceBalance, 0.0001);
+      assertAlmostEqualTol(bobClaimable, bobBalance, 0.0001);
       assertAlmostEqualTol(aliceBalance.add(bobBalance), makeBN18(10), 0.001);
     });
   });
