@@ -30,6 +30,8 @@ import {
 
 import { forEach } from "p-iteration";
 
+const provider = ethers.provider;
+
 const H = 3600;
 const DAY = 86400;
 const WEEK = 7 * DAY;
@@ -72,7 +74,8 @@ describe("FeeDistributor tests", () => {
       constants.MaxUint256
     );
     lendPoolAddressesProvider = await deployContract(
-      "LendPoolAddressesProviderTester"
+      "LendPoolAddressesProviderTester",
+      [bToken.address, WETH.address]
     );
     vebend = await deployVeBend(bendToken);
     feeDistributor = await deployFeeDistributor(
@@ -318,16 +321,16 @@ describe("FeeDistributor tests", () => {
       await feeDistributor.checkpointDistribute();
 
       expect(await bToken.balanceOf(alice.address)).to.be.equal(0);
-      await feeDistributor.connect(alice).claim(true);
-      await feeDistributor.connect(bob).claim(true);
+      let aliceBalanceBefore = await provider.getBalance(alice.address);
+      let bobBalanceBefore = await provider.getBalance(bob.address);
+      await feeDistributor.connect(alice).claim(false);
+      await feeDistributor.connect(bob).claim(false);
 
-      let aliceBalance = await WETH.balanceOf(alice.address);
-      let bobBalance = await WETH.balanceOf(bob.address);
-      assertAlmostEqualTol(
-        aliceBalance.add(bobBalance),
-        makeBN18(10),
-        0.0000001
-      );
+      let aliceBalanceAfter = await provider.getBalance(alice.address);
+      let bobBalanceAfter = await provider.getBalance(bob.address);
+      let aliceBalance = aliceBalanceAfter.sub(aliceBalanceBefore);
+      let bobBalance = bobBalanceAfter.sub(bobBalanceBefore);
+      assertAlmostEqualTol(aliceBalance.add(bobBalance), makeBN18(10), 0.001);
     });
   });
 
