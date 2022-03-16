@@ -344,9 +344,9 @@ contract FeeDistributor is
 
         if (amount != 0) {
             if (weth) {
-                _getLendPool().withdraw(token, amount, _addr);
+                _getLendPool().withdraw(address(WETH), amount, _addr);
             } else {
-                _getLendPool().withdraw(token, amount, address(this));
+                _getLendPool().withdraw(address(WETH), amount, address(this));
                 WETH.withdraw(amount);
                 _safeTransferETH(_addr, amount);
             }
@@ -374,5 +374,12 @@ contract FeeDistributor is
     function _safeTransferETH(address to, uint256 value) internal {
         (bool success, ) = to.call{value: value}(new bytes(0));
         require(success, "ETH_TRANSFER_FAILED");
+    }
+
+    /**
+     * @dev Only WETH contract is allowed to transfer ETH here. Prevent other addresses to send Ether to this contract.
+     */
+    receive() external payable {
+        require(msg.sender == address(WETH), "Receive not allowed");
     }
 }
