@@ -67,15 +67,10 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
     string public symbol;
     uint256 public decimals;
 
-    // Checker for whitelisted (smart contract) wallets which are allowed to deposit
-    // The goal is to prevent tokenizing the escrow
-    // address public smartWalletChecker;
-
     function initialize(address _tokenAddr) external initializer {
         __Ownable_init();
         __ReentrancyGuard_init();
         token = _tokenAddr;
-        // supplyPointHistory = new Point[](1);
         supplyPointHistory[0] = Point({
             bias: 0,
             slope: 0,
@@ -412,7 +407,7 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
         _unlockTime = (_unlockTime / WEEK) * WEEK; // Locktime is rounded down to weeks
         LockedBalance memory _locked = locked[_beneficiary];
 
-        require(_value > 0, "dev: need non-zero value");
+        require(_value > 0, "Can't lock zero value");
         require(_locked.amount == 0, "Withdraw old tokens first");
         require(
             _unlockTime > block.timestamp,
@@ -455,7 +450,7 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
     {
         LockedBalance memory _locked = locked[_beneficiary];
 
-        assert(_value > 0);
+        require(_value > 0, "Can't increase zero value");
         require(_locked.amount > 0, "No existing lock found");
         require(
             _locked.end > block.timestamp,
@@ -645,7 +640,7 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
     {
         // Copying and pasting totalSupply code because Vyper cannot pass by
         // reference yet
-        assert(_block <= block.number);
+        require(_block <= block.number, "Can't exceed lasted block");
 
         Parameters memory _st;
 
@@ -764,7 +759,7 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
      *@return Total voting power at `_block`
      */
     function totalSupplyAt(uint256 _block) external view returns (uint256) {
-        assert(_block <= block.number);
+        require(_block <= block.number, "Can't exceed the latest block");
         uint256 _epoch = epoch;
         uint256 _targetEpoch = findBlockEpoch(_block, _epoch);
 
