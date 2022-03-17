@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.0;
+pragma solidity 0.8.4;
 import {IScaledBalanceToken} from "../incentives/interfaces/IScaledBalanceToken.sol";
 
 interface IBToken is IScaledBalanceToken {
