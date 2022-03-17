@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.0;
 import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-ERC20PermitUpgradeable.sol";
 
 contract ERC20Detailed is ERC20PermitUpgradeable {
@@ -9,7 +9,7 @@ contract ERC20Detailed is ERC20PermitUpgradeable {
         string memory _name,
         string memory _symbol,
         uint8 _decimals
-    ) public initializer {
+    ) internal initializer {
         __ERC20_init(_name, _symbol);
         __ERC20Permit_init(_name);
         __decimals = _decimals;
