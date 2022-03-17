@@ -11,6 +11,8 @@ interface IFeeDistributor {
         uint256 maxEpoch
     );
 
+    function lastDistributeTime() external view returns (uint256);
+
     function distribute() external;
 
     function claim(bool weth) external returns (uint256);
