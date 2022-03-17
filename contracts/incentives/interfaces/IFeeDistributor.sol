@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.0;
+pragma solidity 0.8.4;
 
 interface IFeeDistributor {
     event Checkpoint(uint256 time, uint256 tokenAmount);

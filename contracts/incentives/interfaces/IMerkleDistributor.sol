@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.0;
+pragma solidity 0.8.4;
 
 // Allows anyone to claim a token if they exist in a merkle root.
 interface IMerkleDistributor {
