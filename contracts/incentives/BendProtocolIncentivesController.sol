@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity ^0.8.0;
+pragma solidity 0.8.0;
 pragma abicoder v2;
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -29,6 +29,7 @@ contract BendProtocolIncentivesController is
     address public REWARDS_VAULT;
 
     mapping(address => uint256) internal usersUnclaimedRewards;
+    mapping(address => bool) public authorizedAssets;
 
     /**
      * @dev initial and configrate contract
@@ -66,6 +67,7 @@ contract BendProtocolIncentivesController is
             );
 
         for (uint256 i = 0; i < _assets.length; i++) {
+            authorizedAssets[address(_assets[i])] = true;
             assetsConfig[i].underlyingAsset = address(_assets[i]);
             assetsConfig[i].emissionPerSecond = uint128(_emissionsPerSecond[i]);
 
@@ -90,6 +92,7 @@ contract BendProtocolIncentivesController is
         uint256 _totalSupply,
         uint256 _userBalance
     ) external override {
+        require(authorizedAssets[msg.sender], "Sender Unauthorized");
         uint256 accruedRewards = _updateUserAssetInternal(
             _user,
             msg.sender,
