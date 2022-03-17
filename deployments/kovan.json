@@ -23,20 +23,20 @@
     "proxyVerification": "https://kovan.etherscan.io/address/0x5D849b2cb45b3095cd720D98c4833596D31DBAfE#code"
   },
   "VeBend": {
-    "address": "0x59C16f3B5a14C49094FB5f5cD779Ee4B1F78d74F",
-    "txHash": "0x658fbf399996540094b992bed536e92c9ae1318cbde87e8f90dfb9a638f4c596",
-    "verification": "https://kovan.etherscan.io/address/0xce360a332ca301990bb0f24732e3a887a5af21af#code",
-    "proxyVerification": "https://kovan.etherscan.io/address/0x59C16f3B5a14C49094FB5f5cD779Ee4B1F78d74F#code"
+    "address": "0x80553940D2733D3675d3a1e19617F3e7F57B9823",
+    "txHash": "0x71c5eacfc3eee6272dfb8f6fad83e7c2de159007ff7d83a55e1d5041d141aaa2",
+    "verification": "https://kovan.etherscan.io/address/0x9ec4717989d539ed441daeb0d8c64766826007e7#code",
+    "proxyVerification": "https://kovan.etherscan.io/address/0x80553940D2733D3675d3a1e19617F3e7F57B9823#code"
   },
   "FeeDistributor": {
-    "address": "0x636E48323E897E6c6df59B2B2b0EEF49a1B19f45",
-    "txHash": "0xba6a04f65757f894194be02f44eeaf5d962aa9386fc55e488f2864d033feb645",
-    "verification": "https://kovan.etherscan.io/address/0xe9e25f8a4a4d2758953f1f2f8de6ecb38e0cae6a#code",
-    "proxyVerification": "https://kovan.etherscan.io/address/0x636E48323E897E6c6df59B2B2b0EEF49a1B19f45#code"
+    "address": "0xc679e1c7F06ACf74baCfa42a35CbE53cbcE82660",
+    "txHash": "0xcf9e27c370e97951f670c71325d52963a749946aa6794f0bbc0acae74c74c01d",
+    "verification": "https://kovan.etherscan.io/address/0xf0cf9d3dadeaf235508c870d6153abb9eca2b583#code",
+    "proxyVerification": "https://kovan.etherscan.io/address/0xc679e1c7F06ACf74baCfa42a35CbE53cbcE82660#code"
   },
   "BendKeeper": {
-    "address": "0x3cb755b4637267E2f551b0E002E3E6b7421e772D",
-    "txHash": "0x35cfc2560f1ee9a7735cb926602e08fe20c3c8b64c92bec2768bb9b30e3fe079",
-    "verification": "https://kovan.etherscan.io/address/0x3cb755b4637267E2f551b0E002E3E6b7421e772D#code"
+    "address": "0x89c1B97da3559178B4b2Cceb67A7937651c19Ac3",
+    "txHash": "0xbcf17bfa5b10f87189f5ed13bbef5cee9842c17d5418d5216d73660ad8e373f2",
+    "verification": "https://kovan.etherscan.io/address/0x89c1B97da3559178B4b2Cceb67A7937651c19Ac3#code"
   }
 }
