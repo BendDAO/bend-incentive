@@ -6,12 +6,10 @@ import {IFeeDistributor} from "./interfaces/IFeeDistributor.sol";
 
 contract BendKeeper is KeeperCompatibleInterface {
     uint256 public interval;
-    uint256 public lastTimeStamp;
     IFeeDistributor public feeDistributor;
 
     constructor(uint256 _interval, address _feeDistributorAddr) {
         interval = _interval;
-        lastTimeStamp = block.timestamp;
         feeDistributor = IFeeDistributor(_feeDistributorAddr);
     }
 
@@ -21,12 +19,14 @@ contract BendKeeper is KeeperCompatibleInterface {
         override
         returns (bool upkeepNeeded, bytes memory)
     {
-        upkeepNeeded = (block.timestamp - lastTimeStamp) > interval;
+        upkeepNeeded =
+            (block.timestamp - feeDistributor.lastDistributeTime()) > interval;
     }
 
     function performUpkeep(bytes calldata) external override {
-        if ((block.timestamp - lastTimeStamp) > interval) {
-            lastTimeStamp = block.timestamp;
+        if (
+            (block.timestamp - feeDistributor.lastDistributeTime()) > interval
+        ) {
             feeDistributor.distribute();
         }
     }

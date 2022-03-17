@@ -25,7 +25,7 @@ contract FeeDistributor is
     mapping(address => uint256) public timeCursorOf;
     mapping(address => uint256) public userEpochOf;
 
-    uint256 public lastDistributeTime;
+    uint256 public override lastDistributeTime;
     mapping(uint256 => uint256) public tokensPerWeek;
     uint256 public tokenLastBalance;
 
