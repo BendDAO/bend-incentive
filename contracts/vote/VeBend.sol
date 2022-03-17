@@ -58,8 +58,8 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
 
     //everytime user deposit/withdraw/change_locktime, these values will be updated;
     uint256 public override epoch;
-    Point[100000000000000000000000000000] public supplyPointHistory; // epoch -> unsigned point.
-    mapping(address => Point[1000000000]) public userPointHistory; // user -> Point[user_epoch]
+    mapping(uint256 => Point) public supplyPointHistory; // epoch -> unsigned point.
+    mapping(address => mapping(uint256 => Point)) public userPointHistory; // user -> Point[user_epoch]
     mapping(address => uint256) public userPointEpoch;
     mapping(uint256 => int256) public slopeChanges; // time -> signed slope change
 
