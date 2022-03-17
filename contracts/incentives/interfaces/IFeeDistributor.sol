@@ -2,7 +2,7 @@
 pragma solidity 0.8.4;
 
 interface IFeeDistributor {
-    event Checkpoint(uint256 time, uint256 tokenAmount);
+    event Distributed(uint256 time, uint256 tokenAmount);
 
     event Claimed(
         address indexed recipient,

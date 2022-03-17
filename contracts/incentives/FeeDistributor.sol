@@ -10,7 +10,6 @@ import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-u
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
-import "hardhat/console.sol";
 
 contract FeeDistributor is
     IFeeDistributor,
@@ -27,10 +26,12 @@ contract FeeDistributor is
     mapping(address => uint256) public userEpochOf;
 
     uint256 public lastDistributeTime;
-    uint256[1000000000000000] public tokensPerWeek;
+    mapping(uint256 => uint256) public tokensPerWeek;
     uint256 public tokenLastBalance;
 
-    uint256[1000000000000000] public veSupply; // VE total supply at week bounds
+    mapping(uint256 => uint256) public veSupply; // VE total supply at week bounds
+
+    mapping(address => uint256) public totalClaimed;
 
     IVeBend public veBend;
     IWETH public WETH;
@@ -59,15 +60,6 @@ contract FeeDistributor is
         timeCursor = t;
     }
 
-    function checkpointDistribute() external {
-        assert(
-            msg.sender == owner() ||
-                block.timestamp > lastDistributeTime + TOKEN_CHECKPOINT_DEADLINE
-        );
-        _checkpointDistribute();
-        _checkpointTotalSupply();
-    }
-
     /***
      *@notice Update fee checkpoint
      *@dev Up to 20 weeks since the last update
@@ -80,38 +72,39 @@ contract FeeDistributor is
         uint256 toDistribute = tokenBalance - tokenLastBalance;
 
         tokenLastBalance = tokenBalance;
-
         uint256 t = lastDistributeTime;
         uint256 sinceLast = block.timestamp - t;
         lastDistributeTime = block.timestamp;
-        uint256 thisWeek = (t / WEEK) * WEEK;
-        uint256 nextWeek = 0;
 
-        for (uint256 i = 0; i < 20; i++) {
-            nextWeek = thisWeek + WEEK;
-            if (block.timestamp < nextWeek) {
-                if (sinceLast == 0 && block.timestamp == t) {
-                    tokensPerWeek[thisWeek] += toDistribute;
+        if (toDistribute > 0) {
+            uint256 thisWeek = (t / WEEK) * WEEK;
+            uint256 nextWeek = 0;
+            for (uint256 i = 0; i < 20; i++) {
+                nextWeek = thisWeek + WEEK;
+                if (block.timestamp < nextWeek) {
+                    if (sinceLast == 0 && block.timestamp == t) {
+                        tokensPerWeek[thisWeek] += toDistribute;
+                    } else {
+                        tokensPerWeek[thisWeek] +=
+                            (toDistribute * (block.timestamp - t)) /
+                            sinceLast;
+                    }
+                    break;
                 } else {
-                    tokensPerWeek[thisWeek] +=
-                        (toDistribute * (block.timestamp - t)) /
-                        sinceLast;
+                    if (sinceLast == 0 && nextWeek == t) {
+                        tokensPerWeek[thisWeek] += toDistribute;
+                    } else {
+                        tokensPerWeek[thisWeek] +=
+                            (toDistribute * (nextWeek - t)) /
+                            sinceLast;
+                    }
                 }
-                break;
-            } else {
-                if (sinceLast == 0 && nextWeek == t) {
-                    tokensPerWeek[thisWeek] += toDistribute;
-                } else {
-                    tokensPerWeek[thisWeek] +=
-                        (toDistribute * (nextWeek - t)) /
-                        sinceLast;
-                }
+                t = nextWeek;
+                thisWeek = nextWeek;
             }
-            t = nextWeek;
-            thisWeek = nextWeek;
-        }
 
-        emit Checkpoint(block.timestamp, toDistribute);
+            emit Distributed(block.timestamp, toDistribute);
+        }
     }
 
     /***
@@ -126,17 +119,14 @@ contract FeeDistributor is
 
     function _distribute() internal {
         uint256 amount = IERC20Upgradeable(token).balanceOf(bendCollector);
-        if (
-            amount != 0 &&
-            (block.timestamp > lastDistributeTime + TOKEN_CHECKPOINT_DEADLINE)
-        ) {
+        if (amount > 0) {
             IERC20Upgradeable(token).safeTransferFrom(
                 bendCollector,
                 address(this),
                 amount
             );
-            _checkpointDistribute();
         }
+        _checkpointDistribute();
     }
 
     function checkpointTotalSupply() external {
@@ -230,8 +220,12 @@ contract FeeDistributor is
         uint256 weekCursor;
     }
 
-    function _claim(address _addr) internal view returns (Claimable memory) {
-        uint256 roundedTimestamp = (lastDistributeTime / WEEK) * WEEK;
+    function _claimable(address _addr, uint256 _lastDistributeTime)
+        internal
+        view
+        returns (Claimable memory)
+    {
+        uint256 roundedTimestamp = (_lastDistributeTime / WEEK) * WEEK;
         uint256 userEpoch = 0;
         uint256 toDistribute = 0;
 
@@ -311,8 +305,7 @@ contract FeeDistributor is
     }
 
     function claimable(address _addr) external view override returns (uint256) {
-        Claimable memory _claimable = _claim(_addr);
-        return _claimable.amount;
+        return _claimable(_addr, lastDistributeTime).amount;
     }
 
     /***
@@ -326,7 +319,7 @@ contract FeeDistributor is
      *@return uint256 Amount of fees claimed in the call
      */
     function claim(bool weth) external override nonReentrant returns (uint256) {
-        address _addr = msg.sender;
+        address _sender = msg.sender;
 
         // update veBend total supply checkpoint when a new epoch start
         if (block.timestamp >= timeCursor) {
@@ -334,28 +327,34 @@ contract FeeDistributor is
         }
 
         // Transfer fee and update checkpoint
-        _distribute();
+        if (block.timestamp > lastDistributeTime + TOKEN_CHECKPOINT_DEADLINE) {
+            _distribute();
+        }
 
-        Claimable memory _claimable = _claim(_addr);
+        Claimable memory _st_claimable = _claimable(
+            _sender,
+            lastDistributeTime
+        );
 
-        uint256 amount = _claimable.amount;
-        userEpochOf[_addr] = _claimable.userEpoch;
-        timeCursorOf[_addr] = _claimable.weekCursor;
+        uint256 amount = _st_claimable.amount;
+        userEpochOf[_sender] = _st_claimable.userEpoch;
+        timeCursorOf[_sender] = _st_claimable.weekCursor;
 
         if (amount != 0) {
+            tokenLastBalance -= amount;
             if (weth) {
-                _getLendPool().withdraw(address(WETH), amount, _addr);
+                _getLendPool().withdraw(address(WETH), amount, _sender);
             } else {
                 _getLendPool().withdraw(address(WETH), amount, address(this));
                 WETH.withdraw(amount);
-                _safeTransferETH(_addr, amount);
+                _safeTransferETH(_sender, amount);
             }
-            tokenLastBalance -= amount;
+            totalClaimed[_sender] += amount;
             emit Claimed(
-                _addr,
+                _sender,
                 amount,
-                _claimable.userEpoch,
-                _claimable.maxUserEpoch
+                _st_claimable.userEpoch,
+                _st_claimable.maxUserEpoch
             );
         }
 
