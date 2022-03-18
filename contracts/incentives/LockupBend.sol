@@ -15,7 +15,7 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
 
     uint256 public constant UNLOCK_MAXTIME = 365 * 86400; // 1 years
-
+    uint8 public constant PRECISION = 10;
     IERC20 public bendToken;
     IVeBend public veBend;
     IFeeDistributor public feeDistributor;
@@ -25,14 +25,13 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
     mapping(address => Locked) public locked;
     uint256 public unlockStartTime;
     uint256 public override lockEndTime;
-    bool public lockForVoting;
 
     constructor(
         address _wethAddr,
-        address _snapshotDelegationAddr,
         address _bendTokenAddr,
         address _veBendAddr,
-        address _feeDistributorAddr
+        address _feeDistributorAddr,
+        address _snapshotDelegationAddr
     ) {
         WETH = IWETH(_wethAddr);
         bendToken = IERC20(_bendTokenAddr);
@@ -70,8 +69,7 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
     function createLock(
         LockParam[] memory _beneficiaries,
         uint256 _totalAmount,
-        uint256 _unlockStartTime,
-        bool _lockForVoting
+        uint256 _unlockStartTime
     ) external override onlyOwner {
         require(
             unlockStartTime == 0 && lockEndTime == 0,
@@ -80,19 +78,20 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
         unlockStartTime = _unlockStartTime;
         require(unlockStartTime >= block.timestamp, "Can't unlock from past");
         lockEndTime = unlockStartTime + UNLOCK_MAXTIME;
-        lockForVoting = _lockForVoting;
         for (uint256 i = 0; i < _beneficiaries.length; i++) {
             LockParam memory _lp = _beneficiaries[i];
+            require(
+                _lp.thousandths <= 1000,
+                "Thousandths should be less than 1000"
+            );
             uint256 _lockAmount = (_lp.thousandths * _totalAmount) / 1000;
             _createLock(_lp.beneficiary, _lockAmount);
         }
 
         bendToken.safeTransferFrom(msg.sender, address(this), _totalAmount);
 
-        if (lockForVoting) {
-            // Should be unlocked from vebend before linear unlocking
-            veBend.createLock(_totalAmount, _unlockStartTime);
-        }
+        // Should withdraw from vebend before linear unlocking
+        veBend.createLock(_totalAmount, _unlockStartTime);
     }
 
     function _createLock(address _beneficiary, uint256 _value) internal {
@@ -102,7 +101,7 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
         require(_locked.amount == 0, "Can't lock twice");
 
         _locked.amount = _value;
-        _locked.slope = _locked.amount / UNLOCK_MAXTIME;
+        _locked.slope = (_locked.amount * 10**PRECISION) / UNLOCK_MAXTIME;
         locked[_beneficiary] = _locked;
 
         emit Lock(msg.sender, _beneficiary, _value, block.timestamp);
@@ -129,7 +128,8 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
         if (block.timestamp >= lockEndTime) {
             return 0;
         }
-        return _locked.slope * (lockEndTime - block.timestamp);
+        return
+            (_locked.slope * (lockEndTime - block.timestamp)) / 10**PRECISION;
     }
 
     function withdrawable(address _beneficiary)
@@ -151,7 +151,7 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
 
         if (_value > 0) {
             uint256 _bendBalance = bendToken.balanceOf(address(this));
-            if (_bendBalance < _value && block.timestamp > lockEndTime) {
+            if (_bendBalance < _value && block.timestamp > unlockStartTime) {
                 veBend.withdraw();
             }
             locked[_beneficiary].amount -= _value;
@@ -162,11 +162,9 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
     }
 
     function claim() external override onlyOwner {
-        if (lockForVoting) {
-            uint256 _amount = feeDistributor.claim(true);
-            if (_amount > 0) {
-                assert(WETH.transfer(msg.sender, _amount));
-            }
+        uint256 _amount = feeDistributor.claim(true);
+        if (_amount > 0) {
+            assert(WETH.transfer(msg.sender, _amount));
         }
     }
 }

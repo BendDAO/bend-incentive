@@ -56,6 +56,22 @@ export async function deployFeeDistributor(
   ]);
 }
 
+export async function deployLockupBend(
+  weth: Contract,
+  bendToken: Contract,
+  vebend: Contract,
+  feeDistributor: Contract,
+  delegation: Contract
+) {
+  return await deployContract("LockupBend", [
+    weth.address,
+    bendToken.address,
+    vebend.address,
+    feeDistributor.address,
+    delegation.address,
+  ]);
+}
+
 export async function deployMerkleDistributor(bendToken: Contract) {
   return await deployProxyContract("MerkleDistributor", [bendToken.address]);
 }
