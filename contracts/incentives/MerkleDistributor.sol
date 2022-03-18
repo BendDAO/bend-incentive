@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {IMerkleDistributor} from "./interfaces/IMerkleDistributor.sol";
@@ -15,6 +16,7 @@ contract MerkleDistributor is
     ReentrancyGuardUpgradeable
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
+    using AddressUpgradeable for address;
     address public override token;
     bool public isMerkleRootSet;
     bytes32 public override merkleRoot;
@@ -70,7 +72,7 @@ contract MerkleDistributor is
     }
 
     function isClaimed(address _account) public view override returns (bool) {
-        require(isMerkleRootSet, "Airdrop: Merkle root not set.");
+        require(isMerkleRootSet, "MerkleDistributor: Merkle root not set.");
         return _isClaimed(merkleRoot, _account);
     }
 
@@ -84,12 +86,18 @@ contract MerkleDistributor is
         uint256 amount,
         bytes32[] calldata merkleProof
     ) external override whenNotPaused nonReentrant {
-        require(block.timestamp <= endTimestamp, "Airdrop: Too late to claim.");
+        require(
+            !account.isContract(),
+            "MerkleDistributor: Smart contract claims not allowed"
+        );
+        require(
+            block.timestamp <= endTimestamp,
+            "MerkleDistributor: Too late to claim."
+        );
         require(
             !isClaimed(account),
             "MerkleDistributor: Drop already claimed."
         );
-        require(msg.sender == tx.origin, "Smart contract claims not allowed");
 
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
