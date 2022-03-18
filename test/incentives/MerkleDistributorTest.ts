@@ -59,14 +59,14 @@ describe("MerkleDistributor tests", function () {
       const distributor = await deployMerkleDistributor(token);
       await expect(
         distributor.claim(0, users[0].address, 10, [])
-      ).to.be.revertedWith("Airdrop: Too late to claim.");
+      ).to.be.revertedWith("MerkleDistributor: Too late to claim.");
     });
 
     it("fails for no merkle root", async () => {
       const { token, distributor } = await deployDistributor();
       await expect(
         distributor.claim(0, users[0].address, 10, [])
-      ).to.be.revertedWith("Airdrop: Merkle root not set.");
+      ).to.be.revertedWith("MerkleDistributor: Merkle root not set.");
     });
 
     describe("two account tree", () => {
