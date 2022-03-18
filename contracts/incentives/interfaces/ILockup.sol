@@ -39,8 +39,7 @@ interface ILockup {
     function createLock(
         LockParam[] memory _beneficiaries,
         uint256 _totalAmount,
-        uint256 _unlockStartTime,
-        bool _lockForVoting
+        uint256 _unlockStartTime
     ) external;
 
     function withdrawable(address _beneficiary) external view returns (uint256);

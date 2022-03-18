@@ -33,7 +33,7 @@ contract FeeDistributor is
 
     mapping(address => uint256) public totalClaimed;
 
-    IVeBend public veBend;
+    IVeBend public veBEND;
     IWETH public WETH;
     ILendPoolAddressesProvider public addressesProvider;
     address public token;
@@ -49,7 +49,7 @@ contract FeeDistributor is
         __Ownable_init();
         __ReentrancyGuard_init();
         addressesProvider = _addressesProvider;
-        veBend = _veBendAddress;
+        veBEND = _veBendAddress;
         WETH = _weth;
         bendCollector = _bendCollector;
         token = _tokenAddress;
@@ -113,8 +113,8 @@ contract FeeDistributor is
      */
 
     function distribute() external override {
-        _distribute();
         _checkpointTotalSupply();
+        _distribute();
     }
 
     function _distribute() internal {
@@ -134,23 +134,22 @@ contract FeeDistributor is
     }
 
     /***
-    *@notice Update the veBend total supply checkpoint
+    *@notice Update the veBEND total supply checkpoint
     *@dev The checkpoint is also updated by the first claimant each
          new epoch week. This function may be called independently
          of a claim, to reduce claiming gas costs.
     */
     function _checkpointTotalSupply() internal {
-        IVeBend ve = veBend;
         uint256 t = timeCursor;
         uint256 roundedTimestamp = (block.timestamp / WEEK) * WEEK;
-        ve.checkpointSupply();
+        veBEND.checkpointSupply();
 
         for (uint256 i = 0; i < 20; i++) {
             if (t > roundedTimestamp) {
                 break;
             } else {
                 uint256 epoch = _findTimestampEpoch(t);
-                IVeBend.Point memory pt = ve.getSupplyPointHistory(epoch);
+                IVeBend.Point memory pt = veBEND.getSupplyPointHistory(epoch);
                 int256 dt = 0;
                 if (t > pt.ts) {
                     // If the point is at 0 epoch, it can actually be earlier than the first deposit
@@ -175,13 +174,13 @@ contract FeeDistributor is
         returns (uint256)
     {
         uint256 _min = 0;
-        uint256 _max = veBend.epoch();
+        uint256 _max = veBEND.epoch();
         for (uint256 i = 0; i < 128; i++) {
             if (_min >= _max) {
                 break;
             }
             uint256 _mid = (_min + _max + 2) / 2;
-            IVeBend.Point memory pt = veBend.getSupplyPointHistory(_mid);
+            IVeBend.Point memory pt = veBEND.getSupplyPointHistory(_mid);
             if (pt.ts <= _timestamp) {
                 _min = _mid;
             } else {
@@ -203,7 +202,7 @@ contract FeeDistributor is
                 break;
             }
             uint256 _mid = (_min + _max + 2) / 2;
-            IVeBend.Point memory pt = veBend.getUserPointHistory(_user, _mid);
+            IVeBend.Point memory pt = veBEND.getUserPointHistory(_user, _mid);
             if (pt.ts <= _timestamp) {
                 _min = _mid;
             } else {
@@ -229,7 +228,7 @@ contract FeeDistributor is
         uint256 userEpoch = 0;
         uint256 toDistribute = 0;
 
-        uint256 maxUserEpoch = veBend.getUserPointEpoch(_addr);
+        uint256 maxUserEpoch = veBEND.getUserPointEpoch(_addr);
         if (maxUserEpoch == 0) {
             // No lock = no fees
             return Claimable(0, 0, 0, 0);
@@ -246,7 +245,7 @@ contract FeeDistributor is
             userEpoch = 1;
         }
 
-        IVeBend.Point memory userPoint = veBend.getUserPointHistory(
+        IVeBend.Point memory userPoint = veBEND.getUserPointHistory(
             _addr,
             userEpoch
         );
@@ -265,7 +264,7 @@ contract FeeDistributor is
         IVeBend.Point memory oldUserPoint;
 
         // Iterate over weeks
-        for (uint256 i = 0; i < 50; i++) {
+        for (uint256 i = 0; i < 52; i++) {
             if (weekCursor >= roundedTimestamp) {
                 break;
             }
@@ -276,7 +275,7 @@ contract FeeDistributor is
                     IVeBend.Point memory emptyPoint;
                     userPoint = emptyPoint;
                 } else {
-                    userPoint = veBend.getUserPointHistory(_addr, userEpoch);
+                    userPoint = veBEND.getUserPointHistory(_addr, userEpoch);
                 }
             } else {
                 // Calc
@@ -290,10 +289,11 @@ contract FeeDistributor is
                 if (balanceOf == 0 && userEpoch > maxUserEpoch) {
                     break;
                 }
-                if (balanceOf > 0) {
+                uint256 _veSupply = veSupply[weekCursor];
+                if (balanceOf > 0 && _veSupply > 0) {
                     toDistribute +=
                         (balanceOf * tokensPerWeek[weekCursor]) /
-                        veSupply[weekCursor];
+                        _veSupply;
                 }
 
                 weekCursor += WEEK;
@@ -310,8 +310,8 @@ contract FeeDistributor is
 
     /***
      *@notice Claim fees for `_addr`
-     *@dev Each call to claim look at a maximum of 50 user veBend points.
-        For accounts with many veBend related actions, this function
+     *@dev Each call to claim look at a maximum of 50 user veBEND points.
+        For accounts with many veBEND related actions, this function
         may need to be called more than once to claim all available
         fees. In the `Claimed` event that fires, if `claimEpoch` is
         less than `maxEpoch`, the account may claim again.
@@ -321,7 +321,7 @@ contract FeeDistributor is
     function claim(bool weth) external override nonReentrant returns (uint256) {
         address _sender = msg.sender;
 
-        // update veBend total supply checkpoint when a new epoch start
+        // update veBEND total supply checkpoint when a new epoch start
         if (block.timestamp >= timeCursor) {
             _checkpointTotalSupply();
         }

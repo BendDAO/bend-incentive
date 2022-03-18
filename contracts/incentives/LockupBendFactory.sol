@@ -179,10 +179,10 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
         for (uint256 i = 0; i < _lockupYears; i++) {
             LockupBend _lockupBendContract = new LockupBend(
                 address(WETH),
-                address(snapshotDelegation),
                 address(bendToken),
                 address(veBend),
-                address(feeDistributor)
+                address(feeDistributor),
+                address(snapshotDelegation)
             );
             lockups[i] = _lockupBendContract;
             bendToken.safeApprove(
@@ -195,8 +195,7 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
             lockups[i].createLock(
                 _beneficiaries,
                 _lockAvgAmount,
-                _unlockStartTime,
-                true
+                _unlockStartTime
             );
         }
         _unlockStartTime += SECONDS_IN_ONE_YEAR;
@@ -205,8 +204,7 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
         lockups[_lockupYears - 1].createLock(
             _beneficiaries,
             _remainingAmount,
-            _unlockStartTime,
-            true
+            _unlockStartTime
         );
     }
 
