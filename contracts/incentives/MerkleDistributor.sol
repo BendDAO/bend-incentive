@@ -88,7 +88,7 @@ contract MerkleDistributor is
     ) external override whenNotPaused nonReentrant {
         require(
             !account.isContract(),
-            "MerkleDistributor: Smart contract claims not allowed"
+            "MerkleDistributor: Smart contract claims not allowed."
         );
         require(
             block.timestamp <= endTimestamp,

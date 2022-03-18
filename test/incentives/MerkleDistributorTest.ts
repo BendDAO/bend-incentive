@@ -5,6 +5,7 @@ import {
   deployBendTokenTester,
   deployMerkleDistributor,
   deployVault,
+  deployContract,
 } from "../deployHelper";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import BalanceTree from "../utils/balance-tree";
@@ -210,12 +211,20 @@ describe("MerkleDistributor tests", function () {
       let distributor: Contract;
       let token: Contract;
       let tree: BalanceTree;
+      let smartContract: Contract;
+      let nodes: { account: string; amount: BigNumber }[];
       beforeEach("deploy", async () => {
-        const nodes = users.map((user, index) => {
+        nodes = users.map((user, index) => {
           return {
             account: user.address,
             amount: makeBN18((index + 1) * 100),
           };
+        });
+        smartContract = await deployContract("SomeContract");
+        let length = nodes.length;
+        nodes.push({
+          account: smartContract.address,
+          amount: makeBN18((length + 1) * 100),
         });
         tree = new BalanceTree(nodes);
         const contracts = await deployDistributor(tree);
@@ -241,6 +250,24 @@ describe("MerkleDistributor tests", function () {
         )
           .to.emit(distributor, "Claimed")
           .withArgs(tree.getHexRoot(), 7, users[7].address, makeBN18(800));
+      });
+
+      it("smart contract claim", async () => {
+        const proof = tree.getProof(
+          nodes.length - 1,
+          smartContract.address,
+          makeBN18(nodes.length * 100)
+        );
+        await expect(
+          distributor.claim(
+            nodes.length,
+            smartContract.address,
+            makeBN18(nodes.length * 100),
+            proof
+          )
+        ).to.be.revertedWith(
+          "MerkleDistributor: Smart contract claims not allowed."
+        );
       });
 
       // it("gas", async () => {
