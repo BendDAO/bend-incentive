@@ -5,7 +5,6 @@ import {
   deployFeeDistributor,
   deployBendTokenTester,
   deployVeBend,
-  deployVault,
   deployContract,
 } from "../deployHelper";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -41,7 +40,6 @@ const MAXTIME = 126144000;
 describe("FeeDistributor tests", () => {
   let deployer: SignerWithAddress;
   let users: SignerWithAddress[];
-  let vault: Contract;
   let bendToken: Contract;
   let vebend: Contract;
   let WETH: Contract;
@@ -57,8 +55,7 @@ describe("FeeDistributor tests", () => {
     [deployer, bendCollector] = addresses;
 
     users = addresses.slice(2, addresses.length);
-    vault = await deployVault();
-    bendToken = await deployBendTokenTester(vault, makeBN18(1000000));
+    bendToken = await deployBendTokenTester(deployer, makeBN18(1000000));
     WETH = await deployContract("WETH9Tester");
     await deployer.sendTransaction({
       to: WETH.address,

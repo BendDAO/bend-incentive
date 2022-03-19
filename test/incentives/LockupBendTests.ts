@@ -43,7 +43,6 @@ const MAXTIME = 126144000;
 describe("LockupBend tests", () => {
   let deployer: SignerWithAddress;
   let users: SignerWithAddress[];
-  let vault: Contract;
   let bendToken: Contract;
   let vebend: Contract;
   let WETH: Contract;
@@ -61,8 +60,8 @@ describe("LockupBend tests", () => {
     [deployer, bendCollector] = addresses;
 
     users = addresses.slice(2, addresses.length);
-    vault = await deployVault();
-    bendToken = await deployBendTokenTester(vault, makeBN18(10 ** 8));
+
+    bendToken = await deployBendTokenTester(deployer, makeBN18(10 ** 8));
     WETH = await deployContract("WETH9Tester");
     await deployer.sendTransaction({
       to: WETH.address,

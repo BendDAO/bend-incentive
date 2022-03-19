@@ -1,21 +1,25 @@
 import { ethers, upgrades } from "hardhat";
-import { BigNumber, Contract } from "ethers";
+import { BigNumber, Contract, constants } from "ethers";
 import { waitForTx } from "./utils";
-import { MAX_UINT_AMOUNT, ONE_YEAR } from "./constants";
+import { ONE_YEAR } from "./constants";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-export async function deployBendToken(vault: Contract, amount: BigNumber) {
-  return deployProxyContract("BendToken", [vault.address, amount]);
+export async function deployBendToken(
+  misc: SignerWithAddress,
+  amount: BigNumber
+) {
+  return deployProxyContract("BendToken", [misc.address, amount]);
 }
 
 export async function deployBendTokenTester(
-  vault: Contract,
+  misc: SignerWithAddress,
   amount: BigNumber
 ) {
-  return await deployProxyContract("BendTokenTester", [vault.address, amount]);
+  return await deployProxyContract("BendTokenTester", [misc.address, amount]);
 }
 
-export async function deployVault() {
-  return await deployContract("Vault");
+export async function deployVault(bendToken: Contract) {
+  return await deployProxyContract("Vault", [bendToken.address]);
 }
 
 export async function deployIncentivesController(
@@ -27,11 +31,7 @@ export async function deployIncentivesController(
     [bendToken.address, vault.address, ONE_YEAR * 100]
   );
   await waitForTx(
-    await vault.approve(
-      bendToken.address,
-      incentivesController.address,
-      MAX_UINT_AMOUNT
-    )
+    await vault.approve(incentivesController.address, constants.MaxUint256)
   );
   return incentivesController;
 }
