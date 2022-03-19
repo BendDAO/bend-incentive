@@ -64,8 +64,9 @@ describe("BendProtocolIncentivesController handleAction tests", function () {
     let addresses = await ethers.getSigners();
     [deployer] = addresses;
     users = addresses.slice(1, addresses.length);
-    const vault = await deployVault();
-    bendToken = await deployBendToken(vault, makeBN18(1000000));
+    bendToken = await deployBendToken(deployer, makeBN18(1000000));
+    const vault = await deployVault(bendToken);
+    await bendToken.transfer(vault.address, makeBN18(1000000));
     incentivesController = await deployIncentivesController(bendToken, vault);
 
     deployTime = await timeLatest();

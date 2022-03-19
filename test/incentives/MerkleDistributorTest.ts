@@ -26,11 +26,10 @@ describe("MerkleDistributor tests", function () {
     let addresses = await ethers.getSigners();
     [deployer] = addresses;
     users = addresses.slice(1, addresses.length);
-    vault = await deployVault();
   });
 
   async function deployDistributor(tree?: BalanceTree) {
-    const token = await deployBendTokenTester(vault, makeBN18(1000000));
+    const token = await deployBendTokenTester(deployer, makeBN18(1000000));
     const distributor = await deployMerkleDistributor(token);
     const endTime = (await timeLatest()).add(makeBN(86400 * 30));
     await distributor.connect(deployer).setEndTimestamp(endTime);
@@ -56,7 +55,7 @@ describe("MerkleDistributor tests", function () {
 
   describe("#claim", () => {
     it("fails for no end time", async () => {
-      const token = await deployBendTokenTester(vault, makeBN18(1000000));
+      const token = await deployBendTokenTester(deployer, makeBN18(1000000));
       const distributor = await deployMerkleDistributor(token);
       await expect(
         distributor.claim(0, users[0].address, 10, [])

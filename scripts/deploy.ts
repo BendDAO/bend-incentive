@@ -11,13 +11,11 @@ import {
   makeBN18,
 } from "./utils";
 import {
-  ZERO_ADDRESS,
-  MAX_UINT_AMOUNT,
   ONE_YEAR,
   getBTokenConfig,
   getFeeDistributorParams,
 } from "./constants";
-import { Contract } from "ethers";
+import { Contract, constants } from "ethers";
 import { makeBN } from "../test/utils";
 
 export interface Contracts {
@@ -113,15 +111,11 @@ async function deployCore() {
   } as Contracts;
 }
 async function connect(contracts: Contracts) {
-  const { bendToken, vault, incentivesController } = contracts;
+  const { vault, incentivesController } = contracts;
 
   try {
     waitForTx(
-      await vault.approve(
-        bendToken.address,
-        incentivesController.address,
-        makeBN(MAX_UINT_AMOUNT)
-      )
+      await vault.approve(incentivesController.address, constants.MaxUint256)
     );
   } catch (error) {}
 

@@ -31,7 +31,6 @@ const TOL = 120 / WEEK;
 describe("VeBend tests", function () {
   let deployer: SignerWithAddress;
   let users: SignerWithAddress[];
-  let vault: Contract;
   let token: Contract;
   let vebend: Contract;
 
@@ -39,8 +38,7 @@ describe("VeBend tests", function () {
     let addresses = await ethers.getSigners();
     [deployer] = addresses;
     users = addresses.slice(1, addresses.length);
-    vault = await deployVault();
-    token = await deployBendTokenTester(vault, makeBN18(1000000));
+    token = await deployBendTokenTester(deployer, makeBN18(1000000));
   });
 
   describe("#", () => {
