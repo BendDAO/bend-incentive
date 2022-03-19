@@ -44,11 +44,11 @@ async function deployCore() {
     network.name,
     deployer,
     deploymentState,
-    { proxy: false }
+    { proxy: true }
   );
   const bendToken = await loadOrDeploy(
     "BendToken",
-    [vault.address, makeBN18(100000000)],
+    [deployer.address, makeBN18(100000000)],
     network.name,
     deployer,
     deploymentState,
