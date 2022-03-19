@@ -2,18 +2,19 @@
 pragma solidity 0.8.4;
 pragma abicoder v2;
 
-import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {ILockup} from "./interfaces/ILockup.sol";
 import {LockupBend} from "./LockupBend.sol";
 import {IVeBend} from "../vote/interfaces/IVeBend.sol";
 import {IFeeDistributor} from "./interfaces/IFeeDistributor.sol";
 import {IWETH} from "./interfaces/IWETH.sol";
 import {ISnapshotDelegation} from "./interfaces/ISnapshotDelegation.sol";
+import "hardhat/console.sol";
 
-contract LockupBendFactory is ReentrancyGuard, Ownable {
-    using SafeERC20 for IERC20;
+contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     event Withdrawn(uint256 amount);
     event Claimed(address indexed user, uint256 amount);
@@ -22,13 +23,12 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
 
     uint8 public constant PRECISION = 18;
     uint256 public constant SECONDS_IN_ONE_YEAR = 31536000;
-    uint256 public constant SECONDS_IN_ONE_DAY = 86400;
 
-    IERC20 public bendToken;
+    IERC20Upgradeable public bendToken;
     IVeBend public veBend;
     IFeeDistributor public feeDistributor;
 
-    ILockup[4] public lockups;
+    ILockup[3] public lockups;
 
     mapping(address => uint256) public feeIndexs;
     mapping(address => uint256) public locked;
@@ -39,16 +39,18 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
     IWETH internal WETH;
     ISnapshotDelegation internal snapshotDelegation;
 
-    constructor(
+    function initialize(
         address _wethAddr,
-        address _snapshotDelegationAddr,
         address _bendTokenAddr,
         address _veBendAddr,
-        address _feeDistributorAddr
-    ) {
+        address _feeDistributorAddr,
+        address _snapshotDelegationAddr
+    ) external initializer {
+        __Ownable_init();
+        __ReentrancyGuard_init();
         WETH = IWETH(_wethAddr);
         snapshotDelegation = ISnapshotDelegation(_snapshotDelegationAddr);
-        bendToken = IERC20(_bendTokenAddr);
+        bendToken = IERC20Upgradeable(_bendTokenAddr);
         veBend = IVeBend(_veBendAddr);
         feeDistributor = IFeeDistributor(_feeDistributorAddr);
     }
@@ -121,8 +123,8 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
     ) internal view returns (uint256) {
         uint256 _userTotalLocked = locked[_addr];
         return
-            _userTotalLocked *
-            ((_feeIndex - _userFeeIndex) / 10**uint256(PRECISION));
+            (_userTotalLocked * (_feeIndex - _userFeeIndex)) /
+            10**uint256(PRECISION);
     }
 
     function _safeTransferETH(address to, uint256 value) internal {
@@ -158,7 +160,7 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
     ) external onlyOwner {
         uint256 _bendBalance = bendToken.balanceOf(address(this));
         require(
-            _bendBalance > _totalLockAmount,
+            _bendBalance >= _totalLockAmount,
             "Insufficient Bend for locking"
         );
         require(totalLocked == 0, "Can't create lock twice");
@@ -171,12 +173,12 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
                 1000;
         }
 
-        uint256 _lockupYears = lockups.length;
+        uint256 _lockups = lockups.length;
 
-        uint256 _lockAvgAmount = totalLocked / _lockupYears;
+        uint256 _lockAvgAmount = totalLocked / _lockups;
         uint256 _unlockStartTime = block.timestamp;
 
-        for (uint256 i = 0; i < _lockupYears; i++) {
+        for (uint256 i = 0; i < _lockups; i++) {
             LockupBend _lockupBendContract = new LockupBend(
                 address(WETH),
                 address(bendToken),
@@ -190,7 +192,8 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
                 type(uint256).max
             );
         }
-        for (uint256 i = 0; i < _lockupYears - 1; i++) {
+
+        for (uint256 i = 0; i < _lockups - 1; i++) {
             _unlockStartTime += SECONDS_IN_ONE_YEAR;
             lockups[i].createLock(
                 _beneficiaries,
@@ -200,8 +203,8 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
         }
         _unlockStartTime += SECONDS_IN_ONE_YEAR;
         uint256 _remainingAmount = _totalLockAmount -
-            (_lockAvgAmount * (_lockupYears - 1));
-        lockups[_lockupYears - 1].createLock(
+            (_lockAvgAmount * (_lockups - 1));
+        lockups[_lockups - 1].createLock(
             _beneficiaries,
             _remainingAmount,
             _unlockStartTime
@@ -253,5 +256,12 @@ contract LockupBendFactory is ReentrancyGuard, Ownable {
         uint256 balanceToWithdraw = bendToken.balanceOf(address(this));
         bendToken.safeTransfer(msg.sender, balanceToWithdraw);
         emit Withdrawn(balanceToWithdraw);
+    }
+
+    /**
+     * @dev Only WETH contract is allowed to transfer ETH here. Prevent other addresses to send Ether to this contract.
+     */
+    receive() external payable {
+        require(msg.sender == address(WETH), "Receive not allowed");
     }
 }
