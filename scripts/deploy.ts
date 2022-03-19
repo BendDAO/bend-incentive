@@ -47,14 +47,6 @@ async function deployCore() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const deploymentState = loadPreviousDeployment(network.name);
-  const vault = await loadOrDeploy(
-    "Vault",
-    [],
-    network.name,
-    deployer,
-    deploymentState,
-    { proxy: true }
-  );
 
   const envInitKey = `${network.name}_BEND_TOKEN_INIT_ADDRESS`.toUpperCase();
   const initAddress = env[envInitKey] ? env[envInitKey] : deployer.address;
@@ -62,6 +54,15 @@ async function deployCore() {
   const bendToken = await loadOrDeploy(
     "BendToken",
     [initAddress, makeBN18(BEND_TOKEN_MAX_SUPPLY)],
+    network.name,
+    deployer,
+    deploymentState,
+    { proxy: true }
+  );
+
+  const vault = await loadOrDeploy(
+    "Vault",
+    [bendToken.address],
     network.name,
     deployer,
     deploymentState,
