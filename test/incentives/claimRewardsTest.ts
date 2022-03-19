@@ -219,8 +219,7 @@ describe("BendProtocolIncentivesController claimRewards tests", function () {
           assetDataBefore.index,
           assetDataBefore.emissionPerSecond,
           assetDataBefore.lastUpdateTimestamp,
-          actionBlockTimestamp,
-          await incentivesController.DISTRIBUTION_END()
+          actionBlockTimestamp
         )
       );
       expect(userIndexAfter).to.be.equal(
