@@ -71,7 +71,7 @@ async function deployCore() {
 
   const incentivesController = await loadOrDeploy(
     "BendProtocolIncentivesController",
-    [bendToken.address, vault.address, ONE_YEAR * 100],
+    [bendToken.address, vault.address, ONE_YEAR * 10],
     network.name,
     deployer,
     deploymentState,
