@@ -53,17 +53,37 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
         address _oldBeneficiary,
         address _newBeneficiary
     ) external override onlyOwner {
-        _withdraw(_oldBeneficiary);
-        Locked memory _oldLocked = locked[_oldBeneficiary];
-        Locked memory _newLocked = Locked(_oldLocked.amount, _oldLocked.slope);
-        locked[_newBeneficiary] = _newLocked;
-        _oldLocked.amount = 0;
-        locked[_oldBeneficiary] = _oldLocked;
-        emit BeneficiaryTransferred(
-            _oldBeneficiary,
-            _newBeneficiary,
-            block.timestamp
+        require(
+            _oldBeneficiary != _newBeneficiary,
+            "Beneficiary can't be same"
         );
+        require(
+            _newBeneficiary != address(0),
+            "New beneficiary can't be zero address"
+        );
+
+        if (locked[_oldBeneficiary].amount > 0) {
+            _withdraw(_oldBeneficiary);
+            Locked memory _oldLocked = locked[_oldBeneficiary];
+
+            Locked memory _newLocked = locked[_newBeneficiary];
+
+            _newLocked.amount += _oldLocked.amount;
+            _newLocked.slope += _oldLocked.slope;
+
+            locked[_newBeneficiary] = _newLocked;
+
+            _oldLocked.amount = 0;
+            _oldLocked.slope = 0;
+
+            locked[_oldBeneficiary] = _oldLocked;
+
+            emit BeneficiaryTransferred(
+                _oldBeneficiary,
+                _newBeneficiary,
+                block.timestamp
+            );
+        }
     }
 
     function createLock(
