@@ -393,6 +393,7 @@ export async function compareAssetIndex(
   );
   let txReceipt = await waitForTx(tx);
   let txTimestamp = await timeAtBlock(txReceipt.blockNumber);
+  const distributionEndTimestamp = await distributionManager.DISTRIBUTION_END();
   const rewardsBalanceBefore =
     await distributionManager.getUserUnclaimedRewards(userAddress);
   const userIndexBefore = await getUserIndex(
@@ -425,7 +426,8 @@ export async function compareAssetIndex(
       assetDataBefore.index,
       assetDataBefore.emissionPerSecond,
       assetDataBefore.lastUpdateTimestamp,
-      txTimestamp
+      txTimestamp,
+      distributionEndTimestamp
     )
   );
   expect(userIndexAfter).to.be.equal(
@@ -482,15 +484,18 @@ export function getNormalizedDistribution(
   emissionPerSecond: BigNumber,
   lastUpdateTimestamp: BigNumber,
   currentTimestamp: BigNumber,
+  emissionEndTimestamp: BigNumber,
   precision: number = 18
 ): BigNumber {
-  if (balance.eq(0)) {
+  if (balance.eq(0) || lastUpdateTimestamp.gte(emissionEndTimestamp)) {
     return oldIndex;
   }
   const linearReward = getLinearCumulatedRewards(
     emissionPerSecond,
     lastUpdateTimestamp,
-    currentTimestamp
+    currentTimestamp.gte(emissionEndTimestamp)
+      ? emissionEndTimestamp
+      : currentTimestamp
   );
 
   return linearReward.mul(makeBN(10).pow(precision)).div(balance).add(oldIndex);
