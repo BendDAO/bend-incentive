@@ -24,8 +24,6 @@ contract DistributionManager is Initializable, OwnableUpgradeable {
         mapping(address => uint256) users;
     }
 
-    uint256 public DISTRIBUTION_END;
-
     uint8 public constant PRECISION = 18;
 
     mapping(address => AssetData) public assets;
@@ -43,17 +41,8 @@ contract DistributionManager is Initializable, OwnableUpgradeable {
         uint256 index
     );
 
-    function __DistributionManager_init(uint256 _distributionDuration)
-        internal
-        initializer
-    {
+    function __DistributionManager_init() internal initializer {
         __Ownable_init();
-        DISTRIBUTION_END = block.timestamp.add(_distributionDuration);
-    }
-
-    function setDistributionEnd(uint256 _distributionEnd) external onlyOwner {
-        DISTRIBUTION_END = _distributionEnd;
-        emit DistributionEndUpdated(_distributionEnd);
     }
 
     function _configureAssets(
@@ -246,15 +235,12 @@ contract DistributionManager is Initializable, OwnableUpgradeable {
         if (
             _emissionPerSecond == 0 ||
             _totalBalance == 0 ||
-            _lastUpdateTimestamp == block.timestamp ||
-            _lastUpdateTimestamp >= DISTRIBUTION_END
+            _lastUpdateTimestamp == block.timestamp
         ) {
             return _currentIndex;
         }
 
-        uint256 currentTimestamp = block.timestamp > DISTRIBUTION_END
-            ? DISTRIBUTION_END
-            : block.timestamp;
+        uint256 currentTimestamp = block.timestamp;
         uint256 timeDelta = currentTimestamp.sub(_lastUpdateTimestamp);
         return
             _emissionPerSecond
