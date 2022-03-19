@@ -28,6 +28,7 @@ import {
 } from "../utils";
 
 import { forEach } from "p-iteration";
+import exp from "constants";
 
 const provider = ethers.provider;
 
@@ -346,6 +347,25 @@ describe("FeeDistributor tests", () => {
       assertAlmostEqualTol(aliceClaimable, aliceBalance, 0.0001);
       assertAlmostEqualTol(bobClaimable, bobBalance, 0.0001);
       assertAlmostEqualTol(aliceBalance.add(bobBalance), makeBN18(10), 0.001);
+
+      // claim twice
+      aliceClaimable = await feeDistributor.claimable(alice.address);
+      bobClaimable = await feeDistributor.claimable(bob.address);
+      let aliceWethBalanceBefore = await WETH.balanceOf(alice.address);
+      let bobWethBalanceBefore = await WETH.balanceOf(bob.address);
+      await feeDistributor.connect(alice).claim(true);
+      await feeDistributor.connect(bob).claim(true);
+      let aliceWethBalanceAfter = await WETH.balanceOf(alice.address);
+      let bobWethBalanceAfter = await WETH.balanceOf(bob.address);
+
+      aliceBalance = aliceWethBalanceAfter.sub(aliceWethBalanceBefore);
+      bobBalance = bobWethBalanceAfter.sub(bobWethBalanceBefore);
+
+      expect(aliceClaimable).to.be.equal(0);
+      expect(bobClaimable).to.be.equal(0);
+
+      expect(aliceBalance).to.be.equal(0);
+      expect(bobBalance).to.be.equal(0);
     });
   });
 

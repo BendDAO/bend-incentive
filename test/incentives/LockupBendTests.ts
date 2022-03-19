@@ -269,6 +269,93 @@ describe("LockupBend tests", () => {
           })
       );
     });
+    it("transfer between beneficiaries during unlock", async () => {
+      await fc.assert(
+        fc
+          .asyncProperty(
+            fc.nat(YEAR),
+            fc.nat(10),
+            fc.integer(1, 10),
+            async (timePassed, oldIndex, newIndex) => {
+              await mineBlockAtTime(unlockTime.add(timePassed).toNumber());
+
+              newIndex = (oldIndex + newIndex) % 11;
+
+              let oldUser = beneficiaries[oldIndex].address;
+              let newUser = beneficiaries[newIndex].address;
+
+              let oldLockedBefore = await lockupBend.locked(oldUser);
+              let newLockedBefore = await lockupBend.locked(newUser);
+
+              let oldUserBalanceBefore = await bendToken.balanceOf(oldUser);
+              await lockupBend.transferBeneficiary(oldUser, newUser);
+              let oldUserBalanceAfter = await bendToken.balanceOf(oldUser);
+              let oldUserWithdran =
+                oldUserBalanceAfter.sub(oldUserBalanceBefore);
+              let oldLockedAfter = await lockupBend.locked(oldUser);
+              let newLockedAfter = await lockupBend.locked(newUser);
+
+              expect(oldLockedAfter.amount).to.be.equal(0);
+              expect(oldLockedAfter.slope).to.be.equal(0);
+
+              expect(newLockedAfter.amount.add(oldUserWithdran)).to.be.equal(
+                oldLockedBefore.amount.add(newLockedBefore.amount)
+              );
+
+              expect(newLockedAfter.slope).to.be.equal(
+                oldLockedBefore.slope.add(newLockedBefore.slope)
+              );
+            }
+          )
+          .beforeEach(async () => {
+            await snapshots.revert("createLock");
+          })
+      );
+    });
+
+    it("transfer new beneficiary during unlock", async () => {
+      await fc.assert(
+        fc
+          .asyncProperty(
+            fc.nat(YEAR),
+            fc.nat(10),
+            async (timePassed, oldIndex) => {
+              await mineBlockAtTime(unlockTime.add(timePassed).toNumber());
+
+              let newIndex = 11;
+
+              let oldUser = beneficiaries[oldIndex].address;
+
+              let newUser = users[newIndex].address;
+
+              let oldLockedBefore = await lockupBend.locked(oldUser);
+              let newLockedBefore = await lockupBend.locked(newUser);
+
+              let oldUserBalanceBefore = await bendToken.balanceOf(oldUser);
+              await lockupBend.transferBeneficiary(oldUser, newUser);
+              let oldUserBalanceAfter = await bendToken.balanceOf(oldUser);
+              let oldUserWithdran =
+                oldUserBalanceAfter.sub(oldUserBalanceBefore);
+              let oldLockedAfter = await lockupBend.locked(oldUser);
+              let newLockedAfter = await lockupBend.locked(newUser);
+
+              expect(newLockedBefore.amount).to.be.equal(0);
+              expect(newLockedBefore.slope).to.be.equal(0);
+              expect(oldLockedAfter.amount).to.be.equal(0);
+              expect(oldLockedAfter.slope).to.be.equal(0);
+
+              expect(newLockedAfter.amount.add(oldUserWithdran)).to.be.equal(
+                oldLockedBefore.amount
+              );
+
+              expect(newLockedAfter.slope).to.be.equal(oldLockedBefore.slope);
+            }
+          )
+          .beforeEach(async () => {
+            await snapshots.revert("createLock");
+          })
+      );
+    });
     it("withdraw after unlocked", async () => {
       await mineBlockAtTime(unlockTime.add(YEAR).toNumber());
       let totalBendAmount = await bendToken.balanceOf(vebend.address);
