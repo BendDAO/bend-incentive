@@ -52,6 +52,21 @@
       "address": "0x1b5d2904bE3E4711a848Be09b17dEE89E6A5BC27",
       "txHash": "0xae4b86688dd8f2bb092eb6571560f200271ac0ec1e2f4e6fde45b52fa9eb5fc8",
       "kind": "transparent"
+    },
+    {
+      "address": "0x98118d1cfFCf7C3E26b41aE29B761f2bC3c0eA0f",
+      "txHash": "0x1d021c2d71d29d0b3564934c774b510a62525e79f60e8758bbaed67b94eacf29",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xAd36eb917Eeb957c90b577B7051D0C9BE930a1F8",
+      "txHash": "0x7c849f5fef58419e5f8bb82eab81405597f7c926586fc8068e73dc68d2b6be76",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x26FC1f11E612366d3367fc0cbFfF9e819da91C8d",
+      "txHash": "0x64d78c93123f350e66143520baa58179da7f267e24e7e1fdcf5bfe69de0b0e74",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -314,6 +329,194 @@
           },
           "t_mapping(t_address,t_bool)": {
             "label": "mapping(address => bool)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "8b5288f7c43d60907c08c645b95ea5d2f9a2eaa3b8a097fad71b83c404cedf2c": {
+      "address": "0x446AB941FFBc867740B55Ec084f4c802B979dCF9",
+      "txHash": "0x2d8cb40242e14351ad2f353c7eafced05a93c6e980eb32be8cadb9ee8f12f9de",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "Vault",
+            "label": "bendToken",
+            "type": "t_address",
+            "src": "contracts/incentives/Vault.sol:15"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "848bf25eae6158bbda306b4b9ff8a2d48a2ff651f6c93debc74f6f6cf499e4c0": {
+      "address": "0xcAbe4E00a44Ff38990A42f43312d470DE5796FA6",
+      "txHash": "0x3338be52bc50fc61e34f3fbacf91481be1bcc5b3b20a9d40ba03e095966fb92d",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "DistributionManager",
+            "label": "DISTRIBUTION_END",
+            "type": "t_uint256",
+            "src": "contracts/incentives/DistributionManager.sol:27"
+          },
+          {
+            "contract": "DistributionManager",
+            "label": "assets",
+            "type": "t_mapping(t_address,t_struct(AssetData)4820_storage)",
+            "src": "contracts/incentives/DistributionManager.sol:31"
+          },
+          {
+            "contract": "BendProtocolIncentivesController",
+            "label": "REWARD_TOKEN",
+            "type": "t_contract(IERC20Upgradeable)1050",
+            "src": "contracts/incentives/BendProtocolIncentivesController.sol:28"
+          },
+          {
+            "contract": "BendProtocolIncentivesController",
+            "label": "REWARDS_VAULT",
+            "type": "t_address",
+            "src": "contracts/incentives/BendProtocolIncentivesController.sol:29"
+          },
+          {
+            "contract": "BendProtocolIncentivesController",
+            "label": "usersUnclaimedRewards",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/incentives/BendProtocolIncentivesController.sol:31"
+          },
+          {
+            "contract": "BendProtocolIncentivesController",
+            "label": "authorizedAssets",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "contracts/incentives/BendProtocolIncentivesController.sol:32"
+          }
+        ],
+        "types": {
+          "t_contract(IERC20Upgradeable)1050": {
+            "label": "contract IERC20Upgradeable"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_address,t_struct(AssetData)4820_storage)": {
+            "label": "mapping(address => struct DistributionManager.AssetData)"
+          },
+          "t_struct(AssetData)4820_storage": {
+            "label": "struct DistributionManager.AssetData",
+            "members": [
+              {
+                "label": "emissionPerSecond",
+                "type": "t_uint128"
+              },
+              {
+                "label": "lastUpdateTimestamp",
+                "type": "t_uint128"
+              },
+              {
+                "label": "index",
+                "type": "t_uint256"
+              },
+              {
+                "label": "users",
+                "type": "t_mapping(t_address,t_uint256)"
+              }
+            ]
+          },
+          "t_uint128": {
+            "label": "uint128"
           },
           "t_array(t_uint256)49_storage": {
             "label": "uint256[49]"
