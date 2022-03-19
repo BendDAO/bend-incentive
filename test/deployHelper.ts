@@ -28,7 +28,7 @@ export async function deployIncentivesController(
 ) {
   const incentivesController = await deployProxyContract(
     "BendProtocolIncentivesController",
-    [bendToken.address, vault.address]
+    [bendToken.address, vault.address, ONE_YEAR * 100]
   );
   await waitForTx(
     await vault.approve(incentivesController.address, constants.MaxUint256)

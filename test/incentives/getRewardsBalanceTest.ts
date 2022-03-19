@@ -75,6 +75,8 @@ describe("BendProtocolIncentivesController getRewardsBalance tests", function ()
     it(caseName, async () => {
       await mineBlockAndIncreaseTime(100);
 
+      const distributionEndTimestamp =
+        await incentivesController.DISTRIBUTION_END();
       const userAddress = users[1].address;
       const underlyingAsset = bWeth.address;
 
@@ -116,7 +118,8 @@ describe("BendProtocolIncentivesController getRewardsBalance tests", function ()
         assetData.index,
         assetData.emissionPerSecond,
         assetData.lastUpdateTimestamp,
-        lastTxTimestamp
+        lastTxTimestamp,
+        distributionEndTimestamp
       );
       const expectedAccruedRewards = getRewards(
         balance,

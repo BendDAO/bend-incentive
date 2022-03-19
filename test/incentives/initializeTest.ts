@@ -45,5 +45,10 @@ describe("BendProtocolIncentivesController tests", function () {
       vault.address
     );
     expect(await incentivesController.owner()).to.be.equal(deployer.address);
+    assertAlmostEqual(
+      await incentivesController.DISTRIBUTION_END(),
+      deployTime.add(ONE_YEAR * 100),
+      5
+    );
   });
 });

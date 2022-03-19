@@ -35,12 +35,14 @@ contract BendProtocolIncentivesController is
      * @dev initial and configrate contract
      * @param _rewardToken The reward token to incentivize
      * @param _rewardsVault The vault of reward token
+     * @param _distributionDuration  Duration of the reward distribution
      */
-    function initialize(address _rewardToken, address _rewardsVault)
-        external
-        initializer
-    {
-        __DistributionManager_init();
+    function initialize(
+        address _rewardToken,
+        address _rewardsVault,
+        uint128 _distributionDuration
+    ) external initializer {
+        __DistributionManager_init(_distributionDuration);
         REWARD_TOKEN = IERC20Upgradeable(_rewardToken);
         REWARDS_VAULT = _rewardsVault;
     }
