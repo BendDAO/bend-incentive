@@ -10,5 +10,17 @@
     "txHash": "0xae4b86688dd8f2bb092eb6571560f200271ac0ec1e2f4e6fde45b52fa9eb5fc8",
     "proxyVerification": "https://etherscan.io/address/0x1b5d2904bE3E4711a848Be09b17dEE89E6A5BC27#code",
     "verification": "https://etherscan.io/address/0x6d8138ab8458bc420ac2dc078c59e8bd4defcaa6#code"
+  },
+  "Vault": {
+    "address": "0xAd36eb917Eeb957c90b577B7051D0C9BE930a1F8",
+    "txHash": "0x7c849f5fef58419e5f8bb82eab81405597f7c926586fc8068e73dc68d2b6be76",
+    "verification": "https://etherscan.io/address/0x446ab941ffbc867740b55ec084f4c802b979dcf9#code",
+    "proxyVerification": "https://etherscan.io/address/0xAd36eb917Eeb957c90b577B7051D0C9BE930a1F8#code"
+  },
+  "BendProtocolIncentivesController": {
+    "address": "0x26FC1f11E612366d3367fc0cbFfF9e819da91C8d",
+    "txHash": "0x64d78c93123f350e66143520baa58179da7f267e24e7e1fdcf5bfe69de0b0e74",
+    "verification": "https://etherscan.io/address/0xcabe4e00a44ff38990a42f43312d470de5796fa6#code",
+    "proxyVerification": "https://etherscan.io/address/0x26FC1f11E612366d3367fc0cbFfF9e819da91C8d#code"
   }
 }
