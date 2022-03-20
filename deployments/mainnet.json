@@ -22,5 +22,22 @@
     "txHash": "0x64d78c93123f350e66143520baa58179da7f267e24e7e1fdcf5bfe69de0b0e74",
     "verification": "https://etherscan.io/address/0xcabe4e00a44ff38990a42f43312d470de5796fa6#code",
     "proxyVerification": "https://etherscan.io/address/0x26FC1f11E612366d3367fc0cbFfF9e819da91C8d#code"
+  },
+  "VeBend": {
+    "address": "0xd7e97172C2419566839Bf80DeeA46D22B1B2E06E",
+    "txHash": "0x611fc09e4ec7a1f0cb156fd0c81a5dad042de9f902b0a51bd94dfc2cca8cd91f",
+    "verification": "https://etherscan.io/address/0x78519c320a3015af42cb9e2a275ea5c422f11b5b#code",
+    "proxyVerification": "https://etherscan.io/address/0xd7e97172C2419566839Bf80DeeA46D22B1B2E06E#code"
+  },
+  "FeeDistributor": {
+    "address": "0x2338D34337dd0811b684640de74717B73F7B8059",
+    "txHash": "0x220351e0e9794a679d27d2f089f689820822627fb057a66b1440d5ce53cd3a1b",
+    "verification": "https://etherscan.io/address/0xcc98fdc0fce55cf5c51c52c3d66bc676bc6ee2e2#code",
+    "proxyVerification": "https://etherscan.io/address/0x2338D34337dd0811b684640de74717B73F7B8059#code"
+  },
+  "BendKeeper": {
+    "address": "0x43435A927b8a3E02C77a0A371Cfb36E3dB88142C",
+    "txHash": "0x5f1469d31a18c4556ae08bd21ad0ec43831e54c12799ca23d60367a6b929e18f",
+    "verification": "https://etherscan.io/address/0x43435A927b8a3E02C77a0A371Cfb36E3dB88142C#code"
   }
 }

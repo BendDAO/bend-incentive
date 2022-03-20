@@ -147,7 +147,12 @@ export const getFeeDistributorParams = (network: string): string[] =>
         "0xE55870eBB007a50B0dfAbAdB1a21e4bFcee5299b", //lendPoolAddressesProvider,
         "0x7A02EE743Aadca63d60945971B7eD12c7f26b6d2", //bendCollector
       ],
-      [Network.mainnet]: [],
+      [Network.mainnet]: [
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", //WETH
+        "0xeD1840223484483C0cb050E6fC344d1eBF0778a9", //bWETH
+        "0x24451F47CaF13B24f4b5034e1dF6c0E401ec0e46", //lendPoolAddressesProvider,
+        "0x43078AbfB76bd24885Fd64eFFB22049f92a8c495", //bendCollector
+      ],
       [Network.develop]: [],
     },
     Network[network as keyof typeof Network]
