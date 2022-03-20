@@ -38,9 +38,8 @@ async function main() {
   const deploymentState = loadPreviousDeployment(network.name);
   const incentivesController = await load(
     "BendProtocolIncentivesController",
-    network.name,
     deployer,
-    deploymentState["BendProtocolIncentivesController"]
+    deploymentState
   );
   await configureAssets(incentivesController);
 }

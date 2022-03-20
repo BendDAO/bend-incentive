@@ -184,6 +184,14 @@ describe("LockupBend tests", () => {
       );
     });
 
+    it("emergency withdraw", async () => {
+      await mineBlockAtTime(unlockTime.toNumber());
+      let bendBalanceBefore = await bendToken.balanceOf(deployer.address);
+      await lockupBend.emergencyWithdraw();
+      let bendBalanceAfter = await bendToken.balanceOf(deployer.address);
+      expect(bendBalanceAfter.sub(bendBalanceBefore)).to.be.equal(totalAmount);
+    });
+
     it("before unlock", async () => {
       let now = await timeLatest();
       await fc.assert(

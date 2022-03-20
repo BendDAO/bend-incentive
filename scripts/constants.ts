@@ -152,3 +152,17 @@ export const getFeeDistributorParams = (network: string): string[] =>
     },
     Network[network as keyof typeof Network]
   );
+
+export const getSnapshotDelatation = (network: string): string =>
+  getParamPerNetwork<string>(
+    {
+      [Network.coverage]: "",
+      [Network.hardhat]: "",
+      [Network.kovan]: "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
+      [Network.ropsten]: "",
+      [Network.rinkeby]: "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
+      [Network.mainnet]: "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
+      [Network.develop]: "",
+    },
+    Network[network as keyof typeof Network]
+  );

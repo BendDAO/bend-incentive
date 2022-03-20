@@ -29,8 +29,6 @@ import {
   assertAlmostEqual,
 } from "../utils";
 
-import { forEach } from "p-iteration";
-
 const provider = ethers.provider;
 
 const H = 3600;
@@ -489,6 +487,7 @@ describe("LockupBendFactory tests", () => {
       }
       await increaseTime(WEEK);
       await feeDistributor.distribute();
+      let totalClaimed = makeBN(0);
       for (let i = 0; i < 11; i++) {
         let addr = beneficiaries[i].address;
         let t = thousandths[i];
@@ -496,6 +495,7 @@ describe("LockupBendFactory tests", () => {
         await factory.connect(beneficiaries[i]).claim(true);
         let wethBalanceAfter = await WETH.balanceOf(addr);
         let wethBalance = wethBalanceAfter.sub(wethBalanceBefore);
+        totalClaimed = totalClaimed.add(wethBalance);
         assertAlmostEqualTol(
           wethBalance,
           makeBN18(70 * 20)
@@ -504,6 +504,11 @@ describe("LockupBendFactory tests", () => {
           0.0000001
         );
       }
+      let wethBalanceBefore = await WETH.balanceOf(factory.address);
+      await factory.withdrawResidue();
+      let wethBalanceAfter = await WETH.balanceOf(factory.address);
+      let wethWithdran = wethBalanceBefore.sub(wethBalanceAfter);
+      assertAlmostEqual(totalClaimed.add(wethWithdran), makeBN18(70 * 20), 100);
     });
     it("claim after unlocked", async () => {
       let unlockTime = createLockTime.add(3 * YEAR);
