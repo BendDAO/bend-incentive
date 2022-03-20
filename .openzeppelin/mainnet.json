@@ -77,6 +77,11 @@
       "address": "0x2338D34337dd0811b684640de74717B73F7B8059",
       "txHash": "0x220351e0e9794a679d27d2f089f689820822627fb057a66b1440d5ce53cd3a1b",
       "kind": "transparent"
+    },
+    {
+      "address": "0xec570C139c40a366C6c49482c32E05E6402c886E",
+      "txHash": "0x082b7eed5fe72bda5c6a4a52e569efa11f9ac6055b3d700d6f4cee38a545bd5d",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -996,6 +1001,163 @@
           },
           "t_contract(ILendPoolAddressesProvider)8599": {
             "label": "contract ILendPoolAddressesProvider"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "5ed995b8e3d0bce1c38fd94800f81eb896b9fe066f1461e11be612d2e41aac5e": {
+      "address": "0x7Fe47D854580218912c6135300f97354EFE002fd",
+      "txHash": "0xda6e4603829807778b1a9dde9445050f6f0698760f224985e611c1455372903d",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "LockupBendFactory",
+            "label": "bendToken",
+            "type": "t_contract(IERC20Upgradeable)1050",
+            "src": "contracts/incentives/LockupBendFactory.sol:27"
+          },
+          {
+            "contract": "LockupBendFactory",
+            "label": "veBend",
+            "type": "t_contract(IVeBend)12184",
+            "src": "contracts/incentives/LockupBendFactory.sol:28"
+          },
+          {
+            "contract": "LockupBendFactory",
+            "label": "feeDistributor",
+            "type": "t_contract(IFeeDistributor)8505",
+            "src": "contracts/incentives/LockupBendFactory.sol:29"
+          },
+          {
+            "contract": "LockupBendFactory",
+            "label": "lockups",
+            "type": "t_array(t_contract(ILockup)8693)3_storage",
+            "src": "contracts/incentives/LockupBendFactory.sol:31"
+          },
+          {
+            "contract": "LockupBendFactory",
+            "label": "feeIndexs",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/incentives/LockupBendFactory.sol:33"
+          },
+          {
+            "contract": "LockupBendFactory",
+            "label": "locked",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "contracts/incentives/LockupBendFactory.sol:34"
+          },
+          {
+            "contract": "LockupBendFactory",
+            "label": "feeIndex",
+            "type": "t_uint256",
+            "src": "contracts/incentives/LockupBendFactory.sol:35"
+          },
+          {
+            "contract": "LockupBendFactory",
+            "label": "feeIndexlastUpdateTimestamp",
+            "type": "t_uint256",
+            "src": "contracts/incentives/LockupBendFactory.sol:36"
+          },
+          {
+            "contract": "LockupBendFactory",
+            "label": "totalLocked",
+            "type": "t_uint256",
+            "src": "contracts/incentives/LockupBendFactory.sol:37"
+          },
+          {
+            "contract": "LockupBendFactory",
+            "label": "WETH",
+            "type": "t_contract(IWETH)8850",
+            "src": "contracts/incentives/LockupBendFactory.sol:39"
+          },
+          {
+            "contract": "LockupBendFactory",
+            "label": "snapshotDelegation",
+            "type": "t_contract(ISnapshotDelegation)8793",
+            "src": "contracts/incentives/LockupBendFactory.sol:40"
+          }
+        ],
+        "types": {
+          "t_contract(IERC20Upgradeable)1050": {
+            "label": "contract IERC20Upgradeable"
+          },
+          "t_contract(IVeBend)12184": {
+            "label": "contract IVeBend"
+          },
+          "t_contract(IFeeDistributor)8505": {
+            "label": "contract IFeeDistributor"
+          },
+          "t_array(t_contract(ILockup)8693)3_storage": {
+            "label": "contract ILockup[3]"
+          },
+          "t_contract(ILockup)8693": {
+            "label": "contract ILockup"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_contract(IWETH)8850": {
+            "label": "contract IWETH"
+          },
+          "t_contract(ISnapshotDelegation)8793": {
+            "label": "contract ISnapshotDelegation"
           },
           "t_array(t_uint256)49_storage": {
             "label": "uint256[49]"
