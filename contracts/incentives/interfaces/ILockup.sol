@@ -49,4 +49,6 @@ interface ILockup {
     function lockedAmount(address _beneficiary) external view returns (uint256);
 
     function claim() external;
+
+    function emergencyWithdraw() external;
 }

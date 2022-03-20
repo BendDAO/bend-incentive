@@ -19,13 +19,12 @@ export function makeBN18(num: string | number) {
 
 export async function load(
   name: string,
-  network: string,
   deployer: Signer,
-  deploymentStateItem: DeploymentStateItem
+  deploymentState: Record<string, DeploymentStateItem>
 ) {
   const factory = await hre.ethers.getContractFactory(name);
   const contract = new hre.ethers.Contract(
-    deploymentStateItem.address,
+    deploymentState[name].address,
     factory.interface,
     deployer
   );

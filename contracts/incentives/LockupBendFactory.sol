@@ -16,13 +16,13 @@ import "hardhat/console.sol";
 contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    event Withdrawn(uint256 amount);
+    event Withdrawn(bool weth, uint256 amount);
     event Claimed(address indexed user, uint256 amount);
     event FeeIndexUpdated(uint256 _index);
     event UserFeeIndexUpdated(address indexed user, uint256 index);
 
     uint8 public constant PRECISION = 18;
-    uint256 public constant SECONDS_IN_ONE_YEAR = 31536000;
+    uint256 public constant SECONDS_IN_ONE_YEAR = 365 * 86400;
 
     IERC20Upgradeable public bendToken;
     IVeBend public veBend;
@@ -134,14 +134,14 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
 
     // external functions
 
-    function delegateSnapshotVotePower(bytes32 _id, address _delegatee)
-        external
-        onlyOwner
-    {
-        for (uint256 i = 0; i < lockups.length; i++) {
-            ILockup _lockup = lockups[i];
-            _lockup.delegateSnapshotVotePower(_id, _delegatee);
-        }
+    function delegateSnapshotVotePower(
+        uint256 _index,
+        bytes32 _id,
+        address _delegatee
+    ) external onlyOwner {
+        require(_index < lockups.length, "Index over range");
+        ILockup _lockup = lockups[_index];
+        _lockup.delegateSnapshotVotePower(_id, _delegatee);
     }
 
     function transferBeneficiary(
@@ -227,7 +227,10 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
         uint256 _accruedRewards = _updateUserFeeIndex(msg.sender, balanceDelta);
         if (_accruedRewards > 0) {
             if (weth) {
-                assert(WETH.transfer(msg.sender, _accruedRewards));
+                require(
+                    WETH.transfer(msg.sender, _accruedRewards),
+                    "WETH_TRANSFER_FAILED"
+                );
             } else {
                 WETH.withdraw(_accruedRewards);
                 _safeTransferETH(msg.sender, _accruedRewards);
@@ -252,10 +255,27 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
         }
     }
 
-    function adminWithdraw() external onlyOwner {
-        uint256 balanceToWithdraw = bendToken.balanceOf(address(this));
-        bendToken.safeTransfer(msg.sender, balanceToWithdraw);
-        emit Withdrawn(balanceToWithdraw);
+    function withdrawResidue() external onlyOwner {
+        uint256 wethToWithdraw = WETH.balanceOf(address(this));
+        if (wethToWithdraw > 0) {
+            require(
+                WETH.transfer(msg.sender, wethToWithdraw),
+                "WETH_TRANSFER_FAILED"
+            );
+            emit Withdrawn(true, wethToWithdraw);
+        }
+        uint256 ethToWithdraw = address(this).balance;
+        if (ethToWithdraw > 0) {
+            _safeTransferETH(msg.sender, ethToWithdraw);
+            emit Withdrawn(false, ethToWithdraw);
+        }
+    }
+
+    function emergencyWithdraw() external onlyOwner {
+        for (uint256 i = 0; i < lockups.length; i++) {
+            ILockup _lockup = lockups[i];
+            _lockup.emergencyWithdraw();
+        }
     }
 
     /**
