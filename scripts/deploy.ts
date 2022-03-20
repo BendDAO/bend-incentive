@@ -99,6 +99,7 @@ async function deployCore() {
   let [WETH, bWETH, addressesProvider, bendCollector] = getFeeDistributorParams(
     network.name
   );
+  console.log("WETH:", WETH, "bWETH:", bWETH, "addressesProvider:", addressesProvider, "bendCollector:", bendCollector);
   const feeDistributor = await loadOrDeploy(
     "FeeDistributor",
     [WETH, bWETH, vebend.address, addressesProvider, bendCollector],
@@ -150,7 +151,7 @@ async function connect(contracts: Contracts) {
 
 async function main() {
   let contracts = await deployCore();
-  await connect(contracts);
+  //await connect(contracts);
 }
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
