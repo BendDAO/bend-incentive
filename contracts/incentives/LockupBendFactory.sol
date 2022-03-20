@@ -271,13 +271,6 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
         }
     }
 
-    function emergencyWithdraw() external onlyOwner {
-        for (uint256 i = 0; i < lockups.length; i++) {
-            ILockup _lockup = lockups[i];
-            _lockup.emergencyWithdraw();
-        }
-    }
-
     /**
      * @dev Only WETH contract is allowed to transfer ETH here. Prevent other addresses to send Ether to this contract.
      */
