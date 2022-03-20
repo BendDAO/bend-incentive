@@ -19,8 +19,8 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
     IERC20 public bendToken;
     IVeBend public veBend;
     IFeeDistributor public feeDistributor;
-    IWETH internal WETH;
-    ISnapshotDelegation internal snapshotDelegation;
+    IWETH public WETH;
+    ISnapshotDelegation public snapshotDelegation;
 
     mapping(address => Locked) public locked;
     uint256 public unlockStartTime;

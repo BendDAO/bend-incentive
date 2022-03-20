@@ -36,8 +36,8 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
     uint256 public feeIndexlastUpdateTimestamp;
     uint256 public totalLocked;
 
-    IWETH internal WETH;
-    ISnapshotDelegation internal snapshotDelegation;
+    IWETH public WETH;
+    ISnapshotDelegation public snapshotDelegation;
 
     function initialize(
         address _wethAddr,
