@@ -165,6 +165,16 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
         );
         require(totalLocked == 0, "Can't create lock twice");
 
+        uint256 checkThousandths = 0;
+        for (uint256 i = 0; i < _beneficiaries.length; i++) {
+            checkThousandths += _beneficiaries[i].thousandths;
+        }
+
+        require(
+            checkThousandths == 1000,
+            "The sum of thousands should be 1000"
+        );
+
         totalLocked = _totalLockAmount;
         for (uint256 i = 0; i < _beneficiaries.length; i++) {
             ILockup.LockParam memory _lock = _beneficiaries[i];
