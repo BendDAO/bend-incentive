@@ -22,6 +22,8 @@ contract MerkleDistributor is
     bytes32 public override merkleRoot;
     uint256 public endTimestamp;
     mapping(bytes32 => mapping(address => bool)) public claimed;
+    address public constant TREASURY =
+        address(0x472FcC65Fab565f75B1e0E861864A86FE5bcEd7B);
 
     function initialize(address _token) external initializer {
         __Pausable_init();
@@ -114,9 +116,9 @@ contract MerkleDistributor is
     }
 
     /**
-     * @notice Transfer tokens back to owner
+     * @notice Transfer tokens back
      */
-    function withdrawTokenRewards(address _to) external override onlyOwner {
+    function withdrawTokenRewards() external override onlyOwner {
         require(
             block.timestamp > (endTimestamp + 1 days),
             "Owner: Too early to remove rewards."
@@ -124,7 +126,7 @@ contract MerkleDistributor is
         uint256 balanceToWithdraw = IERC20Upgradeable(token).balanceOf(
             address(this)
         );
-        IERC20Upgradeable(token).safeTransfer(_to, balanceToWithdraw);
+        IERC20Upgradeable(token).safeTransfer(TREASURY, balanceToWithdraw);
 
         emit TokensWithdrawn(balanceToWithdraw);
     }

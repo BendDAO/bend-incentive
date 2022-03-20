@@ -20,7 +20,7 @@ interface IMerkleDistributor {
         bytes32[] calldata merkleProof
     ) external;
 
-    function withdrawTokenRewards(address _to) external;
+    function withdrawTokenRewards() external;
 
     // This event is triggered whenever a call to #claim succeeds.
     event Claimed(
