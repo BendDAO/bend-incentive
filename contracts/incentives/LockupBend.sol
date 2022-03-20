@@ -184,7 +184,13 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
     function claim() external override onlyOwner {
         uint256 _amount = feeDistributor.claim(true);
         if (_amount > 0) {
-            assert(WETH.transfer(msg.sender, _amount));
+            require(WETH.transfer(msg.sender, _amount), "WETH_TRANSFER_FAILED");
         }
+    }
+
+    function emergencyWithdraw() external override onlyOwner {
+        veBend.withdraw();
+        uint256 _bendBalance = bendToken.balanceOf(address(this));
+        bendToken.safeTransfer(msg.sender, _bendBalance);
     }
 }
