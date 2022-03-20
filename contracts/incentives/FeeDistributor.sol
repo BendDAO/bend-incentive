@@ -62,7 +62,7 @@ contract FeeDistributor is
 
     /***
      *@notice Update fee checkpoint
-     *@dev Up to 20 weeks since the last update
+     *@dev Up to 52 weeks since the last update
      */
     function _checkpointDistribute() internal {
         uint256 tokenBalance = IERC20Upgradeable(token).balanceOf(
@@ -78,7 +78,7 @@ contract FeeDistributor is
 
         uint256 thisWeek = (t / WEEK) * WEEK;
         uint256 nextWeek = 0;
-        for (uint256 i = 0; i < 20; i++) {
+        for (uint256 i = 0; i < 52; i++) {
             nextWeek = thisWeek + WEEK;
             if (block.timestamp < nextWeek) {
                 if (sinceLast == 0 && block.timestamp == t) {
@@ -142,7 +142,7 @@ contract FeeDistributor is
         uint256 roundedTimestamp = (block.timestamp / WEEK) * WEEK;
         veBEND.checkpointSupply();
 
-        for (uint256 i = 0; i < 20; i++) {
+        for (uint256 i = 0; i < 52; i++) {
             if (t > roundedTimestamp) {
                 break;
             } else {

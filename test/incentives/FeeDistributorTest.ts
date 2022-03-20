@@ -134,31 +134,35 @@ describe("FeeDistributor tests", () => {
       );
     });
     it("advance time cursor", async () => {
+      let time = await timeLatest();
+      await vebend
+        .connect(users[0])
+        .increaseUnlockTime(time.add(WEEK * 52 * 3));
       let startTime = await feeDistributor.timeCursor();
-      mineBlockAndIncreaseTime(YEAR);
+      mineBlockAndIncreaseTime(3 * YEAR);
       await feeDistributor.checkpointTotalSupply();
       expect(await feeDistributor.timeCursor()).to.be.equal(
-        startTime.add(WEEK * 20)
+        startTime.add(WEEK * 52)
       );
-      expect(await feeDistributor.veSupply(startTime.add(WEEK * 19))).to.be.gt(
+      expect(await feeDistributor.veSupply(startTime.add(WEEK * 51))).to.be.gt(
         0
       );
       expect(
-        await feeDistributor.veSupply(startTime.add(WEEK * 20))
+        await feeDistributor.veSupply(startTime.add(WEEK * 52))
       ).to.be.equal(0);
 
       await feeDistributor.checkpointTotalSupply();
       expect(await feeDistributor.timeCursor()).to.be.equal(
-        startTime.add(WEEK * 40)
+        startTime.add(WEEK * 104)
       );
-      expect(await feeDistributor.veSupply(startTime.add(WEEK * 20))).to.be.gt(
+      expect(await feeDistributor.veSupply(startTime.add(WEEK * 52))).to.be.gt(
         0
       );
-      expect(await feeDistributor.veSupply(startTime.add(WEEK * 39))).to.be.gt(
+      expect(await feeDistributor.veSupply(startTime.add(WEEK * 103))).to.be.gt(
         0
       );
       expect(
-        await feeDistributor.veSupply(startTime.add(WEEK * 40))
+        await feeDistributor.veSupply(startTime.add(WEEK * 104))
       ).to.be.equal(0);
     });
 
