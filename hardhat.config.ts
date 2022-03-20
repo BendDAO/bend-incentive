@@ -10,6 +10,8 @@ dotenv.config();
 
 import { accounts } from "./test-wallets";
 
+const GWEI = 1000 * 1000 * 1000;
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -59,6 +61,7 @@ export default {
           : [],
     },
     mainnet: {
+      gasPrice: 65 * GWEI,
       url: process.env.MAINNET_URL || "",
       accounts:
         process.env.MAINNET_PRIVATE_KEY !== undefined
