@@ -76,35 +76,33 @@ contract FeeDistributor is
         uint256 sinceLast = block.timestamp - t;
         lastDistributeTime = block.timestamp;
 
-        if (toDistribute > 0) {
-            uint256 thisWeek = (t / WEEK) * WEEK;
-            uint256 nextWeek = 0;
-            for (uint256 i = 0; i < 20; i++) {
-                nextWeek = thisWeek + WEEK;
-                if (block.timestamp < nextWeek) {
-                    if (sinceLast == 0 && block.timestamp == t) {
-                        tokensPerWeek[thisWeek] += toDistribute;
-                    } else {
-                        tokensPerWeek[thisWeek] +=
-                            (toDistribute * (block.timestamp - t)) /
-                            sinceLast;
-                    }
-                    break;
+        uint256 thisWeek = (t / WEEK) * WEEK;
+        uint256 nextWeek = 0;
+        for (uint256 i = 0; i < 20; i++) {
+            nextWeek = thisWeek + WEEK;
+            if (block.timestamp < nextWeek) {
+                if (sinceLast == 0 && block.timestamp == t) {
+                    tokensPerWeek[thisWeek] += toDistribute;
                 } else {
-                    if (sinceLast == 0 && nextWeek == t) {
-                        tokensPerWeek[thisWeek] += toDistribute;
-                    } else {
-                        tokensPerWeek[thisWeek] +=
-                            (toDistribute * (nextWeek - t)) /
-                            sinceLast;
-                    }
+                    tokensPerWeek[thisWeek] +=
+                        (toDistribute * (block.timestamp - t)) /
+                        sinceLast;
                 }
-                t = nextWeek;
-                thisWeek = nextWeek;
+                break;
+            } else {
+                if (sinceLast == 0 && nextWeek == t) {
+                    tokensPerWeek[thisWeek] += toDistribute;
+                } else {
+                    tokensPerWeek[thisWeek] +=
+                        (toDistribute * (nextWeek - t)) /
+                        sinceLast;
+                }
             }
-
-            emit Distributed(block.timestamp, toDistribute);
+            t = nextWeek;
+            thisWeek = nextWeek;
         }
+
+        emit Distributed(block.timestamp, toDistribute);
     }
 
     /***
