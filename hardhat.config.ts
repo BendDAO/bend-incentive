@@ -1,6 +1,9 @@
 import "@openzeppelin/hardhat-upgrades";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
+import path from "path";
+import fs from "fs";
+
 require("solidity-coverage");
 import dotenv from "dotenv";
 dotenv.config();
@@ -13,6 +16,14 @@ import { accounts } from "./test-wallets";
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
+
+const tasksPath = path.join(__dirname, "tasks");
+fs.readdirSync(tasksPath)
+  .filter((pth) => pth.includes(".ts"))
+  .forEach((task) => {
+    require(`${tasksPath}/${task}`);
+  });
+
 export default {
   solidity: {
     version: "0.8.4",

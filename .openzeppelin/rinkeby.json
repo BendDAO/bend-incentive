@@ -2913,19 +2913,19 @@
           {
             "contract": "FeeDistributor",
             "label": "veBEND",
-            "type": "t_contract(IVeBend)12024",
+            "type": "t_contract(IVeBend)12187",
             "src": "contracts/incentives/FeeDistributor.sol:36"
           },
           {
             "contract": "FeeDistributor",
             "label": "WETH",
-            "type": "t_contract(IWETH)8690",
+            "type": "t_contract(IWETH)8853",
             "src": "contracts/incentives/FeeDistributor.sol:37"
           },
           {
             "contract": "FeeDistributor",
             "label": "addressesProvider",
-            "type": "t_contract(ILendPoolAddressesProvider)8440",
+            "type": "t_contract(ILendPoolAddressesProvider)8600",
             "src": "contracts/incentives/FeeDistributor.sol:38"
           },
           {
@@ -2954,13 +2954,13 @@
           "t_mapping(t_uint256,t_uint256)": {
             "label": "mapping(uint256 => uint256)"
           },
-          "t_contract(IVeBend)12024": {
+          "t_contract(IVeBend)12187": {
             "label": "contract IVeBend"
           },
-          "t_contract(IWETH)8690": {
+          "t_contract(IWETH)8853": {
             "label": "contract IWETH"
           },
-          "t_contract(ILendPoolAddressesProvider)8440": {
+          "t_contract(ILendPoolAddressesProvider)8600": {
             "label": "contract ILendPoolAddressesProvider"
           },
           "t_array(t_uint256)49_storage": {
@@ -2971,6 +2971,124 @@
           },
           "t_bool": {
             "label": "bool"
+          }
+        }
+      }
+    },
+    "3388d38446c1a259bc2bc401e31d16262b7372f15fdac2f83aee8b308870332b": {
+      "address": "0x8B89020186362B6BBfdb251a0A33e920B2857dED",
+      "txHash": "0x1fa70a5d7d4004faa5dc950150ca89066690605d16bf08c48bbb7890d1403036",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:28"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:96"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "contract": "MerkleDistributor",
+            "label": "token",
+            "type": "t_address",
+            "src": "contracts/incentives/MerkleDistributor.sol:20"
+          },
+          {
+            "contract": "MerkleDistributor",
+            "label": "isMerkleRootSet",
+            "type": "t_bool",
+            "src": "contracts/incentives/MerkleDistributor.sol:21"
+          },
+          {
+            "contract": "MerkleDistributor",
+            "label": "merkleRoot",
+            "type": "t_bytes32",
+            "src": "contracts/incentives/MerkleDistributor.sol:22"
+          },
+          {
+            "contract": "MerkleDistributor",
+            "label": "endTimestamp",
+            "type": "t_uint256",
+            "src": "contracts/incentives/MerkleDistributor.sol:23"
+          },
+          {
+            "contract": "MerkleDistributor",
+            "label": "claimed",
+            "type": "t_mapping(t_bytes32,t_mapping(t_address,t_bool))",
+            "src": "contracts/incentives/MerkleDistributor.sol:24"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_bytes32,t_mapping(t_address,t_bool))": {
+            "label": "mapping(bytes32 => mapping(address => bool))"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
           }
         }
       }
