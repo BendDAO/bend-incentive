@@ -32,12 +32,18 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
 
     mapping(address => uint256) public feeIndexs;
     mapping(address => uint256) public locked;
+    mapping(address => bool) authedBeneficiaries;
     uint256 public feeIndex;
     uint256 public feeIndexlastUpdateTimestamp;
     uint256 public totalLocked;
 
     IWETH public WETH;
     ISnapshotDelegation public snapshotDelegation;
+
+    modifier onlyAuthed() {
+        require(authedBeneficiaries[_msgSender()], "Sender not authed");
+        _;
+    }
 
     function initialize(
         address _wethAddr,
@@ -132,6 +138,28 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
         require(success, "ETH_TRANSFER_FAILED");
     }
 
+    function _claim(address _addr, bool weth) internal nonReentrant {
+        uint256 balanceBefore = WETH.balanceOf(address(this));
+        for (uint256 i = 0; i < lockups.length; i++) {
+            ILockup _lockup = lockups[i];
+            _lockup.claim();
+        }
+        uint256 balanceDelta = WETH.balanceOf(address(this)) - balanceBefore;
+        uint256 _accruedRewards = _updateUserFeeIndex(_addr, balanceDelta);
+        if (_accruedRewards > 0) {
+            if (weth) {
+                require(
+                    WETH.transfer(_addr, _accruedRewards),
+                    "WETH_TRANSFER_FAILED"
+                );
+            } else {
+                WETH.withdraw(_accruedRewards);
+                _safeTransferETH(_addr, _accruedRewards);
+            }
+            emit Claimed(_addr, _accruedRewards);
+        }
+    }
+
     // external functions
 
     function delegateSnapshotVotePower(
@@ -164,10 +192,42 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
         address _oldBeneficiary,
         address _newBeneficiary
     ) external onlyOwner {
+        require(
+            _oldBeneficiary != _newBeneficiary,
+            "Beneficiary can't be same"
+        );
+        require(
+            _newBeneficiary != address(0),
+            "New beneficiary can't be zero address"
+        );
+
+        require(
+            authedBeneficiaries[_oldBeneficiary],
+            "Old beneficiary not authed"
+        );
+
+        require(
+            authedBeneficiaries[_newBeneficiary] == false &&
+                locked[_newBeneficiary] == 0 &&
+                feeIndexs[_newBeneficiary] == 0,
+            "Should be a New beneficiary "
+        );
+
         for (uint256 i = 0; i < lockups.length; i++) {
             ILockup _lockup = lockups[i];
             _lockup.transferBeneficiary(_oldBeneficiary, _newBeneficiary);
         }
+        _claim(_oldBeneficiary, true);
+
+        // swap tow beneficiary data
+        uint256 _oldLocked = locked[_oldBeneficiary];
+        uint256 _oldIndex = feeIndexs[_oldBeneficiary];
+        locked[_oldBeneficiary] = 0;
+        feeIndexs[_oldBeneficiary] = 0;
+        locked[_newBeneficiary] = _oldLocked;
+        feeIndexs[_newBeneficiary] = _oldIndex;
+        authedBeneficiaries[_newBeneficiary] = true;
+        authedBeneficiaries[_oldBeneficiary] = false;
     }
 
     function createLock(
@@ -197,6 +257,7 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
             locked[_lock.beneficiary] =
                 (totalLocked * _lock.thousandths) /
                 1000;
+            authedBeneficiaries[_lock.beneficiary] = true;
         }
 
         uint256 _lockups = lockups.length;
@@ -236,44 +297,42 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
         );
     }
 
-    function claimable(address _addr) external view returns (uint256) {
-        uint256 _userFeeIndex = feeIndexs[_addr];
-        uint256 _feeIndex = _getFeeIndex();
-        return _getRewards(_addr, _userFeeIndex, _feeIndex);
+    function claim(bool weth) external onlyAuthed {
+        _claim(msg.sender, weth);
     }
 
-    function claim(bool weth) external nonReentrant {
-        uint256 balanceBefore = WETH.balanceOf(address(this));
-        for (uint256 i = 0; i < lockups.length; i++) {
-            ILockup _lockup = lockups[i];
-            _lockup.claim();
+    function claimable(address _addr) external view returns (uint256) {
+        if (authedBeneficiaries[_addr]) {
+            uint256 _userFeeIndex = feeIndexs[_addr];
+            uint256 _feeIndex = _getFeeIndex();
+            return _getRewards(_addr, _userFeeIndex, _feeIndex);
         }
-        uint256 balanceDelta = WETH.balanceOf(address(this)) - balanceBefore;
-        uint256 _accruedRewards = _updateUserFeeIndex(msg.sender, balanceDelta);
-        if (_accruedRewards > 0) {
-            if (weth) {
-                require(
-                    WETH.transfer(msg.sender, _accruedRewards),
-                    "WETH_TRANSFER_FAILED"
-                );
-            } else {
-                WETH.withdraw(_accruedRewards);
-                _safeTransferETH(msg.sender, _accruedRewards);
-            }
-            emit Claimed(msg.sender, _accruedRewards);
-        }
+        return 0;
     }
 
     function withdrawable(address _addr) external view returns (uint256) {
-        uint256 _withdrawAmount = 0;
-        for (uint256 i = 0; i < lockups.length; i++) {
-            ILockup _lockup = lockups[i];
-            _withdrawAmount += _lockup.withdrawable(_addr);
+        if (authedBeneficiaries[_addr]) {
+            uint256 _withdrawAmount = 0;
+            for (uint256 i = 0; i < lockups.length; i++) {
+                ILockup _lockup = lockups[i];
+                _withdrawAmount += _lockup.withdrawable(_addr);
+            }
+            return _withdrawAmount;
         }
-        return _withdrawAmount;
+        return 0;
     }
 
-    function withdraw() external {
+    function lockedAmount(address _addr) external view returns (uint256) {
+        uint256 _lockedAmount = 0;
+        for (uint256 i = 0; i < lockups.length; i++) {
+            ILockup _lockup = lockups[i];
+            _lockedAmount += _lockup.lockedAmount(_addr);
+        }
+        return _lockedAmount;
+    }
+
+    function withdraw() external onlyAuthed {
+        require(authedBeneficiaries[msg.sender], "Sender not authed");
         for (uint256 i = 0; i < lockups.length; i++) {
             ILockup _lockup = lockups[i];
             _lockup.withdraw(msg.sender);
