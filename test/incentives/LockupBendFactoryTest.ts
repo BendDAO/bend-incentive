@@ -219,6 +219,56 @@ describe("LockupBendFactory tests", () => {
       expect(await bendToken.balanceOf(factory.address)).to.be.equal(0);
     });
 
+    it("check sender not authed", async () => {
+      let userdUnAuthed = users[11];
+
+      await expect(
+        factory.connect(userdUnAuthed).withdraw()
+      ).to.be.revertedWith("Sender not authed");
+
+      await expect(
+        factory.connect(userdUnAuthed).claim(true)
+      ).to.be.revertedWith("Sender not authed");
+
+      await expect(
+        factory.connect(userdUnAuthed).claim(false)
+      ).to.be.revertedWith("Sender not authed");
+    });
+
+    it("check transfer beneficiary state", async () => {
+      let newUser = users[11];
+      let oldUser = users[0];
+
+      let time = await timeLatest();
+      await feeDistributor.start();
+      await mineBlockAndIncreaseTime(DAY);
+      for (let i = 0; i < 60; i++) {
+        await mintBToken(bendCollector.address, makeBN18(70));
+        await feeDistributor.distribute();
+        time = time.add(WEEK);
+        await mineBlockAtTime(time.toNumber());
+      }
+
+      let locked = await factory.locked(oldUser.address);
+      // let index = await factory.feeIndexs(oldUser.address);
+
+      let userBalanceBefore = await bendToken.balanceOf(oldUser.address);
+      let userWETHBalanceBefore = await WETH.balanceOf(oldUser.address);
+      await factory.transferBeneficiary(oldUser.address, newUser.address);
+      let userBalanceAfter = await bendToken.balanceOf(oldUser.address);
+      let userWETHBalanceAfter = await WETH.balanceOf(oldUser.address);
+
+      let userBalance = userBalanceAfter.sub(userBalanceBefore);
+      let userWETHBalance = userWETHBalanceAfter.sub(userWETHBalanceBefore);
+
+      expect(userBalance).to.be.gt(0);
+      expect(userWETHBalance).to.be.gt(0);
+
+      expect(locked).to.be.equal(await factory.locked(newUser.address));
+
+      // expect(index).to.be.equal(await factory.feeIndexs(newUser.address));
+    });
+
     it("before unlock 1", async () => {
       await fc.assert(
         fc
