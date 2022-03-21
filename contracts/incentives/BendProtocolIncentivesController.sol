@@ -92,7 +92,7 @@ contract BendProtocolIncentivesController is
         uint256 _totalSupply,
         uint256 _userBalance
     ) external override {
-        require(authorizedAssets[msg.sender], "Sender Unauthorized");
+        require(authorizedAssets[msg.sender], "Asset Unauthorized");
         uint256 accruedRewards = _updateUserAssetInternal(
             _user,
             msg.sender,
@@ -174,6 +174,10 @@ contract BendProtocolIncentivesController is
                 _assets.length
             );
         for (uint256 i = 0; i < _assets.length; i++) {
+            require(
+                authorizedAssets[address(_assets[i])],
+                "Asset Unauthorized"
+            );
             userState[i].underlyingAsset = address(_assets[i]);
             (
                 userState[i].stakedByUser,
