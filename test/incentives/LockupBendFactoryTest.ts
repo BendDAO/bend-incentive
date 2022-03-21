@@ -48,7 +48,7 @@ describe("LockupBendFactory tests", () => {
   let bendCollector: SignerWithAddress; //should be contract, here just for test
   let feeDistributor: Contract;
   let factory: Contract;
-  let delegation: Contract;
+  let delegateRegistry: Contract;
 
   const snapshots = new Snapshots();
 
@@ -91,14 +91,14 @@ describe("LockupBendFactory tests", () => {
       .connect(bendCollector)
       .approve(feeDistributor.address, constants.MaxUint256);
 
-    delegation = await deployContract("DelegateRegistry");
+    delegateRegistry = await deployContract("DelegateRegistry");
 
     factory = await deployLockupBendFactory(
       WETH,
       bendToken,
       vebend,
       feeDistributor,
-      delegation
+      delegateRegistry
     );
     await bendToken.setBalance(factory.address, makeBN18(21 * 10 ** 6));
 
@@ -158,6 +158,39 @@ describe("LockupBendFactory tests", () => {
     afterEach(async () => {
       await snapshots.revert("createLock");
     });
+
+    it("delegation", async () => {
+      let id = ethers.utils.formatBytes32String("benddao.eth");
+
+      for (let i = 0; i < 3; i++) {
+        let lockupAddress = await factory.lockups(i);
+
+        let delegation = await delegateRegistry.delegation(lockupAddress, id);
+
+        expect(delegation).to.be.equal(constants.AddressZero);
+
+        await factory.delegateSnapshotVotePower(i, id, deployer.address);
+
+        delegation = await delegateRegistry.delegation(lockupAddress, id);
+        expect(delegation).to.be.equal(deployer.address);
+      }
+      await expect(
+        factory.delegateSnapshotVotePower(3, id, deployer.address)
+      ).to.be.revertedWith("Index over range");
+
+      for (let i = 0; i < 3; i++) {
+        await factory.clearDelegateSnapshotVotePower(i, id);
+        let lockupAddress = await factory.lockups(i);
+
+        let delegation = await delegateRegistry.delegation(lockupAddress, id);
+
+        expect(delegation).to.be.equal(constants.AddressZero);
+      }
+      await expect(
+        factory.clearDelegateSnapshotVotePower(3, id)
+      ).to.be.revertedWith("Index over range");
+    });
+
     it("check lock state", async () => {
       for (let i = 0; i < 3; i++) {
         let lockupAddress = await factory.lockups(i);
