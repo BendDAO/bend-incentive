@@ -20,7 +20,6 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
     IVeBend public veBend;
     IFeeDistributor public feeDistributor;
     IWETH public WETH;
-    ISnapshotDelegation public snapshotDelegation;
 
     mapping(address => Locked) public locked;
     uint256 public unlockStartTime;
@@ -30,23 +29,29 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
         address _wethAddr,
         address _bendTokenAddr,
         address _veBendAddr,
-        address _feeDistributorAddr,
-        address _snapshotDelegationAddr
+        address _feeDistributorAddr
     ) {
         WETH = IWETH(_wethAddr);
         bendToken = IERC20(_bendTokenAddr);
         veBend = IVeBend(_veBendAddr);
         feeDistributor = IFeeDistributor(_feeDistributorAddr);
         bendToken.safeApprove(_veBendAddr, type(uint256).max);
-        snapshotDelegation = ISnapshotDelegation(_snapshotDelegationAddr);
     }
 
-    function delegateSnapshotVotePower(bytes32 _id, address _delegatee)
+    function delegateSnapshotVotePower(
+        address delegation,
+        bytes32 _id,
+        address _delegatee
+    ) external override onlyOwner {
+        ISnapshotDelegation(delegation).setDelegate(_id, _delegatee);
+    }
+
+    function clearDelegateSnapshotVotePower(address delegation, bytes32 _id)
         external
         override
         onlyOwner
     {
-        snapshotDelegation.setDelegate(_id, _delegatee);
+        ISnapshotDelegation(delegation).clearDelegate(_id);
     }
 
     function transferBeneficiary(

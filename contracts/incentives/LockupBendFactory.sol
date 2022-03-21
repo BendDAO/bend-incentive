@@ -141,7 +141,23 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
     ) external onlyOwner {
         require(_index < lockups.length, "Index over range");
         ILockup _lockup = lockups[_index];
-        _lockup.delegateSnapshotVotePower(_id, _delegatee);
+        _lockup.delegateSnapshotVotePower(
+            address(snapshotDelegation),
+            _id,
+            _delegatee
+        );
+    }
+
+    function clearDelegateSnapshotVotePower(uint256 _index, bytes32 _id)
+        external
+        onlyOwner
+    {
+        require(_index < lockups.length, "Index over range");
+        ILockup _lockup = lockups[_index];
+        _lockup.clearDelegateSnapshotVotePower(
+            address(snapshotDelegation),
+            _id
+        );
     }
 
     function transferBeneficiary(
@@ -193,8 +209,7 @@ contract LockupBendFactory is ReentrancyGuardUpgradeable, OwnableUpgradeable {
                 address(WETH),
                 address(bendToken),
                 address(veBend),
-                address(feeDistributor),
-                address(snapshotDelegation)
+                address(feeDistributor)
             );
             lockups[i] = _lockupBendContract;
             bendToken.safeApprove(

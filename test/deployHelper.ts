@@ -60,15 +60,13 @@ export async function deployLockupBend(
   weth: Contract,
   bendToken: Contract,
   vebend: Contract,
-  feeDistributor: Contract,
-  delegation: Contract
+  feeDistributor: Contract
 ) {
   return await deployContract("LockupBend", [
     weth.address,
     bendToken.address,
     vebend.address,
     feeDistributor.address,
-    delegation.address,
   ]);
 }
 

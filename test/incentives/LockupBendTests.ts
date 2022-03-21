@@ -51,7 +51,7 @@ describe("LockupBend tests", () => {
   let bendCollector: SignerWithAddress; //should be contract, here just for test
   let feeDistributor: Contract;
   let lockupBend: Contract;
-  let delegation: Contract;
+  let delegateRegistry: Contract;
 
   const snapshots = new Snapshots();
 
@@ -94,7 +94,7 @@ describe("LockupBend tests", () => {
       .connect(bendCollector)
       .approve(feeDistributor.address, constants.MaxUint256);
 
-    delegation = await deployContract("DelegateRegistry");
+    delegateRegistry = await deployContract("DelegateRegistry");
 
     await bendToken.setBalance(deployer.address, makeBN18(21 * 10 ** 6));
 
@@ -102,8 +102,7 @@ describe("LockupBend tests", () => {
       WETH,
       bendToken,
       vebend,
-      feeDistributor,
-      delegation
+      feeDistributor
     );
     await bendToken
       .connect(deployer)
@@ -190,6 +189,28 @@ describe("LockupBend tests", () => {
       await lockupBend.emergencyWithdraw();
       let bendBalanceAfter = await bendToken.balanceOf(deployer.address);
       expect(bendBalanceAfter.sub(bendBalanceBefore)).to.be.equal(totalAmount);
+    });
+
+    it("delegation", async () => {
+      let id = ethers.utils.formatBytes32String("benddao.eth");
+      let delegation = await delegateRegistry.delegation(
+        lockupBend.address,
+        id
+      );
+      expect(delegation).to.be.equal(constants.AddressZero);
+      await lockupBend.delegateSnapshotVotePower(
+        delegateRegistry.address,
+        id,
+        deployer.address
+      );
+      delegation = await delegateRegistry.delegation(lockupBend.address, id);
+      expect(delegation).to.be.equal(deployer.address);
+      await lockupBend.clearDelegateSnapshotVotePower(
+        delegateRegistry.address,
+        id
+      );
+      delegation = await delegateRegistry.delegation(lockupBend.address, id);
+      expect(delegation).to.be.equal(constants.AddressZero);
     });
 
     it("before unlock", async () => {
