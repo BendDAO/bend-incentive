@@ -1,19 +1,43 @@
 {
-  "Vault": {
-    "address": "0x3Ef03697a005203589653d80AD885E3b85256D18",
-    "txHash": "0x387f3cd8e167c1255d8099bf7affa9387136e710d9d0cbff18972890317ab7f7",
-    "verification": "https://rinkeby.etherscan.io/address/0x3Ef03697a005203589653d80AD885E3b85256D18#code"
-  },
   "BendToken": {
-    "address": "0x0791A14d100bc773446adEf6570b71406A18fAA8",
-    "txHash": "0xbd534a209ef6bdbed3ea10b8239d38e10ec8f50d6f7b49d86b3d82de5d35569f",
-    "verification": "https://rinkeby.etherscan.io/address/0x110375bffda923f3780cebae4f1d6c5d6fe6f016#code",
-    "proxyVerification": "https://rinkeby.etherscan.io/address/0x0791A14d100bc773446adEf6570b71406A18fAA8#code"
+    "address": "0xe375EC95ecd0ACd4c2a04Bfb0f576f4A89097734",
+    "txHash": "0x9757acb6fbe851c95f6365a2315d0715c5d9c4baef8aa4bdeaaed0ff6dff13b4",
+    "verification": "https://rinkeby.etherscan.io/address/0xa27a5a3736271a4329a6fa061c4bbe1cd585b416#code",
+    "proxyVerification": "https://rinkeby.etherscan.io/address/0xe375EC95ecd0ACd4c2a04Bfb0f576f4A89097734#code"
+  },
+  "Vault": {
+    "address": "0x844d603F22dE09F4586d2C5f3a01B5c8f42a65C9",
+    "txHash": "0x4ee2b2ddc57f75a807d49c74eedec840f7d0828bd1be3b3b0075131f06d765b6",
+    "verification": "https://rinkeby.etherscan.io/address/0xe964ba91befe3b50be24a26b19681a1130933f1c#code",
+    "proxyVerification": "https://rinkeby.etherscan.io/address/0x844d603F22dE09F4586d2C5f3a01B5c8f42a65C9#code"
   },
   "BendProtocolIncentivesController": {
-    "address": "0xD800e97aE32b06C1e89ca5126c7bF6aEF89D6B24",
-    "txHash": "0xef32d9243eacee1dadca9dfcf70b5dde541c44e8d0e4f18c08fb06df3b643424",
-    "verification": "https://rinkeby.etherscan.io/address/0xe253a2b24eb2d497d84650246eb347d94a3bf6ec#code",
-    "proxyVerification": "https://rinkeby.etherscan.io/address/0xD800e97aE32b06C1e89ca5126c7bF6aEF89D6B24#code"
+    "address": "0xEC087671c68c7fE8aAeDEf974B7C2aAe3BC6be3b",
+    "txHash": "0x7c29f8f15a0c8214cbe2cb7203756456ffd2e0d0bf9afbcb5dc0afeaf091c77d",
+    "verification": "https://rinkeby.etherscan.io/address/0x31d54404fd185e6e499877f28fd9e56a13764d39#code",
+    "proxyVerification": "https://rinkeby.etherscan.io/address/0xEC087671c68c7fE8aAeDEf974B7C2aAe3BC6be3b#code"
+  },
+  "MerkleDistributor": {
+    "address": "0x631369f9A13d23142563fda08E6bB3fAa8c3852b",
+    "txHash": "0xc890f0cdc8ae662dfee2cdba90f4481b43cc4b83304b03619088da125d056282",
+    "verification": "https://rinkeby.etherscan.io/address/0xfbd0ec54a0fcdfa061106731353243db08ae80d0#code",
+    "proxyVerification": "https://rinkeby.etherscan.io/address/0x631369f9A13d23142563fda08E6bB3fAa8c3852b#code"
+  },
+  "VeBend": {
+    "address": "0x13b5d4FC8AcFD8e273C3B401F1B2D9e984C05e0A",
+    "txHash": "0x89de9b4bfd26e5440e4b3ac2f49b96a0620876eca75e77b7c270fc7007d00306",
+    "verification": "https://rinkeby.etherscan.io/address/0x2b72ffe8243de578909ba4d93c7021ba9af619a1#code",
+    "proxyVerification": "https://rinkeby.etherscan.io/address/0x13b5d4FC8AcFD8e273C3B401F1B2D9e984C05e0A#code"
+  },
+  "FeeDistributor": {
+    "address": "0x25dCb84b92A05f7a45d78e1A876DD526CfA2fa2D",
+    "txHash": "0xbd32d59072db90347b36f25693cbac54fbc46e120ccc28ce90eed82ee6d55f21",
+    "verification": "https://rinkeby.etherscan.io/address/0xc4797cd262bd790e3f023bebc705f538c9a17542#code",
+    "proxyVerification": "https://rinkeby.etherscan.io/address/0x25dCb84b92A05f7a45d78e1A876DD526CfA2fa2D#code"
+  },
+  "BendKeeper": {
+    "address": "0x56295C60E49300DC86D9805B9eB8642b8B4dc859",
+    "txHash": "0xd359b77b2ba309dcfff3748d1250b14ab73fde714a3d9f0b5ce0b0f0cb9224b3",
+    "verification": "https://rinkeby.etherscan.io/address/0x56295C60E49300DC86D9805B9eB8642b8B4dc859#code"
   }
 }

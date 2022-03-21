@@ -1,11 +1,8 @@
 # Bend-incentive
 ## Incentive Architecture
-
-
-bend 将激励两种行为
-1. 存款人为 bend protocal 提供流动性
-2. 借款人在 bend 协议中借款
-
+Bend will motivate both behaviors
+1. Depositors provide liquidity to bend protocal
+2. The borrower borrows in the bend agreement
 
 ## BendProtocolIncentivesController
-每次在bend协议中发生存款，借款时，都会调用这个合约来更新激励状态，通过使用一个分配指数来计算某个用户的奖励，该指数随着时间更新，代表奖励的积累。每个用户拥有独立的指数，以确定具体用户的奖励金额
+Every time a deposit or loan occurs in the bend protocol, this contract is called to update the incentive state, and a user's reward is calculated by using a distribution index, which is updated over time and represents the accumulation of rewards. Each user has an independent index to determine the reward amount for a specific user

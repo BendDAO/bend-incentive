@@ -2,8 +2,9 @@ import hre from "hardhat";
 import { assert } from "chai";
 
 import { ethers, ContractTransaction, BigNumber } from "ethers";
+import { Func } from "mocha";
 
-export function makeBN(num: string | number, precision: number = 0) {
+export function makeBN(num: string | number | any, precision: number = 0) {
   return ethers.utils.parseUnits(num.toString(), precision);
 }
 
@@ -24,8 +25,8 @@ export async function timeAtBlock(blockNumber?: number) {
 }
 
 export async function mineBlockAndIncreaseTime(seconds: number) {
-  await hre.ethers.provider.send("evm_mine", []);
   await hre.ethers.provider.send("evm_increaseTime", [seconds]);
+  await hre.ethers.provider.send("evm_mine", []);
 }
 
 export async function increaseTime(seconds: number) {
@@ -87,6 +88,35 @@ export function getDifference(x: BigNumber, y: BigNumber) {
 }
 export function assertAlmostEqual(x: BigNumber, y: BigNumber, error = 1000) {
   assert.isAtMost(getDifference(x, y), error);
+}
+
+export function assertAlmostEqualTol(x: BigNumber, y: BigNumber, tol = 0.1) {
+  tol *= 10 ** 10;
+  let target = x
+    .sub(y)
+    .abs()
+    .mul(10 ** 10);
+  if (!x.eq(0)) {
+    let valueToCheck = target.div(x).toNumber();
+    assert.isAtMost(valueToCheck, tol);
+  }
+  if (!y.eq(0)) {
+    let valueToCheck = target.div(y).toNumber();
+    assert.isAtMost(valueToCheck, tol);
+  }
+}
+
+export class Snapshots {
+  ids = new Map<string, string>();
+
+  async capture(tag: string) {
+    this.ids.set(tag, await evmSnapshot());
+  }
+
+  async revert(tag: string) {
+    await evmRevert(this.ids.get(tag) || "1");
+    await this.capture(tag);
+  }
 }
 
 export const evmSnapshot = async () => {

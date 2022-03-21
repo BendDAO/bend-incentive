@@ -4,9 +4,32 @@ import { Signer } from "ethers";
 const outputDir = "./deployments";
 import { Contract, ContractTransaction, BigNumber, ethers } from "ethers";
 import { NomicLabsHardhatPluginError } from "hardhat/plugins";
+import { ZERO_ADDRESS } from "./constants";
+
+export interface DeploymentStateItem {
+  address: string;
+  txHash: string;
+  verification?: string;
+  proxyVerification?: string;
+}
 
 export function makeBN18(num: string | number) {
   return ethers.utils.parseUnits(num.toString(), 18);
+}
+
+export async function load(
+  name: string,
+  deployer: Signer,
+  deploymentState: Record<string, DeploymentStateItem>
+) {
+  const factory = await hre.ethers.getContractFactory(name);
+  const contract = new hre.ethers.Contract(
+    deploymentState[name].address,
+    factory.interface,
+    deployer
+  );
+
+  return contract;
 }
 
 export async function loadOrDeploy(
@@ -14,15 +37,7 @@ export async function loadOrDeploy(
   params: any[],
   network: string,
   deployer: Signer,
-  deploymentState: Record<
-    string,
-    {
-      address: string;
-      txHash: string;
-      verification?: string;
-      proxyVerification?: string;
-    }
-  >,
+  deploymentState: Record<string, DeploymentStateItem>,
   options: {
     id?: string;
     proxy?: boolean;
@@ -43,36 +58,9 @@ export async function loadOrDeploy(
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
-  const ETHERSCAN_BASE_URL =
-    process.env[`${network.toUpperCase()}_ETHERSCAN_BASE_URL`];
 
   const factory = await hre.ethers.getContractFactory(name);
-  const verify = async function (contract: Contract) {
-    if (options.verify) {
-      if (options.proxy) {
-        const address = await getProxyImpl(contract.address);
-        if (!deploymentState[id].verification) {
-          await verifyContract(address);
-          deploymentState[
-            id
-          ].verification = `${ETHERSCAN_BASE_URL}/${address}#code`;
-        }
-        if (!deploymentState[id].proxyVerification) {
-          await verifyContract(contract.address);
-          deploymentState[
-            id
-          ].proxyVerification = `${ETHERSCAN_BASE_URL}/${contract.address}#code`;
-        }
-      } else {
-        if (!deploymentState[id].verification) {
-          await verifyContract(contract.address, params);
-          deploymentState[
-            id
-          ].verification = `${ETHERSCAN_BASE_URL}/${contract.address}#code`;
-        }
-      }
-    }
-  };
+
   if (deploymentState[id] && deploymentState[id].address) {
     console.log(
       `Using previously deployed ${id} contract at address ${deploymentState[id].address}`
@@ -83,8 +71,13 @@ export async function loadOrDeploy(
       deployer
     );
 
-    await verify(contract);
-    saveDeployment(deploymentState, outputFile);
+    await verifyContract(
+      id,
+      network,
+      contract.address,
+      params,
+      deploymentState
+    );
     return contract;
   }
   let contract;
@@ -112,10 +105,8 @@ export async function loadOrDeploy(
     address: contract.address,
     txHash: contract.deployTransaction.hash,
   };
-
-  await verify(contract);
-
   saveDeployment(deploymentState, outputFile);
+  await verifyContract(id, network, contract.address, params, deploymentState);
 
   return contract;
 }
@@ -125,7 +116,9 @@ function saveDeployment(deploymentState: {}, outputFile: string) {
   fs.writeFileSync(outputFile, deploymentStateJSON);
 }
 
-export function loadPreviousDeployment(network: string) {
+export function loadPreviousDeployment(
+  network: string
+): Record<string, DeploymentStateItem> {
   let previousDeployment = {};
   const outputFile = `${outputDir}/${network}.json`;
   if (fs.existsSync(outputFile)) {
@@ -137,20 +130,62 @@ export function loadPreviousDeployment(network: string) {
 }
 
 export async function verifyContract(
+  id: string,
+  network: string,
   address: string,
-  constructorArguments: any = []
+  constructorArguments: any = [],
+  deploymentState: Record<string, DeploymentStateItem>
 ) {
+  const ETHERSCAN_BASE_URL =
+    process.env[`${network.toUpperCase()}_ETHERSCAN_BASE_URL`];
+  const outputFile = `${outputDir}/${network}.json`;
+  let proxyAddress = ZERO_ADDRESS;
+  let implAddress = await getProxyImpl(address);
+  if (implAddress != ZERO_ADDRESS) {
+    proxyAddress = address;
+    address = implAddress;
+    constructorArguments = [];
+  } else {
+    proxyAddress == ZERO_ADDRESS;
+  }
+
+  if (address != ZERO_ADDRESS && !deploymentState[id].verification) {
+    let varified = await verify(address, constructorArguments);
+    if (varified) {
+      deploymentState[
+        id
+      ].verification = `${ETHERSCAN_BASE_URL}/address/${address}#code`;
+    }
+  }
+  if (proxyAddress != ZERO_ADDRESS && !deploymentState[id].proxyVerification) {
+    let varified = await verify(proxyAddress);
+    if (varified) {
+      deploymentState[
+        id
+      ].proxyVerification = `${ETHERSCAN_BASE_URL}/address/${proxyAddress}#code`;
+    }
+  }
+  saveDeployment(deploymentState, outputFile);
+}
+
+export async function verify(address: string, constructorArguments: any = []) {
+  if (address == ZERO_ADDRESS) {
+    return false;
+  }
   console.log(`Verify contract: ${address}`);
   try {
     await hre.run("verify:verify", {
       address,
       constructorArguments,
     });
+    return true;
   } catch (error: unknown) {
     // if it was already verified, it’s like a success, so let’s move forward and save it
-    if (!(error instanceof NomicLabsHardhatPluginError)) {
-      console.error(error);
+    if (error instanceof NomicLabsHardhatPluginError) {
+      return true;
     }
+    console.error(error);
+    return false;
   }
 }
 

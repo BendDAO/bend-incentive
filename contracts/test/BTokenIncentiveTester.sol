@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity ^0.8.0;
+pragma solidity 0.8.4;
 pragma abicoder v2;
 
 import {IIncentivesController} from "../incentives/interfaces/IIncentivesController.sol";
@@ -7,7 +7,7 @@ import {DistributionTypes} from "../incentives/DistributionTypes.sol";
 import {IScaledBalanceToken} from "../incentives/interfaces/IScaledBalanceToken.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract BTokenMock is IScaledBalanceToken, ERC20 {
+contract BTokenIncentiveTester is IScaledBalanceToken, ERC20 {
     IIncentivesController public aic;
 
     constructor(
