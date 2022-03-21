@@ -79,8 +79,8 @@
       "kind": "transparent"
     },
     {
-      "address": "0xec570C139c40a366C6c49482c32E05E6402c886E",
-      "txHash": "0x082b7eed5fe72bda5c6a4a52e569efa11f9ac6055b3d700d6f4cee38a545bd5d",
+      "address": "0xC0db6A46B34060C73A17552487bFeBB1FDA85191",
+      "txHash": "0x0fe26f40f8c3fa328850455232c633c70f99f9e9ba99acf59b38933e20804d23",
       "kind": "transparent"
     }
   ],
@@ -1014,9 +1014,9 @@
         }
       }
     },
-    "5ed995b8e3d0bce1c38fd94800f81eb896b9fe066f1461e11be612d2e41aac5e": {
-      "address": "0x7Fe47D854580218912c6135300f97354EFE002fd",
-      "txHash": "0xda6e4603829807778b1a9dde9445050f6f0698760f224985e611c1455372903d",
+    "6ea74517a4a6c6cf35584ae2f703b18e3b41cc1a8d0e532d632e65f5ba018aea": {
+      "address": "0xD85c8aDAc79B1417f7112393335A86A03A532263",
+      "txHash": "0xf353077f5fa245c4efe58ff4aade2e37c020290a9bca908829f79b0bb77df75b",
       "layout": {
         "storage": [
           {
@@ -1070,19 +1070,19 @@
           {
             "contract": "LockupBendFactory",
             "label": "veBend",
-            "type": "t_contract(IVeBend)12184",
+            "type": "t_contract(IVeBend)12238",
             "src": "contracts/incentives/LockupBendFactory.sol:28"
           },
           {
             "contract": "LockupBendFactory",
             "label": "feeDistributor",
-            "type": "t_contract(IFeeDistributor)8505",
+            "type": "t_contract(IFeeDistributor)8550",
             "src": "contracts/incentives/LockupBendFactory.sol:29"
           },
           {
             "contract": "LockupBendFactory",
             "label": "lockups",
-            "type": "t_array(t_contract(ILockup)8693)3_storage",
+            "type": "t_array(t_contract(ILockup)8747)3_storage",
             "src": "contracts/incentives/LockupBendFactory.sol:31"
           },
           {
@@ -1118,13 +1118,13 @@
           {
             "contract": "LockupBendFactory",
             "label": "WETH",
-            "type": "t_contract(IWETH)8850",
+            "type": "t_contract(IWETH)8904",
             "src": "contracts/incentives/LockupBendFactory.sol:39"
           },
           {
             "contract": "LockupBendFactory",
             "label": "snapshotDelegation",
-            "type": "t_contract(ISnapshotDelegation)8793",
+            "type": "t_contract(ISnapshotDelegation)8847",
             "src": "contracts/incentives/LockupBendFactory.sol:40"
           }
         ],
@@ -1132,16 +1132,16 @@
           "t_contract(IERC20Upgradeable)1050": {
             "label": "contract IERC20Upgradeable"
           },
-          "t_contract(IVeBend)12184": {
+          "t_contract(IVeBend)12238": {
             "label": "contract IVeBend"
           },
-          "t_contract(IFeeDistributor)8505": {
+          "t_contract(IFeeDistributor)8550": {
             "label": "contract IFeeDistributor"
           },
-          "t_array(t_contract(ILockup)8693)3_storage": {
+          "t_array(t_contract(ILockup)8747)3_storage": {
             "label": "contract ILockup[3]"
           },
-          "t_contract(ILockup)8693": {
+          "t_contract(ILockup)8747": {
             "label": "contract ILockup"
           },
           "t_mapping(t_address,t_uint256)": {
@@ -1153,10 +1153,10 @@
           "t_uint256": {
             "label": "uint256"
           },
-          "t_contract(IWETH)8850": {
+          "t_contract(IWETH)8904": {
             "label": "contract IWETH"
           },
-          "t_contract(ISnapshotDelegation)8793": {
+          "t_contract(ISnapshotDelegation)8847": {
             "label": "contract ISnapshotDelegation"
           },
           "t_array(t_uint256)49_storage": {
