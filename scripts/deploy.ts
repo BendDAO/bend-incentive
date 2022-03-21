@@ -11,40 +11,35 @@ import {
   makeBN18,
 } from "./utils";
 import {
-  ZERO_ADDRESS,
-  MAX_UINT_AMOUNT,
   ONE_YEAR,
-  getStakedBendConfig,
   getBTokenConfig,
+  getFeeDistributorParams,
+  BEND_TOKEN_MAX_SUPPLY,
 } from "./constants";
-import { Contract } from "ethers";
-import dotenv from "dotenv";
+import { Contract, constants } from "ethers";
 import { makeBN } from "../test/utils";
+
+import dotenv from "dotenv";
 const envResult = dotenv.config();
-
-const COOLDOWN_SECONDS = "864000"; // 10 days
-const UNSTAKE_WINDOW = "172800"; // 2 days
-
-export interface Contracts {
-  bendToken: Contract;
-  governance: Contract;
-  governanceStrategy: Contract;
-  shortTimelockExecutor: Contract;
-  longTimelockExecutor: Contract;
-  vault: Contract;
-  stakedBend: Contract;
-  incentivesController: Contract;
-}
 
 if (envResult.error || !envResult.parsed) {
   throw envResult.error;
 }
 const env = envResult.parsed;
 
-const GUARDIAN_MULTI_SIG_ADDR =
-  env[`${network.name.toUpperCase()}_GOVERNANCE_GUARDIAN`] || ZERO_ADDRESS;
+console.log("ENV:", env);
 
-async function deploy() {
+export interface Contracts {
+  airdrop: Contract;
+  bendToken: Contract;
+  vault: Contract;
+  incentivesController: Contract;
+  vebend: Contract;
+  feeDistributor: Contract;
+  keeper: Contract;
+}
+
+async function deployCore() {
   const [deployer] = await ethers.getSigners();
 
   console.log("Deploying contracts with the account:", deployer.address);
@@ -52,16 +47,22 @@ async function deploy() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const deploymentState = loadPreviousDeployment(network.name);
-  const vault = await loadOrDeploy(
-    "Vault",
-    [],
-    network.name,
-    deployer,
-    deploymentState
-  );
+
+  const envInitKey = `${network.name}_BEND_TOKEN_INIT_ADDRESS`.toUpperCase();
+  const initAddress = env[envInitKey] ? env[envInitKey] : deployer.address;
+  console.log("Token Init Address:", env[envInitKey], initAddress);
   const bendToken = await loadOrDeploy(
     "BendToken",
-    [vault.address, makeBN18(100000000)],
+    [initAddress, makeBN18(BEND_TOKEN_MAX_SUPPLY)],
+    network.name,
+    deployer,
+    deploymentState,
+    { proxy: true }
+  );
+
+  const vault = await loadOrDeploy(
+    "Vault",
+    [bendToken.address],
     network.name,
     deployer,
     deploymentState,
@@ -70,43 +71,87 @@ async function deploy() {
 
   const incentivesController = await loadOrDeploy(
     "BendProtocolIncentivesController",
-    [bendToken.address, vault.address, ONE_YEAR * 100],
+    [bendToken.address, vault.address, ONE_YEAR * 10],
     network.name,
     deployer,
     deploymentState,
     { proxy: true }
   );
+
+  const airdrop = await loadOrDeploy(
+    "MerkleDistributor",
+    [bendToken.address],
+    network.name,
+    deployer,
+    deploymentState,
+    { proxy: true }
+  );
+
+  const vebend = await loadOrDeploy(
+    "VeBend",
+    [bendToken.address],
+    network.name,
+    deployer,
+    deploymentState,
+    { proxy: true }
+  );
+
+  let [WETH, bWETH, addressesProvider, bendCollector] = getFeeDistributorParams(
+    network.name
+  );
+  console.log("WETH:", WETH, "bWETH:", bWETH, "addressesProvider:", addressesProvider, "bendCollector:", bendCollector);
+  const feeDistributor = await loadOrDeploy(
+    "FeeDistributor",
+    [WETH, bWETH, vebend.address, addressesProvider, bendCollector],
+    network.name,
+    deployer,
+    deploymentState,
+    { proxy: true }
+  );
+
+  const keeper = await loadOrDeploy(
+    "BendKeeper",
+    [86400, feeDistributor.address],
+    network.name,
+    deployer,
+    deploymentState
+  );
+
   return {
+    airdrop,
     bendToken,
     vault,
     incentivesController,
+    vebend,
+    feeDistributor,
+    keeper,
   } as Contracts;
 }
 async function connect(contracts: Contracts) {
-  const { bendToken, vault, incentivesController } = contracts;
+  const { vault, incentivesController } = contracts;
 
   try {
     waitForTx(
-      await vault.approve(
-        bendToken.address,
-        incentivesController.address,
-        makeBN(MAX_UINT_AMOUNT)
-      )
+      await vault.approve(incentivesController.address, constants.MaxUint256)
     );
   } catch (error) {}
 
   let bTokensConfig = getBTokenConfig(network.name);
-  waitForTx(
-    await incentivesController.configureAssets(
-      bTokensConfig[0],
-      bTokensConfig[1]
-    )
-  );
+  if (bTokensConfig.length > 0) {
+    waitForTx(
+      await incentivesController.configureAssets(
+        bTokensConfig[0],
+        bTokensConfig[1]
+      )
+    );
+  } else {
+    console.log("bTokensConfig is empty.");
+  }
 }
 
 async function main() {
-  let contracts = await deploy();
-  await connect(contracts);
+  let contracts = await deployCore();
+  //await connect(contracts);
 }
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

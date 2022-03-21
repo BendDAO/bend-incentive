@@ -75,15 +75,18 @@ describe("BendProtocolIncentivesController claimRewards tests", function () {
   let incentivesController: Contract;
   let bWeth: Contract;
   let users: SignerWithAddress[];
+  let deployer: SignerWithAddress;
 
   before(async function () {
     let addresses = await ethers.getSigners();
+    [deployer] = addresses;
     users = addresses.slice(1, addresses.length);
-    const vault = await deployVault();
-    bendToken = await deployBendToken(vault, makeBN18(1000000));
+    bendToken = await deployBendToken(deployer, makeBN18(1000000));
+    const vault = await deployVault(bendToken);
+    await bendToken.transfer(vault.address, makeBN18(1000000));
     incentivesController = await deployIncentivesController(bendToken, vault);
 
-    bWeth = await deployContract("BTokenMock", [
+    bWeth = await deployContract("BTokenIncentiveTester", [
       "bWETH",
       "bWETH",
       incentivesController.address,
@@ -101,12 +104,10 @@ describe("BendProtocolIncentivesController claimRewards tests", function () {
       await mineBlockAndIncreaseTime(100);
       const userAddress = users[i].address;
       const underlyingAsset = bWeth.address;
-      if (emissionPerSecond) {
-        await incentivesController.configureAssets(
-          [underlyingAsset],
-          [emissionPerSecond]
-        );
-      }
+      await incentivesController.configureAssets(
+        [underlyingAsset],
+        [emissionPerSecond]
+      );
       const balance = makeBN(Math.floor(Math.random() * 100000000));
       totalSupply = totalSupply.add(balance);
       await bWeth.mint(userAddress, balance);

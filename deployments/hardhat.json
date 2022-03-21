@@ -1,0 +1,14 @@
+{
+  "BendToken": {
+    "address": "0x0078371BDeDE8aAc7DeBfFf451B74c5EDB385Af7",
+    "txHash": "0x39f1348f44fa0f0cab27ead5f260ee8533bf71e3462c43c1b3e33d039c38aa48",
+    "verification": "undefined/address/0x7c2c195cd6d34b8f845992d380aadb2730bb9c6f#code",
+    "proxyVerification": "undefined/address/0x0078371BDeDE8aAc7DeBfFf451B74c5EDB385Af7#code"
+  },
+  "MerkleDistributor": {
+    "address": "0xf784709d2317D872237C4bC22f867d1BAe2913AB",
+    "txHash": "0xb4216150066ec484a815341b03d0d7d4a06af61c27de4e18b76c538222420b7e",
+    "verification": "undefined/address/0xf4e77e5da47ac3125140c470c71cbca77b5c638c#code",
+    "proxyVerification": "undefined/address/0xf784709d2317D872237C4bC22f867d1BAe2913AB#code"
+  }
+}

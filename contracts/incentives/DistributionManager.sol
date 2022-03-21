@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity ^0.8.0;
+pragma solidity 0.8.4;
 pragma abicoder v2;
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -44,7 +44,7 @@ contract DistributionManager is Initializable, OwnableUpgradeable {
     );
 
     function __DistributionManager_init(uint256 _distributionDuration)
-        public
+        internal
         initializer
     {
         __Ownable_init();

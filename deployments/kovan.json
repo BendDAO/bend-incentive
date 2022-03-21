@@ -1,0 +1,42 @@
+{
+  "Vault": {
+    "address": "0x9446e8Fd848207fAEeb3c58d3015aF2080b56bAF",
+    "txHash": "0x2e7edc3b6c13eb618bd757e9b7519ffd08da0c50ec18777913922bc49facb61b",
+    "verification": "https://kovan.etherscan.io/address/0x9446e8Fd848207fAEeb3c58d3015aF2080b56bAF#code"
+  },
+  "BendToken": {
+    "address": "0xe966f1228d88Fb0B7Db90e35c76d305956DB05e9",
+    "txHash": "0x44b3e6e80e348a3e855347ae2b86523e83d32df0349d161b073766b1040a4ed1",
+    "verification": "https://kovan.etherscan.io/address/0x5463148a91c492768a2cef96ea785a5063975380#code",
+    "proxyVerification": "https://kovan.etherscan.io/address/0xe966f1228d88Fb0B7Db90e35c76d305956DB05e9#code"
+  },
+  "BendProtocolIncentivesController": {
+    "address": "0x0c5E94DC433A0c67Bbc25801759284A6e1Dd85Bb",
+    "txHash": "0xa0904e8b1b7c470952c5ca7ef743f682cf1a3521bf12df312363be2c9a4c18b0",
+    "verification": "https://kovan.etherscan.io/address/0x7de70f61cb6abac11e46d11b3401d3454011c0e4#code",
+    "proxyVerification": "https://kovan.etherscan.io/address/0x0c5E94DC433A0c67Bbc25801759284A6e1Dd85Bb#code"
+  },
+  "MerkleDistributor": {
+    "address": "0x5D849b2cb45b3095cd720D98c4833596D31DBAfE",
+    "txHash": "0x98b038e891e2d6c6f41e7b1c7c94032f31c782f7f3f0123e8b3fada8fc58f071",
+    "verification": "https://kovan.etherscan.io/address/0xc95122ff06f5ffcf05b1f2b0817bab2ec9094c4a#code",
+    "proxyVerification": "https://kovan.etherscan.io/address/0x5D849b2cb45b3095cd720D98c4833596D31DBAfE#code"
+  },
+  "VeBend": {
+    "address": "0x80553940D2733D3675d3a1e19617F3e7F57B9823",
+    "txHash": "0x71c5eacfc3eee6272dfb8f6fad83e7c2de159007ff7d83a55e1d5041d141aaa2",
+    "verification": "https://kovan.etherscan.io/address/0x9ec4717989d539ed441daeb0d8c64766826007e7#code",
+    "proxyVerification": "https://kovan.etherscan.io/address/0x80553940D2733D3675d3a1e19617F3e7F57B9823#code"
+  },
+  "FeeDistributor": {
+    "address": "0xc679e1c7F06ACf74baCfa42a35CbE53cbcE82660",
+    "txHash": "0xcf9e27c370e97951f670c71325d52963a749946aa6794f0bbc0acae74c74c01d",
+    "verification": "https://kovan.etherscan.io/address/0xf0cf9d3dadeaf235508c870d6153abb9eca2b583#code",
+    "proxyVerification": "https://kovan.etherscan.io/address/0xc679e1c7F06ACf74baCfa42a35CbE53cbcE82660#code"
+  },
+  "BendKeeper": {
+    "address": "0x89c1B97da3559178B4b2Cceb67A7937651c19Ac3",
+    "txHash": "0xbcf17bfa5b10f87189f5ed13bbef5cee9842c17d5418d5216d73660ad8e373f2",
+    "verification": "https://kovan.etherscan.io/address/0x89c1B97da3559178B4b2Cceb67A7937651c19Ac3#code"
+  }
+}
