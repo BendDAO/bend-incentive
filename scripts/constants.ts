@@ -98,8 +98,8 @@ export const getBTokenConfig = (network: string): any[] =>
           "0x87ddE3A3f4b629E389ce5894c9A1F34A7eeC5648", // bendDebtWETH
         ],
         [
-          makeBN(1), // bendWETH
-          makeBN(3), // bendDebtWETH
+          makeBN(6341958391203703000), // bendWETH
+          makeBN(19025875173611110000), // bendDebtWETH
         ],
       ],
       [Network.develop]: [

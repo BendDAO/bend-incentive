@@ -151,7 +151,7 @@ async function connect(contracts: Contracts) {
 
 async function main() {
   let contracts = await deployCore();
-  //await connect(contracts);
+  await connect(contracts);
 }
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
