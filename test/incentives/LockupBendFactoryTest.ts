@@ -272,7 +272,7 @@ describe("LockupBendFactory tests", () => {
     it("before unlock 1", async () => {
       await fc.assert(
         fc
-          .asyncProperty(fc.integer(1, YEAR), async (time) => {
+          .asyncProperty(fc.integer(1, YEAR - DAY), async (time) => {
             await mineBlockAtTime(createLockTime.add(time).toNumber());
 
             for (let i = 0; i < 3; i++) {
@@ -289,6 +289,10 @@ describe("LockupBendFactory tests", () => {
                 );
                 let withdrawAmount = await lockupContract.withdrawable(addr);
                 expect(withdrawAmount).to.be.equal(0);
+                let balanceBefore = await bendToken.balanceOf(addr);
+                await factory.connect(beneficiaries[i]).withdraw();
+                let balanceAfter = await bendToken.balanceOf(addr);
+                expect(balanceAfter.sub(balanceBefore)).to.be.equal(0);
               }
             }
           })
@@ -296,7 +300,7 @@ describe("LockupBendFactory tests", () => {
             await snapshots.revert("createLock");
           })
       );
-    });
+    }).timeout(40000);
     function computeLockAmount(totalLocked: BigNumber, timePassed: number) {
       return totalLocked.mul(YEAR - timePassed).div(YEAR);
     }
