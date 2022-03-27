@@ -54,4 +54,13 @@ contract BTokenTester is IBToken, ERC20 {
     function scaledTotalSupply() public view override returns (uint256) {
         return super.totalSupply();
     }
+
+    function scaledBalanceOf(address user)
+        external
+        view
+        override
+        returns (uint256)
+    {
+        return super.balanceOf(user);
+    }
 }

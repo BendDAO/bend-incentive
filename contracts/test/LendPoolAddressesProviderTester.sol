@@ -15,4 +15,8 @@ contract LendPoolAddressesProviderTester is ILendPoolAddressesProvider {
     function getLendPool() external view override returns (address) {
         return lendPool;
     }
+
+    function getNFTOracle() external view override returns (address) {
+        return 0x0000000000000000000000000000000000000000;
+    }
 }

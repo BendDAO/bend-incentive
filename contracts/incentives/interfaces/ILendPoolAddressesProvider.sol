@@ -3,4 +3,6 @@ pragma solidity 0.8.4;
 
 interface ILendPoolAddressesProvider {
     function getLendPool() external view returns (address);
+
+    function getNFTOracle() external view returns (address);
 }
