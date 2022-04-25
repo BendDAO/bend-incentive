@@ -21,6 +21,19 @@ export async function deployBendTokenTester(
 export async function deployVault(bendToken: Contract) {
   return await deployProxyContract("Vault", [bendToken.address]);
 }
+export async function deployStakedBUNI(
+  uniToken: Contract,
+  bendToken: Contract,
+  vault: Contract,
+  duration: BigNumber
+) {
+  return await deployProxyContract("StakedBUNITester", [
+    uniToken.address,
+    bendToken.address,
+    vault.address,
+    duration,
+  ]);
+}
 
 export async function deployIncentivesController(
   bendToken: Contract,

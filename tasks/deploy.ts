@@ -1,0 +1,24 @@
+import "@openzeppelin/hardhat-upgrades";
+import { task } from "hardhat/config";
+
+task("deploy:StakedBUNI", "Deploy StakedBUNI").setAction(
+  async ({}, { network, ethers, upgrades }) => {
+    const [deployer] = await ethers.getSigners();
+
+    let constants = await import("../scripts/constants");
+    let utils = await import("../scripts/utils");
+
+    const deploymentState = utils.loadPreviousDeployment(network.name);
+    let uni = constants.getBendEthUni(network.name);
+    let bendToken = deploymentState["BendToken"].address;
+    let vault = deploymentState["Vault"].address;
+    await utils.loadOrDeploy(
+      "StakedBUNI",
+      [uni, bendToken, vault, constants.ONE_YEAR * 3],
+      network.name,
+      deployer,
+      deploymentState,
+      { proxy: true }
+    );
+  }
+);
