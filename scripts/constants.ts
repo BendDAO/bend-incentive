@@ -180,3 +180,31 @@ export const getSnapshotDelatation = (network: string): string =>
     },
     Network[network as keyof typeof Network]
   );
+
+export const getBendEthUni = (network: string): string =>
+  getParamPerNetwork<string>(
+    {
+      [Network.coverage]: "",
+      [Network.hardhat]: "",
+      [Network.kovan]: "",
+      [Network.ropsten]: "",
+      [Network.rinkeby]: "0x170DC266c6A65C4C686De29E5D4Fc27270373014",
+      [Network.mainnet]: "0x336ef4e633b1117dca08c1a57f4139c62c32c935",
+      [Network.develop]: "",
+    },
+    Network[network as keyof typeof Network]
+  );
+
+export const getStakedBuniIncentiveConfig = (network: string): string =>
+  getParamPerNetwork<string>(
+    {
+      [Network.coverage]: "",
+      [Network.hardhat]: "",
+      [Network.kovan]: "",
+      [Network.ropsten]: "",
+      [Network.rinkeby]: "31709791983764587",
+      [Network.mainnet]: "3170979198376458752",
+      [Network.develop]: "",
+    },
+    Network[network as keyof typeof Network]
+  );

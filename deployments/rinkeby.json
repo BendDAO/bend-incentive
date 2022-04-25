@@ -39,5 +39,11 @@
     "address": "0x56295C60E49300DC86D9805B9eB8642b8B4dc859",
     "txHash": "0xd359b77b2ba309dcfff3748d1250b14ab73fde714a3d9f0b5ce0b0f0cb9224b3",
     "verification": "https://rinkeby.etherscan.io/address/0x56295C60E49300DC86D9805B9eB8642b8B4dc859#code"
+  },
+  "StakedBUNI": {
+    "address": "0xA8b8694D3ca39C301bC409b235df77918b9f1594",
+    "txHash": "0xa69d909123575545bb51b8238da7f32b9f9c13e56c11a78622d5fc525b0638a5",
+    "verification": "https://rinkeby.etherscan.io/address/0xa68a92b91ccdbb26521af9ee73b4131595b3199a#code",
+    "proxyVerification": "https://rinkeby.etherscan.io/address/0xA8b8694D3ca39C301bC409b235df77918b9f1594#code"
   }
 }
