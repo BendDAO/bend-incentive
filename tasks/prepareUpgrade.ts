@@ -3,7 +3,8 @@ import { task } from "hardhat/config";
 
 task("PrepareUpgrade", "Deploy new implmentation for upgrade")
   .addParam("id", "The contract id")
-  .setAction(async ({ id }, { network, ethers, upgrades }) => {
+  .setAction(async ({ id }, { network, ethers, upgrades, run }) => {
+    await run("compile");
     let utils = await import("../scripts/utils");
     const deploymentState = utils.loadPreviousDeployment(network.name);
     const proxyAddress = deploymentState[id].address;
