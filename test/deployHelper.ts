@@ -103,6 +103,10 @@ export async function deployMerkleDistributor(bendToken: Contract) {
   return await deployProxyContract("MerkleDistributor", [bendToken.address]);
 }
 
+export async function deployReferralRewardDistributor(bendToken: Contract) {
+  return await deployProxyContract("ReferralRewardDistributor", [bendToken.address]);
+}
+
 export async function deployProxyContract(name: string, args?: unknown[]) {
   const _f = await ethers.getContractFactory(name);
   const _c = await upgrades.deployProxy(_f, args);
