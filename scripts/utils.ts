@@ -13,6 +13,10 @@ export interface DeploymentStateItem {
   proxyVerification?: string;
 }
 
+export function makeBN(num: string | number | any, precision: number = 0) {
+  return ethers.utils.parseUnits(num.toString(), precision);
+}
+
 export function makeBN18(num: string | number) {
   return ethers.utils.parseUnits(num.toString(), 18);
 }
@@ -149,7 +153,10 @@ export async function verifyContract(
     proxyAddress == ZERO_ADDRESS;
   }
 
-  if (address != ZERO_ADDRESS && !deploymentState[id].verification) {
+  if (
+    address != ZERO_ADDRESS &&
+    (!deploymentState[id] || !deploymentState[id].verification)
+  ) {
     let varified = await verify(address, constructorArguments);
     if (varified) {
       deploymentState[
@@ -157,7 +164,10 @@ export async function verifyContract(
       ].verification = `${ETHERSCAN_BASE_URL}/address/${address}#code`;
     }
   }
-  if (proxyAddress != ZERO_ADDRESS && !deploymentState[id].proxyVerification) {
+  if (
+    proxyAddress != ZERO_ADDRESS &&
+    (!deploymentState[id] || !deploymentState[id].proxyVerification)
+  ) {
     let varified = await verify(proxyAddress);
     if (varified) {
       deploymentState[

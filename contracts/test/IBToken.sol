@@ -9,4 +9,10 @@ interface IBToken is IScaledBalanceToken {
         uint256 amount,
         uint256 index
     ) external;
+
+    function mint(
+        address user,
+        uint256 amount,
+        uint256 index
+    ) external returns (bool);
 }

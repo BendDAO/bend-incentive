@@ -11,11 +11,20 @@ contract LendPoolTester is ILendPool {
     }
 
     function withdraw(
-        address asset,
+        address reserve,
         uint256 amount,
         address to
     ) external override returns (uint256) {
-        IBToken(_reserves[asset]).burn(msg.sender, to, amount, 0);
+        IBToken(_reserves[reserve]).burn(msg.sender, to, amount, 0);
         return amount;
+    }
+
+    function deposit(
+        address reserve,
+        uint256 amount,
+        address onBehalfOf,
+        uint16 // referralCode
+    ) external override {
+        IBToken(_reserves[reserve]).mint(onBehalfOf, amount, 0);
     }
 }

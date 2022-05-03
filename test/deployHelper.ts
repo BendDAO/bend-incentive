@@ -69,6 +69,22 @@ export async function deployFeeDistributor(
   ]);
 }
 
+export async function deployLockupBendV2(
+  weth: string,
+  bendToken: string,
+  veBEND: string,
+  feeDistributor: string,
+  delegation: string
+) {
+  return await deployProxyContract("LockupBendV2", [
+    weth,
+    bendToken,
+    veBEND,
+    feeDistributor,
+    delegation,
+  ]);
+}
+
 export async function deployLockupBend(
   weth: Contract,
   bendToken: Contract,
