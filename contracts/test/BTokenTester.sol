@@ -22,15 +22,20 @@ contract BTokenTester is IBToken, ERC20 {
         address user,
         address receiverOfUnderlying,
         uint256 amount,
-        uint256 index
+        uint256 //ignore
     ) public override {
         super._burn(user, amount);
         underlyingToken.safeTransfer(receiverOfUnderlying, amount);
     }
 
-    function mint(address user, uint256 amount) public {
+    function mint(
+        address user,
+        uint256 amount,
+        uint256 // ignore
+    ) public override returns (bool) {
         super._mint(user, amount);
         underlyingToken.safeTransferFrom(user, address(this), amount);
+        return true;
     }
 
     function setBalance(address to, uint256 amount) public {

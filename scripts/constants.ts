@@ -208,3 +208,45 @@ export const getStakedBuniIncentiveConfig = (network: string): string =>
     },
     Network[network as keyof typeof Network]
   );
+
+export const getWETH = (network: string): string =>
+  getParamPerNetwork<string>(
+    {
+      [Network.coverage]: "",
+      [Network.hardhat]: "",
+      [Network.kovan]: "",
+      [Network.ropsten]: "",
+      [Network.rinkeby]: "0xaD1908f909B5C5D2B1032a215d611773F26f089F",
+      [Network.mainnet]: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      [Network.develop]: "",
+    },
+    Network[network as keyof typeof Network]
+  );
+
+export const getLendPoolAddressesProvider = (network: string): string =>
+  getParamPerNetwork<string>(
+    {
+      [Network.coverage]: "",
+      [Network.hardhat]: "",
+      [Network.kovan]: "",
+      [Network.ropsten]: "",
+      [Network.rinkeby]: "0xE55870eBB007a50B0dfAbAdB1a21e4bFcee5299b",
+      [Network.mainnet]: "0x24451F47CaF13B24f4b5034e1dF6c0E401ec0e46",
+      [Network.develop]: "",
+    },
+    Network[network as keyof typeof Network]
+  );
+
+export const getBendCollector = (network: string): string =>
+  getParamPerNetwork<string>(
+    {
+      [Network.coverage]: "",
+      [Network.hardhat]: "",
+      [Network.kovan]: "",
+      [Network.ropsten]: "",
+      [Network.rinkeby]: "0x7A02EE743Aadca63d60945971B7eD12c7f26b6d2",
+      [Network.mainnet]: "0x43078AbfB76bd24885Fd64eFFB22049f92a8c495",
+      [Network.develop]: "",
+    },
+    Network[network as keyof typeof Network]
+  );
