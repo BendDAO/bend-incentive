@@ -40,6 +40,7 @@ export default {
       accounts: accounts,
     },
     rinkeby: {
+      gasPrice: 10 * GWEI,
       url: process.env.RINKEBY_URL || "",
       accounts:
         process.env.RINKEBY_PRIVATE_KEY !== undefined

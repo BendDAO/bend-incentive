@@ -45,5 +45,11 @@
     "txHash": "0xa69d909123575545bb51b8238da7f32b9f9c13e56c11a78622d5fc525b0638a5",
     "verification": "https://rinkeby.etherscan.io/address/0xa68a92b91ccdbb26521af9ee73b4131595b3199a#code",
     "proxyVerification": "https://rinkeby.etherscan.io/address/0xA8b8694D3ca39C301bC409b235df77918b9f1594#code"
+  },
+  "LockupBendFactory": {
+    "address": "0xb6C1794EB199d940153f1E65178EcF7D49f069F2",
+    "txHash": "0xf3920f51e68dc6a7b18caed280b48d8d0aa988cadd1b2d674162af31900d5335",
+    "verification": "https://rinkeby.etherscan.io/address/0x0e1076e1de3cabb2d3a372857130a650f3a58013#code",
+    "proxyVerification": "https://rinkeby.etherscan.io/address/0xb6C1794EB199d940153f1E65178EcF7D49f069F2#code"
   }
 }
