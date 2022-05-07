@@ -165,6 +165,21 @@ describe("LockupBendV2 tests", () => {
       );
     });
 
+    it("delegation", async () => {
+      let id = ethers.utils.formatBytes32String("benddao.eth");
+      let delegation = await delegateRegistry.delegation(
+        lockupBend.address,
+        id
+      );
+      expect(delegation).to.be.equal(constants.AddressZero);
+      await lockupBend.delegateVote(id, deployer.address);
+      delegation = await delegateRegistry.delegation(lockupBend.address, id);
+      expect(delegation).to.be.equal(deployer.address);
+      await lockupBend.clearDelegateVote(id);
+      delegation = await delegateRegistry.delegation(lockupBend.address, id);
+      expect(delegation).to.be.equal(constants.AddressZero);
+    });
+
     it("before unlock", async () => {
       let now = await timeLatest();
       await fc.assert(
