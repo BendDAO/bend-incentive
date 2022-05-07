@@ -5,12 +5,13 @@ import {KeeperCompatibleInterface} from "@chainlink/contracts/src/v0.8/KeeperCom
 import {IFeeDistributor} from "./interfaces/IFeeDistributor.sol";
 
 contract BendKeeper is KeeperCompatibleInterface {
-    uint256 public interval;
+    uint256 public constant DAY = 86400;
     IFeeDistributor public feeDistributor;
+    uint256 public nextDistributeTime;
 
-    constructor(uint256 _interval, address _feeDistributorAddr) {
-        interval = _interval;
+    constructor(address _feeDistributorAddr) {
         feeDistributor = IFeeDistributor(_feeDistributorAddr);
+        nextDistributeTime = ((block.timestamp + DAY - 1) / DAY) * DAY;
     }
 
     function checkUpkeep(bytes calldata)
@@ -19,15 +20,13 @@ contract BendKeeper is KeeperCompatibleInterface {
         override
         returns (bool upkeepNeeded, bytes memory)
     {
-        upkeepNeeded =
-            (block.timestamp - feeDistributor.lastDistributeTime()) > interval;
+        upkeepNeeded = block.timestamp >= nextDistributeTime;
     }
 
     function performUpkeep(bytes calldata) external override {
-        if (
-            (block.timestamp - feeDistributor.lastDistributeTime()) > interval
-        ) {
+        if (block.timestamp >= nextDistributeTime) {
             feeDistributor.distribute();
+            nextDistributeTime += DAY;
         }
     }
 }
