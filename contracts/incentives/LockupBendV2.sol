@@ -223,6 +223,22 @@ contract LockupBendV2 is
         veBend.createLock(_lockedBendAmount, _unlockTime);
     }
 
+    function increaseVeAmount(uint256 _lockedBendAmount)
+        external
+        override
+        onlyOwner
+    {
+        veBend.increaseAmount(_lockedBendAmount);
+    }
+
+    function increaseVeUnlockTime(uint256 _unlockTime)
+        external
+        override
+        onlyOwner
+    {
+        veBend.increaseUnlockTime(_unlockTime);
+    }
+
     function delegateVote(bytes32 _snapshotId, address _delegatee)
         external
         override

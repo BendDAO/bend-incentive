@@ -46,6 +46,10 @@ interface ILockupV2 {
     function createVeLock(uint256 _lockedBendAmount, uint256 _unlockTime)
         external;
 
+    function increaseVeAmount(uint256 _lockedBendAmount) external;
+
+    function increaseVeUnlockTime(uint256 _unlockTime) external;
+
     function withdrawVeLock() external;
 
     function delegateVote(bytes32 _snapshotId, address _delegatee) external;
