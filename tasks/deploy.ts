@@ -49,3 +49,21 @@ task("deploy:LockupBendFactory", "Deploy LockupBendFactory").setAction(
     );
   }
 );
+
+task("deploy:BendKeeper", "Deploy BendKeeper").setAction(
+  async ({}, { network, ethers, upgrades, run }) => {
+    await run("compile");
+    const [deployer] = await ethers.getSigners();
+
+    let utils = await import("../scripts/utils");
+
+    const deploymentState = utils.loadPreviousDeployment(network.name);
+    await utils.loadOrDeploy(
+      "BendKeeper",
+      [deploymentState["FeeDistributor"].address],
+      network.name,
+      deployer,
+      deploymentState
+    );
+  }
+);
