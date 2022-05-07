@@ -35,9 +35,9 @@ contract FeeDistributor is
 
     IVeBend public veBEND;
     IWETH public WETH;
-    ILendPoolAddressesProvider public addressesProvider;
+    ILendPoolAddressesProvider public override addressesProvider;
     address public token;
-    address public bendCollector;
+    address public override bendCollector;
 
     function initialize(
         IWETH _weth,

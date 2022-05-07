@@ -170,6 +170,7 @@ describe("StakedBUNI tests", function () {
       const userStkBUNIBalance = await stakedBUNI.balanceOf(userAddress);
       const userBendBalance = await bendToken.balanceOf(userAddress);
       const userRewards = await stakedBUNI.stakerRewardsToClaim(userAddress);
+      const userAllRewards = await stakedBUNI.claimableRewards(userAddress);
       // Get index before actions
       const userIndexBefore = await getUserIndex(
         stakedBUNI,
@@ -178,7 +179,13 @@ describe("StakedBUNI tests", function () {
       );
 
       // Claim rewards
-      expect(stakedBUNI.connect(staker).claim(constants.MaxUint256));
+      await expect(
+        stakedBUNI.connect(staker).claim(constants.MaxUint256.sub(1000))
+      ).to.revertedWith("INVALID_AMOUNT");
+
+      await expect(
+        stakedBUNI.connect(staker).claim(constants.MaxUint256)
+      ).to.emit(stakedBUNI, "RewardsClaimed");
 
       // Get index after actions
       const userIndexAfter = await getUserIndex(
@@ -193,6 +200,7 @@ describe("StakedBUNI tests", function () {
         userIndexBefore
       );
       const userBendBalanceAfter = await bendToken.balanceOf(userAddress);
+      expect(userAllRewards).to.be.lte(userRewards.add(expectedAccruedRewards));
       assertAlmostEqual(
         userBendBalanceAfter,
         userBendBalance.add(userRewards).add(expectedAccruedRewards)
