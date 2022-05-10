@@ -13,12 +13,6 @@ export const accounts = [
     balance,
   },
   {
-    address: "0xe5904695748fe4a84b40b3fc79de2277660bd1d3",
-    privateKey:
-      "0x23c601ae397441f3ef6f1075dcb0031ff17fb079837beadaf3c84d96c6f3e569",
-    balance,
-  },
-  {
     address: "0x92561f28ec438ee9831d00d1d59fbdc981b762b2",
     privateKey:
       "0xee9d129c1997549ee09c0757af5939b2483d80ad649a0eda68e8b0357ad11131",
