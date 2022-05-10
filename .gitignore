@@ -2,7 +2,8 @@ node_modules
 .env
 .venv
 .history
-
+storage_layout
+out.html
 #Hardhat files
 cache
 artifacts

@@ -3,6 +3,7 @@ import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import path from "path";
 import fs from "fs";
+require("hardhat-storage-layout-diff");
 
 require("solidity-coverage");
 import dotenv from "dotenv";
