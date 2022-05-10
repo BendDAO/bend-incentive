@@ -1,6 +1,6 @@
 import "@openzeppelin/hardhat-upgrades";
 import { task } from "hardhat/config";
-import { waitForTx } from "../test/utils";
+import ProxyAdmin from "@openzeppelin/upgrades-core/artifacts/@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol/ProxyAdmin.json";
 
 task("prepareUpgrade", "Deploy new implmentation for upgrade")
   .addParam("proxyid", "The proxy contract id")
@@ -24,6 +24,29 @@ task("prepareUpgrade", "Deploy new implmentation for upgrade")
       await utils.verify(implAddress);
     }
   );
+
+task("newProxyAdmin", "Change proxy addmin")
+  .addParam("proxyid", "The proxy contract id")
+  .setAction(async ({ proxyid }, { ethers, network, upgrades }) => {
+    const [deployer] = await ethers.getSigners();
+    let utils = await import("../scripts/utils");
+    const deploymentState = utils.loadPreviousDeployment(network.name);
+    const proxyAddress = deploymentState[proxyid].address;
+
+    const preAdminAddress = await upgrades.erc1967.getAdminAddress(
+      proxyAddress
+    );
+    console.log(`${proxyid} current proxyAdmin: ${preAdminAddress}`);
+
+    const adminFactory = await ethers.getContractFactory(
+      ProxyAdmin.abi,
+      ProxyAdmin.bytecode,
+      deployer
+    );
+
+    const adminContract = await (await adminFactory.deploy()).deployed();
+    console.log(`${proxyid} new proxyAdmin: ${adminContract.address}`);
+  });
 
 task("forceImport", "Deploy new implmentation for upgrade")
   .addParam("proxyid", "The proxy contract id")
