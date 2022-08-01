@@ -579,7 +579,11 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
             return 0;
         } else {
             Point memory _lastPoint = userPointHistory[_addr][_epoch];
-            _lastPoint.bias -= _lastPoint.slope * int256(_t - _lastPoint.ts);
+            unchecked {
+                _lastPoint.bias -=
+                    _lastPoint.slope *
+                    int256(_t - _lastPoint.ts);
+            }
             if (_lastPoint.bias < 0) {
                 _lastPoint.bias = 0;
             }
@@ -609,7 +613,11 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
             return 0;
         } else {
             Point memory _lastPoint = userPointHistory[_addr][_epoch];
-            _lastPoint.bias -= _lastPoint.slope * int256(_t - _lastPoint.ts);
+            unchecked {
+                _lastPoint.bias -=
+                    _lastPoint.slope *
+                    int256(_t - _lastPoint.ts);
+            }
             if (_lastPoint.bias < 0) {
                 _lastPoint.bias = 0;
             }
@@ -680,7 +688,9 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
             block_time += (_st.dt * (_block - _point.blk)) / _st.dBlock;
         }
 
-        _upoint.bias -= _upoint.slope * int256(block_time - _upoint.ts);
+        unchecked {
+            _upoint.bias -= _upoint.slope * int256(block_time - _upoint.ts);
+        }
         if (_upoint.bias >= 0) {
             return uint256(_upoint.bias);
         } else {
@@ -710,8 +720,11 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
             } else {
                 d_slope = slopeChanges[_ti];
             }
-            _lastPoint.bias -= _lastPoint.slope * int256(_ti - _lastPoint.ts);
-
+            unchecked {
+                _lastPoint.bias -=
+                    _lastPoint.slope *
+                    int256(_ti - _lastPoint.ts);
+            }
             if (_ti == t) {
                 break;
             }
