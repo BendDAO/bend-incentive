@@ -67,3 +67,26 @@ task("deploy:BendKeeper", "Deploy BendKeeper").setAction(
     );
   }
 );
+
+task("deploy:FeeCollector", "Deploy FeeCollector").setAction(
+  async ({}, { network, ethers, upgrades, run }) => {
+    await run("compile");
+    const [deployer] = await ethers.getSigners();
+
+    let utils = await import("../scripts/utils");
+    let constants = await import("../scripts/constants");
+    const deploymentState = utils.loadPreviousDeployment(network.name);
+    await utils.loadOrDeploy(
+      "FeeCollector",
+      [
+        constants.getWETH(network.name),
+        constants.getTreasury(network.name),
+        deploymentState["FeeDistributor"].address,
+      ],
+      network.name,
+      deployer,
+      deploymentState,
+      { proxy: true }
+    );
+  }
+);

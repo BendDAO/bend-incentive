@@ -3,15 +3,18 @@ pragma solidity 0.8.4;
 
 import {KeeperCompatibleInterface} from "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 import {IFeeDistributor} from "./interfaces/IFeeDistributor.sol";
+import {IFeeCollector} from "./interfaces/IFeeCollector.sol";
 
 contract BendKeeper is KeeperCompatibleInterface {
     uint256 public constant DAY = 86400;
     IFeeDistributor public feeDistributor;
+    IFeeCollector public feeCollector;
     uint256 public nextDistributeTime;
 
-    constructor(address _feeDistributorAddr) {
+    constructor(address _feeDistributorAddr, address _feeCollector) {
         feeDistributor = IFeeDistributor(_feeDistributorAddr);
-        nextDistributeTime = ((block.timestamp + DAY - 1) / DAY) * DAY;
+        feeCollector = IFeeCollector(_feeCollector);
+        nextDistributeTime = (block.timestamp / DAY) * DAY + DAY;
     }
 
     function checkUpkeep(bytes calldata)
@@ -25,6 +28,7 @@ contract BendKeeper is KeeperCompatibleInterface {
 
     function performUpkeep(bytes calldata) external override {
         if (block.timestamp >= nextDistributeTime) {
+            feeCollector.collect();
             feeDistributor.distribute();
             nextDistributeTime += DAY;
         }

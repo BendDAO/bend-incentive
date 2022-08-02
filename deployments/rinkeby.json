@@ -51,5 +51,11 @@
     "address": "0x140C11BB8BBdAa19a344902a38395683b17e498F",
     "txHash": "0xd7a178715a7cca3e75407abea2636c96549a27824730af6a9b207462487030d7",
     "verification": "https://rinkeby.etherscan.io/address/0x140C11BB8BBdAa19a344902a38395683b17e498F#code"
+  },
+  "FeeCollector": {
+    "address": "0xab576dAab2F1eB5417E1064EaBDe801af934D0e7",
+    "txHash": "0xefa0332a52979f29086a8932729c5ed7aaf34502a3828f2a7088526cb99866b1",
+    "verification": "https://rinkeby.etherscan.io/address/0x4481f7f10bb223550bc4e79387d29c7c868f915f#code",
+    "proxyVerification": "https://rinkeby.etherscan.io/address/0xab576dAab2F1eB5417E1064EaBDe801af934D0e7#code"
   }
 }
