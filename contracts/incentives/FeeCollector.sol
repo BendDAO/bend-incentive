@@ -13,19 +13,35 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using PercentageMath for uint256;
     IWETH public WETH;
-    address public feeDistributor;
     uint256 public treasuryPercentage;
     address public treasury;
+    address public bendCollector;
 
     function initialize(
         IWETH _weth,
         address _treasury,
-        address _feeDistributor
+        address _bendCollector
     ) external initializer {
         __Ownable_init();
         WETH = _weth;
         treasury = _treasury;
-        feeDistributor = _feeDistributor;
+        bendCollector = _bendCollector;
+    }
+
+    function setTreasury(address _treasury) external onlyOwner {
+        require(
+            _treasury != address(0),
+            "FeeCollector: treasury can't be null"
+        );
+        treasury = _treasury;
+    }
+
+    function setBendCollector(address _bendCollector) external onlyOwner {
+        require(
+            _bendCollector != address(0),
+            "FeeCollector: bendCollector can't be null"
+        );
+        bendCollector = _bendCollector;
     }
 
     function setTreasuryPercentage(uint256 _treasuryPercentage)
@@ -41,8 +57,8 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
 
     function collect() external override {
         require(
-            feeDistributor != address(0),
-            "FeeCollector: feeDistributor can't be null"
+            bendCollector != address(0),
+            "FeeCollector: bendCollector can't be null"
         );
         require(treasury != address(0), "FeeCollector: treasury can't be null");
 
@@ -55,11 +71,11 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
                 _toTreasury
             );
         }
-        _toDistribute = _toDistribute - _toTreasury;
-        if (_toDistribute > 0) {
+        uint256 _toBendCollector = _toDistribute - _toTreasury;
+        if (_toBendCollector > 0) {
             IERC20Upgradeable(address(WETH)).safeTransfer(
-                feeDistributor,
-                _toDistribute
+                bendCollector,
+                _toBendCollector
             );
         }
     }

@@ -4819,6 +4819,125 @@
           }
         }
       }
+    },
+    "3f1c179ca2ea445a971fc3beb6afd949132cf0289dc76b1a73d47789e7bc41ac": {
+      "address": "0x192B44C1dF50EDc9107b0014D2180e217c61b9de",
+      "txHash": "0x34c87e112d8d13719c819615dfed974d87fd33b6a3c63b3479b11c198b67aa67",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
+          },
+          {
+            "label": "WETH",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(IWETH)11364",
+            "contract": "FeeCollector",
+            "src": "contracts/incentives/FeeCollector.sol:15"
+          },
+          {
+            "label": "feeDistributor",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address",
+            "contract": "FeeCollector",
+            "src": "contracts/incentives/FeeCollector.sol:16"
+          },
+          {
+            "label": "treasuryPercentage",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_uint256",
+            "contract": "FeeCollector",
+            "src": "contracts/incentives/FeeCollector.sol:17"
+          },
+          {
+            "label": "treasury",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_address",
+            "contract": "FeeCollector",
+            "src": "contracts/incentives/FeeCollector.sol:18"
+          },
+          {
+            "label": "bendCollector",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_address",
+            "contract": "FeeCollector",
+            "src": "contracts/incentives/FeeCollector.sol:19"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IWETH)11364": {
+            "label": "contract IWETH",
+            "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
     }
   }
 }
