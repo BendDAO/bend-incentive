@@ -60,7 +60,7 @@ task("deploy:BendKeeper", "Deploy BendKeeper").setAction(
     const deploymentState = utils.loadPreviousDeployment(network.name);
     await utils.loadOrDeploy(
       "BendKeeper",
-      [deploymentState["FeeDistributor"].address],
+      [deploymentState["FeeDistributor"].address, deploymentState["FeeCollector"].address],
       network.name,
       deployer,
       deploymentState
