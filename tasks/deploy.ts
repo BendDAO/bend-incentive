@@ -81,7 +81,7 @@ task("deploy:FeeCollector", "Deploy FeeCollector").setAction(
       [
         constants.getWETH(network.name),
         constants.getTreasury(network.name),
-        deploymentState["FeeDistributor"].address,
+        constants.getBendCollector(network.name),
       ],
       network.name,
       deployer,
