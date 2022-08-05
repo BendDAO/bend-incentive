@@ -231,7 +231,7 @@ export const getTreasury = (network: string): string =>
       [Network.kovan]: "",
       [Network.ropsten]: "",
       [Network.rinkeby]: "0xcbb8a164d498e0c2312f0ddcf0a6ee2f5bad983a",
-      [Network.mainnet]: "",
+      [Network.mainnet]: "0x43078AbfB76bd24885Fd64eFFB22049f92a8c495",
       [Network.develop]: "",
     },
     Network[network as keyof typeof Network]

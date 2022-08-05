@@ -45,5 +45,11 @@
     "txHash": "0x25d9b59801dd99db11dcffc4309859f4fdae472fdcaf0f327e6be33ab270f844",
     "verification": "https://etherscan.io/address/0xc6f359872a24d5d7f673ca09a2a5d0a7691907e5#code",
     "proxyVerification": "https://etherscan.io/address/0x7941D082D46a9A8c3E8c2106187A24B74cc1bdD3#code"
+  },
+  "FeeCollector": {
+    "address": "0x1d53bB3dABf03C60B6f17D8316C3FFD505c7eff1",
+    "txHash": "0x7479706da73b724bac35929b5dcecae267008af39f99a2ea5d46a041ccd6cca4",
+    "verification": "https://etherscan.io/address/0x12c126d1a62abf4cd8b1ce955b77fa8a428d39a4#code",
+    "proxyVerification": "https://etherscan.io/address/0x1d53bB3dABf03C60B6f17D8316C3FFD505c7eff1#code"
   }
 }

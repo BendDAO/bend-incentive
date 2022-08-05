@@ -63,7 +63,7 @@ export default {
           : [],
     },
     mainnet: {
-      gasPrice: 65 * GWEI,
+      gasPrice: 35 * GWEI,
       url: process.env.MAINNET_URL || "",
       accounts:
         process.env.MAINNET_PRIVATE_KEY !== undefined
