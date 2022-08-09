@@ -54,6 +54,11 @@
       "address": "0xDfB8Aff6642AE9Bc1612E3723178409a197C9770",
       "txHash": "0x424f366b624b1f5faab2f2a80e1ce3d74442a1b2ab864dcdf54ed2d5cbcf4f14",
       "kind": "transparent"
+    },
+    {
+      "address": "0xf3aB1d58Ce6B9E0D42b8958c918649305e1b1d26",
+      "txHash": "0x2e0b2ed9813dff5bf879351203c5412f6160e0b8431be8fbe424448c6be7277b",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -1474,6 +1479,141 @@
             "numberOfBytes": "1"
           },
           "t_contract(IWETH)11362": {
+            "label": "contract IWETH",
+            "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "d4cf776d41d91c5d254b2ab585777a15218d749a4998270e917535257115fc7d": {
+      "address": "0x304eAb894A048F35C399DF835e2b508Da886d180",
+      "txHash": "0xf7cd5303752050e9f494a1300a8e3f18f59099efd60d63df2bc785b3e2773f8d",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
+          },
+          {
+            "label": "WETH",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(IWETH)11435",
+            "contract": "FeeCollector",
+            "src": "contracts/incentives/FeeCollector.sol:17"
+          },
+          {
+            "label": "BWETH",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_contract(IERC20Upgradeable)1182",
+            "contract": "FeeCollector",
+            "src": "contracts/incentives/FeeCollector.sol:18"
+          },
+          {
+            "label": "treasuryPercentage",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_uint256",
+            "contract": "FeeCollector",
+            "src": "contracts/incentives/FeeCollector.sol:19"
+          },
+          {
+            "label": "treasury",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_address",
+            "contract": "FeeCollector",
+            "src": "contracts/incentives/FeeCollector.sol:20"
+          },
+          {
+            "label": "bendCollector",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_address",
+            "contract": "FeeCollector",
+            "src": "contracts/incentives/FeeCollector.sol:21"
+          },
+          {
+            "label": "bendAddressesProvider",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_contract(ILendPoolAddressesProvider)11009",
+            "contract": "FeeCollector",
+            "src": "contracts/incentives/FeeCollector.sol:22"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IERC20Upgradeable)1182": {
+            "label": "contract IERC20Upgradeable",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ILendPoolAddressesProvider)11009": {
+            "label": "contract ILendPoolAddressesProvider",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IWETH)11435": {
             "label": "contract IWETH",
             "numberOfBytes": "20"
           },
