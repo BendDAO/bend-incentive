@@ -223,6 +223,20 @@ export const getWETH = (network: string): string =>
     Network[network as keyof typeof Network]
   );
 
+export const getBWETH = (network: string): string =>
+  getParamPerNetwork<string>(
+    {
+      [Network.coverage]: "",
+      [Network.hardhat]: "",
+      [Network.kovan]: "",
+      [Network.ropsten]: "",
+      [Network.rinkeby]: "0x162f6ef816c8b03193c50852fffb570d97ceea2f",
+      [Network.mainnet]: "0xeD1840223484483C0cb050E6fC344d1eBF0778a9",
+      [Network.develop]: "",
+    },
+    Network[network as keyof typeof Network]
+  );
+
 export const getTreasury = (network: string): string =>
   getParamPerNetwork<string>(
     {
