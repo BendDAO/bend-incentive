@@ -8,24 +8,33 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {PercentageMath} from "../libs/PercentageMath.sol";
 import {IWETH} from "./interfaces/IWETH.sol";
 import {IFeeCollector} from "./interfaces/IFeeCollector.sol";
+import {ILendPoolAddressesProvider} from "./interfaces/ILendPoolAddressesProvider.sol";
+import {ILendPool} from "./interfaces/ILendPool.sol";
 
 contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using PercentageMath for uint256;
     IWETH public WETH;
+    IERC20Upgradeable public BWETH;
     uint256 public treasuryPercentage;
     address public treasury;
     address public bendCollector;
+    ILendPoolAddressesProvider public bendAddressesProvider;
 
     function initialize(
         IWETH _weth,
+        IERC20Upgradeable _bweth,
         address _treasury,
-        address _bendCollector
+        address _bendCollector,
+        ILendPoolAddressesProvider _bendAddressesProvider
     ) external initializer {
         __Ownable_init();
         WETH = _weth;
+        BWETH = _bweth;
         treasury = _treasury;
         bendCollector = _bendCollector;
+        bendAddressesProvider = _bendAddressesProvider;
+        WETH.approve(_bendAddressesProvider.getLendPool(), type(uint256).max);
     }
 
     function setTreasury(address _treasury) external onlyOwner {
@@ -56,27 +65,34 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
     }
 
     function collect() external override {
+        uint256 _wethAmount = WETH.balanceOf(address(this));
+        if (_wethAmount > 0) {
+            ILendPool(bendAddressesProvider.getLendPool()).deposit(
+                address(WETH),
+                _wethAmount,
+                address(this),
+                0
+            );
+        }
+        _collectToken(BWETH);
+    }
+
+    function _collectToken(IERC20Upgradeable _token) internal {
         require(
             bendCollector != address(0),
             "FeeCollector: bendCollector can't be null"
         );
         require(treasury != address(0), "FeeCollector: treasury can't be null");
 
-        uint256 _toDistribute = WETH.balanceOf(address(this));
+        uint256 _toDistribute = _token.balanceOf(address(this));
         uint256 _toTreasury = _toDistribute.percentMul(treasuryPercentage);
 
         if (_toTreasury > 0) {
-            IERC20Upgradeable(address(WETH)).safeTransfer(
-                treasury,
-                _toTreasury
-            );
+            _token.safeTransfer(treasury, _toTreasury);
         }
         uint256 _toBendCollector = _toDistribute - _toTreasury;
         if (_toBendCollector > 0) {
-            IERC20Upgradeable(address(WETH)).safeTransfer(
-                bendCollector,
-                _toBendCollector
-            );
+            _token.safeTransfer(bendCollector, _toBendCollector);
         }
     }
 }

@@ -60,7 +60,10 @@ task("deploy:BendKeeper", "Deploy BendKeeper").setAction(
     const deploymentState = utils.loadPreviousDeployment(network.name);
     await utils.loadOrDeploy(
       "BendKeeper",
-      [deploymentState["FeeDistributor"].address, deploymentState["FeeCollector"].address],
+      [
+        deploymentState["FeeDistributor"].address,
+        deploymentState["FeeCollector"].address,
+      ],
       network.name,
       deployer,
       deploymentState
@@ -80,8 +83,10 @@ task("deploy:FeeCollector", "Deploy FeeCollector").setAction(
       "FeeCollector",
       [
         constants.getWETH(network.name),
+        constants.getBWETH(network.name),
         constants.getTreasury(network.name),
         constants.getBendCollector(network.name),
+        constants.getLendPoolAddressesProvider(network.name),
       ],
       network.name,
       deployer,
