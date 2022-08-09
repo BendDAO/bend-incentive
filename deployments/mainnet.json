@@ -42,14 +42,14 @@
     "proxyVerification": "https://etherscan.io/address/0x7941D082D46a9A8c3E8c2106187A24B74cc1bdD3#code"
   },
   "FeeCollector": {
-    "address": "0xDfB8Aff6642AE9Bc1612E3723178409a197C9770",
-    "txHash": "0x424f366b624b1f5faab2f2a80e1ce3d74442a1b2ab864dcdf54ed2d5cbcf4f14",
-    "verification": "https://etherscan.io/address/0x7f919d6f3997931e1c6869db6708fd1948c60664#code",
-    "proxyVerification": "https://etherscan.io/address/0xDfB8Aff6642AE9Bc1612E3723178409a197C9770#code"
+    "address": "0xf3aB1d58Ce6B9E0D42b8958c918649305e1b1d26",
+    "txHash": "0x2e0b2ed9813dff5bf879351203c5412f6160e0b8431be8fbe424448c6be7277b",
+    "verification": "https://etherscan.io/address/0x304eab894a048f35c399df835e2b508da886d180#code",
+    "proxyVerification": "https://etherscan.io/address/0xf3aB1d58Ce6B9E0D42b8958c918649305e1b1d26#code"
   },
   "BendKeeper": {
-    "address": "0x772C518E8D9E7b52f2d924dBe11BbDb76504A7b5",
-    "txHash": "0x00fe0632f6feeb25ac10e98b15cd838a6813298aae7abdd360fbe7ccae8f3082",
-    "verification": "https://etherscan.io/address/0x772C518E8D9E7b52f2d924dBe11BbDb76504A7b5#code"
+    "address": "0xA5ba093611bc2f7167BB069113f875542b2b3c78",
+    "txHash": "0x49527c4aea731f789c823a3c7dc8c2061f7613530c2167647fbeccd3631c4da9",
+    "verification": "https://etherscan.io/address/0xA5ba093611bc2f7167BB069113f875542b2b3c78#code"
   }
 }
