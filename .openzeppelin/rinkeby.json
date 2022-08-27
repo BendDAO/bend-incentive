@@ -2121,184 +2121,246 @@
       "layout": {
         "storage": [
           {
-            "contract": "Initializable",
             "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
             "type": "t_bool",
+            "contract": "Initializable",
             "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
           },
           {
-            "contract": "Initializable",
             "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
             "type": "t_bool",
+            "contract": "Initializable",
             "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
           },
           {
-            "contract": "ReentrancyGuardUpgradeable",
             "label": "_status",
+            "offset": 0,
+            "slot": "1",
             "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:37"
           },
           {
-            "contract": "ReentrancyGuardUpgradeable",
             "label": "__gap",
+            "offset": 0,
+            "slot": "2",
             "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:67"
           },
           {
-            "contract": "ContextUpgradeable",
             "label": "__gap",
+            "offset": 0,
+            "slot": "51",
             "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
           },
           {
-            "contract": "OwnableUpgradeable",
             "label": "_owner",
+            "offset": 0,
+            "slot": "101",
             "type": "t_address",
+            "contract": "OwnableUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
           },
           {
-            "contract": "OwnableUpgradeable",
             "label": "__gap",
+            "offset": 0,
+            "slot": "102",
             "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
             "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
           },
           {
-            "contract": "VeBend",
             "label": "token",
+            "offset": 0,
+            "slot": "151",
             "type": "t_address",
+            "contract": "VeBend",
             "src": "contracts/vote/VeBend.sol:54"
           },
           {
-            "contract": "VeBend",
             "label": "supply",
+            "offset": 0,
+            "slot": "152",
             "type": "t_uint256",
+            "contract": "VeBend",
             "src": "contracts/vote/VeBend.sol:55"
           },
           {
-            "contract": "VeBend",
             "label": "locked",
-            "type": "t_mapping(t_address,t_struct(LockedBalance)14199_storage)",
+            "offset": 0,
+            "slot": "153",
+            "type": "t_mapping(t_address,t_struct(LockedBalance)14247_storage)",
+            "contract": "VeBend",
             "src": "contracts/vote/VeBend.sol:57"
           },
           {
-            "contract": "VeBend",
             "label": "epoch",
+            "offset": 0,
+            "slot": "154",
             "type": "t_uint256",
+            "contract": "VeBend",
             "src": "contracts/vote/VeBend.sol:60"
           },
           {
-            "contract": "VeBend",
             "label": "supplyPointHistory",
-            "type": "t_mapping(t_uint256,t_struct(Point)14194_storage)",
+            "offset": 0,
+            "slot": "155",
+            "type": "t_mapping(t_uint256,t_struct(Point)14242_storage)",
+            "contract": "VeBend",
             "src": "contracts/vote/VeBend.sol:61"
           },
           {
-            "contract": "VeBend",
             "label": "userPointHistory",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Point)14194_storage))",
+            "offset": 0,
+            "slot": "156",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Point)14242_storage))",
+            "contract": "VeBend",
             "src": "contracts/vote/VeBend.sol:62"
           },
           {
-            "contract": "VeBend",
             "label": "userPointEpoch",
+            "offset": 0,
+            "slot": "157",
             "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VeBend",
             "src": "contracts/vote/VeBend.sol:63"
           },
           {
-            "contract": "VeBend",
             "label": "slopeChanges",
+            "offset": 0,
+            "slot": "158",
             "type": "t_mapping(t_uint256,t_int256)",
+            "contract": "VeBend",
             "src": "contracts/vote/VeBend.sol:64"
           },
           {
-            "contract": "VeBend",
             "label": "name",
+            "offset": 0,
+            "slot": "159",
             "type": "t_string_storage",
+            "contract": "VeBend",
             "src": "contracts/vote/VeBend.sol:66"
           },
           {
-            "contract": "VeBend",
             "label": "symbol",
+            "offset": 0,
+            "slot": "160",
             "type": "t_string_storage",
+            "contract": "VeBend",
             "src": "contracts/vote/VeBend.sol:67"
           },
           {
-            "contract": "VeBend",
             "label": "decimals",
+            "offset": 0,
+            "slot": "161",
             "type": "t_uint256",
+            "contract": "VeBend",
             "src": "contracts/vote/VeBend.sol:68"
           }
         ],
         "types": {
           "t_address": {
-            "label": "address"
+            "label": "address",
+            "numberOfBytes": "20"
           },
-          "t_uint256": {
-            "label": "uint256"
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
           },
-          "t_mapping(t_address,t_struct(LockedBalance)14199_storage)": {
-            "label": "mapping(address => struct IVeBend.LockedBalance)"
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
           },
-          "t_struct(LockedBalance)14199_storage": {
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_int256": {
+            "label": "int256",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Point)14242_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct IVeBend.Point))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(LockedBalance)14247_storage)": {
+            "label": "mapping(address => struct IVeBend.LockedBalance)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_int256)": {
+            "label": "mapping(uint256 => int256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Point)14242_storage)": {
+            "label": "mapping(uint256 => struct IVeBend.Point)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(LockedBalance)14247_storage": {
             "label": "struct IVeBend.LockedBalance",
             "members": [
               {
                 "label": "amount",
-                "type": "t_int256"
+                "type": "t_int256",
+                "offset": 0,
+                "slot": "0"
               },
               {
                 "label": "end",
-                "type": "t_uint256"
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
               }
-            ]
+            ],
+            "numberOfBytes": "64"
           },
-          "t_int256": {
-            "label": "int256"
-          },
-          "t_mapping(t_uint256,t_struct(Point)14194_storage)": {
-            "label": "mapping(uint256 => struct IVeBend.Point)"
-          },
-          "t_struct(Point)14194_storage": {
+          "t_struct(Point)14242_storage": {
             "label": "struct IVeBend.Point",
             "members": [
               {
                 "label": "bias",
-                "type": "t_int256"
+                "type": "t_int256",
+                "offset": 0,
+                "slot": "0"
               },
               {
                 "label": "slope",
-                "type": "t_int256"
+                "type": "t_int256",
+                "offset": 0,
+                "slot": "1"
               },
               {
                 "label": "ts",
-                "type": "t_uint256"
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
               },
               {
                 "label": "blk",
-                "type": "t_uint256"
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
               }
-            ]
+            ],
+            "numberOfBytes": "128"
           },
-          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Point)14194_storage))": {
-            "label": "mapping(address => mapping(uint256 => struct IVeBend.Point))"
-          },
-          "t_mapping(t_address,t_uint256)": {
-            "label": "mapping(address => uint256)"
-          },
-          "t_mapping(t_uint256,t_int256)": {
-            "label": "mapping(uint256 => int256)"
-          },
-          "t_string_storage": {
-            "label": "string"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_bool": {
-            "label": "bool"
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
           }
         }
       }
@@ -4927,6 +4989,261 @@
           "t_contract(IWETH)11364": {
             "label": "contract IWETH",
             "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "5e05e6b529f30013e5f559f7be889492a511ee76887023361904a3d433ba77e6": {
+      "address": "0x9d37e991fC18b00266f86A9f1a817a1524Bbb351",
+      "txHash": "0x46f29f79a63e2916d6faa0c72f9fe7fd2c34b551fa2e191bec2d741dbe0e4902",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
+          },
+          {
+            "label": "token",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_address",
+            "contract": "VeBend",
+            "src": "contracts/vote/VeBend.sol:54"
+          },
+          {
+            "label": "supply",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_uint256",
+            "contract": "VeBend",
+            "src": "contracts/vote/VeBend.sol:55"
+          },
+          {
+            "label": "locked",
+            "offset": 0,
+            "slot": "153",
+            "type": "t_mapping(t_address,t_struct(LockedBalance)14985_storage)",
+            "contract": "VeBend",
+            "src": "contracts/vote/VeBend.sol:57"
+          },
+          {
+            "label": "epoch",
+            "offset": 0,
+            "slot": "154",
+            "type": "t_uint256",
+            "contract": "VeBend",
+            "src": "contracts/vote/VeBend.sol:60"
+          },
+          {
+            "label": "supplyPointHistory",
+            "offset": 0,
+            "slot": "155",
+            "type": "t_mapping(t_uint256,t_struct(Point)14980_storage)",
+            "contract": "VeBend",
+            "src": "contracts/vote/VeBend.sol:61"
+          },
+          {
+            "label": "userPointHistory",
+            "offset": 0,
+            "slot": "156",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Point)14980_storage))",
+            "contract": "VeBend",
+            "src": "contracts/vote/VeBend.sol:62"
+          },
+          {
+            "label": "userPointEpoch",
+            "offset": 0,
+            "slot": "157",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VeBend",
+            "src": "contracts/vote/VeBend.sol:63"
+          },
+          {
+            "label": "slopeChanges",
+            "offset": 0,
+            "slot": "158",
+            "type": "t_mapping(t_uint256,t_int256)",
+            "contract": "VeBend",
+            "src": "contracts/vote/VeBend.sol:64"
+          },
+          {
+            "label": "name",
+            "offset": 0,
+            "slot": "159",
+            "type": "t_string_storage",
+            "contract": "VeBend",
+            "src": "contracts/vote/VeBend.sol:66"
+          },
+          {
+            "label": "symbol",
+            "offset": 0,
+            "slot": "160",
+            "type": "t_string_storage",
+            "contract": "VeBend",
+            "src": "contracts/vote/VeBend.sol:67"
+          },
+          {
+            "label": "decimals",
+            "offset": 0,
+            "slot": "161",
+            "type": "t_uint256",
+            "contract": "VeBend",
+            "src": "contracts/vote/VeBend.sol:68"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_int256": {
+            "label": "int256",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Point)14980_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct IVeBend.Point))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(LockedBalance)14985_storage)": {
+            "label": "mapping(address => struct IVeBend.LockedBalance)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_int256)": {
+            "label": "mapping(uint256 => int256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Point)14980_storage)": {
+            "label": "mapping(uint256 => struct IVeBend.Point)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(LockedBalance)14985_storage": {
+            "label": "struct IVeBend.LockedBalance",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_int256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "end",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Point)14980_storage": {
+            "label": "struct IVeBend.Point",
+            "members": [
+              {
+                "label": "bias",
+                "type": "t_int256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "slope",
+                "type": "t_int256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "ts",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "blk",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
           },
           "t_uint256": {
             "label": "uint256",
