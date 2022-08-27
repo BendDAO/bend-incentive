@@ -386,7 +386,7 @@ contract VeBend is IVeBend, ReentrancyGuardUpgradeable, OwnableUpgradeable {
         address _beneficiary,
         uint256 _value,
         uint256 _unlockTime
-    ) external override {
+    ) external override onlyOwner {
         _createLock(_beneficiary, _value, _unlockTime);
     }
 
