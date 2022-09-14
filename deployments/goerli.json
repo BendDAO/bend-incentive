@@ -1,0 +1,61 @@
+{
+  "BendToken": {
+    "address": "0xE15A78992dd4a9d6833eA7C9643650d3b0a2eD2B",
+    "txHash": "0xd8f8f864e30d547c8fe376e8189df4a1398f32bbe157e744df655b24b02eb751",
+    "verification": "https://goerli.etherscan.io/address/0x554309b0888c37139d6e31abae30b4502915b5db#code",
+    "proxyVerification": "https://goerli.etherscan.io/address/0xE15A78992dd4a9d6833eA7C9643650d3b0a2eD2B#code"
+  },
+  "Vault": {
+    "address": "0xD0ff8ae7E3D9591605505D3db9C33b96c4809CDC",
+    "txHash": "0x44b3c9b7b7e8c9145a438f107351c3bfbb5b88a32883c854ede79d7c733bf4c4",
+    "verification": "https://goerli.etherscan.io/address/0x28cccd47aa3ffb42d77e395fba7cdaccea884d5a#code",
+    "proxyVerification": "https://goerli.etherscan.io/address/0xD0ff8ae7E3D9591605505D3db9C33b96c4809CDC#code"
+  },
+  "BendProtocolIncentivesController": {
+    "address": "0x292F693048208184320C01e0C223D624268e5EE7",
+    "txHash": "0x3ff764d922a7418c75cafbc3d05406c146036a5e20974023e53981524efba6b6",
+    "verification": "https://goerli.etherscan.io/address/0x3bd0a71d39e67fc49d5a6645550f2bc95f5cb398#code",
+    "proxyVerification": "https://goerli.etherscan.io/address/0x292F693048208184320C01e0C223D624268e5EE7#code"
+  },
+  "MerkleDistributor": {
+    "address": "0x94150C5cb7881d25eD4360127ccBDA853bFb6a30",
+    "txHash": "0x10c7d7f79545fa63836ef2debcc7653acf420fb0b7a3667ad6deb24bc22bfae4",
+    "verification": "https://goerli.etherscan.io/address/0xd51fc3376f6d7c86d8639d5ec238327ab0ee69e3#code",
+    "proxyVerification": "https://goerli.etherscan.io/address/0x94150C5cb7881d25eD4360127ccBDA853bFb6a30#code"
+  },
+  "VeBend": {
+    "address": "0x2e308F03bFd57B1b36570aDC710C6A130C27366E",
+    "txHash": "0x4bdbabbdad27ba58e099094a7b0cd4a29eef985bbf3238c9fe48471af1209826",
+    "verification": "https://goerli.etherscan.io/address/0x57d3b7c7962f8d9e9acaf055472dec111ebbda0c#code",
+    "proxyVerification": "https://goerli.etherscan.io/address/0x2e308F03bFd57B1b36570aDC710C6A130C27366E#code"
+  },
+  "FeeDistributor": {
+    "address": "0x9e0EbD7AB8b6457E2461583c48CAc66589E1958E",
+    "txHash": "0x27cc292c08325605ee0e31a271fe41f797e4333b6865d84adaf772134dc27fec",
+    "verification": "https://goerli.etherscan.io/address/0x32ce71cb5994b6e3910219f3142270583adfa2d9#code",
+    "proxyVerification": "https://goerli.etherscan.io/address/0x9e0EbD7AB8b6457E2461583c48CAc66589E1958E#code"
+  },
+  "StakedBUNI": {
+    "address": "0x1f9b18D502d8A406564b0cF4e4B7ad9d4eEb2a52",
+    "txHash": "0x75c403734fbe0349c9b4f41a278f109076fa85e2a1c643b61d2c192d9c345dd0",
+    "verification": "https://goerli.etherscan.io/address/0x52912571414db261e4122b0658037122dae9718c#code",
+    "proxyVerification": "https://goerli.etherscan.io/address/0x1f9b18D502d8A406564b0cF4e4B7ad9d4eEb2a52#code"
+  },
+  "LockupBendFactory": {
+    "address": "0xEaB15dC2C32E0cc03bA648A47E62632FA877Cf34",
+    "txHash": "0x5c19619b34b758a7d261b5ee2c8f888060529806a1702a8e89d121d3cfb5c0ea",
+    "verification": "https://goerli.etherscan.io/address/0x214455b76e5a5decb48557417397b831efc6219b#code",
+    "proxyVerification": "https://goerli.etherscan.io/address/0xEaB15dC2C32E0cc03bA648A47E62632FA877Cf34#code"
+  },
+  "FeeCollector": {
+    "address": "0x3C9f44Dac66d56DcD8dFb4bC361AA4b72aCA8C08",
+    "txHash": "0xba23d3ab55c8c54b7a1eaecff7cca23df0b81b27a48e4f2269baf871629757a2",
+    "verification": "https://goerli.etherscan.io/address/0xe5165aae8d50371a277f266ec5a0e00405b532c8#code",
+    "proxyVerification": "https://goerli.etherscan.io/address/0x3C9f44Dac66d56DcD8dFb4bC361AA4b72aCA8C08#code"
+  },
+  "BendKeeper": {
+    "address": "0x7354e69221F33291c5993721fb762d39ecc239A5",
+    "txHash": "0x98e105e95c28b51fab3d307047b60f76f6d2e92efe47d90dc3ec8232f7c2a0da",
+    "verification": "https://goerli.etherscan.io/address/0x7354e69221F33291c5993721fb762d39ecc239A5#code"
+  }
+}
