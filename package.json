@@ -3,7 +3,9 @@
     "typechain": "TS_NODE_TRANSPILE_ONLY=true hardhat typechain",
     "clean": "hardhat clean",
     "compile": "TS_NODE_TRANSPILE_ONLY=true hardhat compile",
-    "compile:force": "hardhat compile --force"
+    "compile:force": "hardhat compile --force",
+    "test": "hardhat test",
+    "prettier:code": "prettier --write 'tasks/**/*.ts' 'contracts/**/*.sol' 'scripts/**/*.ts'  'test/**/*.ts'"
   },
   "devDependencies": {
     "@metamask/eth-sig-util": "^4.0.0",

@@ -74,7 +74,7 @@ async function deployCore() {
 
   return {
     airdrop,
-    bendToken
+    bendToken,
   } as Contracts;
 }
 

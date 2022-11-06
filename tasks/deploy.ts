@@ -24,7 +24,10 @@ task("deploy:BendToken", "Deploy BendToken").setAction(
     const initAddress = env[envInitKey] ? env[envInitKey] : deployer.address;
     console.log("Token Init Address:", env[envInitKey], initAddress);
 
-    const maxSupply = ethers.utils.parseUnits(constants.BEND_TOKEN_MAX_SUPPLY.toString(), 18);
+    const maxSupply = ethers.utils.parseUnits(
+      constants.BEND_TOKEN_MAX_SUPPLY.toString(),
+      18
+    );
 
     const bendToken = await utils.loadOrDeploy(
       "BendToken",
@@ -55,7 +58,9 @@ task("deploy:Vault", "Deploy Vault").setAction(
       network.name,
       deployer,
       deploymentState,
-      { proxy: true }
+      {
+        proxy: true,
+      }
     );
   }
 );
@@ -125,7 +130,9 @@ task("deploy:VeBend", "Deploy veBEND").setAction(
       network.name,
       deployer,
       deploymentState,
-      { proxy: true }
+      {
+        proxy: true,
+      }
     );
   }
 );
@@ -142,10 +149,18 @@ task("deploy:FeeDistributor", "Deploy FeeDistributor").setAction(
 
     let vebend = deploymentState["VeBend"];
 
-    let [WETH, bWETH, addressesProvider, bendCollector] = constants.getFeeDistributorParams(
-      network.name
+    let [WETH, bWETH, addressesProvider, bendCollector] =
+      constants.getFeeDistributorParams(network.name);
+    console.log(
+      "WETH:",
+      WETH,
+      "bWETH:",
+      bWETH,
+      "addressesProvider:",
+      addressesProvider,
+      "bendCollector:",
+      bendCollector
     );
-    console.log("WETH:", WETH, "bWETH:", bWETH, "addressesProvider:", addressesProvider, "bendCollector:", bendCollector);
     const feeDistributor = await utils.loadOrDeploy(
       "FeeDistributor",
       [WETH, bWETH, vebend.address, addressesProvider, bendCollector],

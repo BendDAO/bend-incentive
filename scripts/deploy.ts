@@ -66,7 +66,9 @@ async function deployCore() {
     network.name,
     deployer,
     deploymentState,
-    { proxy: true }
+    {
+      proxy: true,
+    }
   );
 
   const incentivesController = await loadOrDeploy(
@@ -93,13 +95,24 @@ async function deployCore() {
     network.name,
     deployer,
     deploymentState,
-    { proxy: true }
+    {
+      proxy: true,
+    }
   );
 
   let [WETH, bWETH, addressesProvider, bendCollector] = getFeeDistributorParams(
     network.name
   );
-  console.log("WETH:", WETH, "bWETH:", bWETH, "addressesProvider:", addressesProvider, "bendCollector:", bendCollector);
+  console.log(
+    "WETH:",
+    WETH,
+    "bWETH:",
+    bWETH,
+    "addressesProvider:",
+    addressesProvider,
+    "bendCollector:",
+    bendCollector
+  );
   const feeDistributor = await loadOrDeploy(
     "FeeDistributor",
     [WETH, bWETH, vebend.address, addressesProvider, bendCollector],
