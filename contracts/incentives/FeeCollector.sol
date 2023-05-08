@@ -20,6 +20,7 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
     address public treasury;
     address public bendCollector;
     ILendPoolAddressesProvider public bendAddressesProvider;
+    address public feeDistributor;
 
     function initialize(
         IWETH _weth,
@@ -53,6 +54,14 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
         bendCollector = _bendCollector;
     }
 
+    function setFeeDistributor(address _feeDistributor) external onlyOwner {
+        require(
+            _feeDistributor != address(0),
+            "FeeCollector: feeDistributor can't be null"
+        );
+        feeDistributor = _feeDistributor;
+    }
+
     function setTreasuryPercentage(uint256 _treasuryPercentage)
         external
         onlyOwner
@@ -65,34 +74,29 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
     }
 
     function collect() external override {
-        uint256 _wethAmount = WETH.balanceOf(address(this));
-        if (_wethAmount > 0) {
-            ILendPool(bendAddressesProvider.getLendPool()).deposit(
-                address(WETH),
-                _wethAmount,
-                address(this),
-                0
-            );
-        }
-        _collectToken(BWETH);
+        _collectToken(IERC20Upgradeable(address(WETH)));
     }
 
     function _collectToken(IERC20Upgradeable _token) internal {
         require(
-            bendCollector != address(0),
-            "FeeCollector: bendCollector can't be null"
+            feeDistributor != address(0),
+            "FeeCollector: feeDistributor can't be null"
         );
         require(treasury != address(0), "FeeCollector: treasury can't be null");
 
         uint256 _toDistribute = _token.balanceOf(address(this));
-        uint256 _toTreasury = _toDistribute.percentMul(treasuryPercentage);
+        if (_toDistribute == 0) {
+            return;
+        }
 
+        uint256 _toTreasury = _toDistribute.percentMul(treasuryPercentage);
         if (_toTreasury > 0) {
             _token.safeTransfer(treasury, _toTreasury);
         }
-        uint256 _toBendCollector = _toDistribute - _toTreasury;
-        if (_toBendCollector > 0) {
-            _token.safeTransfer(bendCollector, _toBendCollector);
+
+        uint256 _toFeeDistributor = _toDistribute - _toTreasury;
+        if (_toFeeDistributor > 0) {
+            _token.safeTransfer(feeDistributor, _toFeeDistributor);
         }
     }
 }

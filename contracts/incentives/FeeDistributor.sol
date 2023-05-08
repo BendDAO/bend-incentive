@@ -65,9 +65,7 @@ contract FeeDistributor is
      *@dev Up to 52 weeks since the last update
      */
     function _checkpointDistribute() internal {
-        uint256 tokenBalance = IERC20Upgradeable(token).balanceOf(
-            address(this)
-        );
+        uint256 tokenBalance = WETH.balanceOf(address(this));
 
         uint256 toDistribute = tokenBalance - tokenLastBalance;
 
@@ -123,6 +121,9 @@ contract FeeDistributor is
                 address(this),
                 amount
             );
+
+            uint256 balance = IERC20Upgradeable(token).balanceOf(address(this));
+            _getLendPool().withdraw(address(WETH), balance, address(this));
         }
         _checkpointDistribute();
     }
@@ -341,9 +342,8 @@ contract FeeDistributor is
         if (amount != 0) {
             tokenLastBalance -= amount;
             if (weth) {
-                _getLendPool().withdraw(address(WETH), amount, _sender);
+                WETH.transfer(_sender, amount);
             } else {
-                _getLendPool().withdraw(address(WETH), amount, address(this));
                 WETH.withdraw(amount);
                 _safeTransferETH(_sender, amount);
             }

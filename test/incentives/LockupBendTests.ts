@@ -121,7 +121,7 @@ describe("LockupBend tests", () => {
 
   async function mintBToken(address: string, amount: BigNumber) {
     await WETH.mint(address, amount);
-    await bToken.mint(address, amount);
+    await bToken.mint(address, amount, 1);
   }
 
   async function createLock(
