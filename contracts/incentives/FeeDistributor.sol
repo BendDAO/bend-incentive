@@ -103,6 +103,13 @@ contract FeeDistributor is
         emit Distributed(block.timestamp, toDistribute);
     }
 
+    function migrateBendWETHToWETH() external onlyOwner {
+        uint256 balance = IERC20Upgradeable(token).balanceOf(address(this));
+        if (balance > 0) {
+            _getLendPool().withdraw(address(WETH), balance, address(this));
+        }
+    }
+
     /***
      *@notice Transfer fee and update checkpoint
      *@dev Manual transfer and update in extreme cases, The checkpoint can be updated at most once every 24 hours

@@ -18,3 +18,7 @@ flattened
 flattened.tgz
 bend-incentive-flattened.tgz
 flatten.sol
+
+# Foundry
+cache_forge
+out
