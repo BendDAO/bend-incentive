@@ -21,9 +21,34 @@ task("prepareUpgrade", "Deploy new implmentation for upgrade")
       let adminAddress = await upgrades.erc1967.getAdminAddress(proxyAddress);
       console.log("Proxy admin at:", adminAddress);
 
-      await utils.verify(implAddress);
+      await utils.verify(implAddress as string, []);
     }
   );
+
+task("upgrade", "upgrade contract")
+  .addParam("proxyid", "The proxy contract id")
+  .addOptionalParam("implid", "The new impl contract id")
+  .addOptionalParam("skipcheck", "Skip upgrade storage check or not")
+  .setAction(async ({ skipcheck, proxyid, implid }, { network, ethers, upgrades, run }) => {
+    await run("compile");
+    let utils = await import("../scripts/utils");
+    if (!implid) {
+      implid = proxyid;
+    }
+    const deploymentState = utils.loadPreviousDeployment(network.name);
+    const proxyAddress = deploymentState[proxyid].address;
+    const upgradeable = await ethers.getContractFactory(implid);
+    console.log(`Preparing upgrade proxy ${proxyid}: ${proxyAddress} with new ${implid}`);
+
+    // @ts-ignore
+    const upgraded = await upgrades.upgradeProxy(proxyAddress, upgradeable, { unsafeSkipStorageCheck: !!skipcheck });
+    await upgraded.deployed();
+
+    const implAddress = await upgrades.erc1967.getImplementationAddress(upgraded.address);
+    console.log("New implmentation at: ", implAddress);
+
+    await utils.verify(implAddress as string, []);
+  });
 
 task("newProxyAdmin", "Change proxy addmin")
   .addParam("proxyid", "The proxy contract id")
@@ -65,5 +90,17 @@ task("forceImport", "Deploy new implmentation for upgrade")
         `Import ${proxyid} proxy: ${proxyAddress} impl: ${implAddress}`
       );
       await upgrades.forceImport(proxyAddress, implFactory);
+    }
+  );
+
+task("verify:Implmentation", "Verify new implmentation")
+  .addParam("impladdr", "The impl contract address")
+  .setAction(
+    async ({ impladdr }, { run }) => {
+      await run("compile");
+
+      let utils = await import("../scripts/utils");
+
+      await utils.verify(impladdr, []);
     }
   );
