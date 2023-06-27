@@ -74,6 +74,8 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
     }
 
     function collect() external override {
+        _collectToken(BWETH);
+
         _collectToken(IERC20Upgradeable(address(WETH)));
     }
 
