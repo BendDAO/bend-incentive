@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
+import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+
 import {IVeBend} from "../vote/interfaces/IVeBend.sol";
 import {IWETH} from "./interfaces/IWETH.sol";
 import {ILendPool} from "./interfaces/ILendPool.sol";
 import {IFeeDistributor} from "./interfaces/IFeeDistributor.sol";
 import {ILendPoolAddressesProvider} from "./interfaces/ILendPoolAddressesProvider.sol";
-import {IERC20Upgradeable, SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract FeeDistributor is
     IFeeDistributor,
@@ -36,7 +37,11 @@ contract FeeDistributor is
     IVeBend public veBEND;
     IWETH public WETH;
     ILendPoolAddressesProvider public override addressesProvider;
+
+    // deprecated
     address public token;
+
+    // deprecated
     address public override bendCollector;
 
     function initialize(
@@ -103,13 +108,6 @@ contract FeeDistributor is
         emit Distributed(block.timestamp, toDistribute);
     }
 
-    function migrateBendWETHToWETH() external onlyOwner {
-        uint256 balance = IERC20Upgradeable(token).balanceOf(address(this));
-        if (balance > 0) {
-            _getLendPool().withdraw(address(WETH), balance, address(this));
-        }
-    }
-
     /***
      *@notice Transfer fee and update checkpoint
      *@dev Manual transfer and update in extreme cases, The checkpoint can be updated at most once every 24 hours
@@ -121,17 +119,6 @@ contract FeeDistributor is
     }
 
     function _distribute() internal {
-        uint256 amount = IERC20Upgradeable(token).balanceOf(bendCollector);
-        if (amount > 0) {
-            IERC20Upgradeable(token).safeTransferFrom(
-                bendCollector,
-                address(this),
-                amount
-            );
-
-            uint256 balance = IERC20Upgradeable(token).balanceOf(address(this));
-            _getLendPool().withdraw(address(WETH), balance, address(this));
-        }
         _checkpointDistribute();
     }
 
@@ -174,11 +161,9 @@ contract FeeDistributor is
         timeCursor = t;
     }
 
-    function _findTimestampEpoch(uint256 _timestamp)
-        internal
-        view
-        returns (uint256)
-    {
+    function _findTimestampEpoch(
+        uint256 _timestamp
+    ) internal view returns (uint256) {
         uint256 _min = 0;
         uint256 _max = veBEND.epoch();
         for (uint256 i = 0; i < 128; i++) {
@@ -225,11 +210,10 @@ contract FeeDistributor is
         uint256 weekCursor;
     }
 
-    function _claimable(address _addr, uint256 _lastDistributeTime)
-        internal
-        view
-        returns (Claimable memory)
-    {
+    function _claimable(
+        address _addr,
+        uint256 _lastDistributeTime
+    ) internal view returns (Claimable memory) {
         uint256 roundedTimestamp = (_lastDistributeTime / WEEK) * WEEK;
         uint256 userEpoch = 0;
         uint256 toDistribute = 0;
@@ -270,7 +254,7 @@ contract FeeDistributor is
         IVeBend.Point memory oldUserPoint;
 
         // Iterate over weeks
-        for (uint256 i = 0; i < 52; i++) {
+        for (uint256 i = 0; i < 255; i++) {
             if (weekCursor >= roundedTimestamp) {
                 break;
             }
@@ -364,10 +348,6 @@ contract FeeDistributor is
         }
 
         return amount;
-    }
-
-    function _getLendPool() internal view returns (ILendPool) {
-        return ILendPool(addressesProvider.getLendPool());
     }
 
     /**

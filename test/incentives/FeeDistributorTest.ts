@@ -67,10 +67,6 @@ describe("FeeDistributor tests", () => {
       "bToken",
       WETH.address,
     ]);
-    await WETH.connect(bendCollector).approve(
-      bToken.address,
-      constants.MaxUint256
-    );
     lendPoolAddressesProvider = await deployContract(
       "LendPoolAddressesProviderTester",
       [bToken.address, WETH.address]
@@ -105,9 +101,8 @@ describe("FeeDistributor tests", () => {
     });
   }
 
-  async function mintBToken(address: string, amount: BigNumber) {
+  async function mintWETH(address: string, amount: BigNumber) {
     await WETH.mint(address, amount);
-    await bToken.mint(address, amount, 1);
   }
 
   makeSuite("#checkpoints", () => {
@@ -191,9 +186,9 @@ describe("FeeDistributor tests", () => {
       await snapshots.revert("distribute_fee");
     });
 
-    it("will claim zero if no bToken distributed after lock", async () => {
+    it("will claim zero if no weth distributed after lock", async () => {
       for (let i = 0; i < 36; i++) {
-        await mintBToken(bendCollector.address, makeBN18(100));
+        await mintWETH(feeDistributor.address, makeBN18(100));
         await feeDistributor.distribute();
         await feeDistributor.checkpointTotalSupply();
         await mineBlockAndIncreaseTime(DAY);
@@ -221,20 +216,13 @@ describe("FeeDistributor tests", () => {
       await increaseTime(WEEK);
 
       for (let i = 0; i < 21; i++) {
-        await mintBToken(bendCollector.address, makeBN18(10));
-
-        expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(
-          makeBN18(10)
-        );
+        await mintWETH(feeDistributor.address, makeBN18(10));
         await feeDistributor.distribute();
-        expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
         await mineBlockAndIncreaseTime(DAY);
       }
 
       await increaseTime(WEEK);
       await feeDistributor.distribute();
-
-      expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
 
       let aliceClaimable = await feeDistributor.claimable(alice.address);
 
@@ -256,17 +244,11 @@ describe("FeeDistributor tests", () => {
 
       await increaseTime(5 * WEEK);
 
-      await mintBToken(bendCollector.address, makeBN18(10));
+      await mintWETH(feeDistributor.address, makeBN18(10));
 
-      expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(
-        makeBN18(10)
-      );
       await feeDistributor.distribute();
-      expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
       await increaseTime(WEEK);
       await feeDistributor.distribute();
-
-      expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
 
       let aliceClaimable = await feeDistributor.claimable(alice.address);
       await feeDistributor.connect(alice).claim(true);
@@ -293,14 +275,12 @@ describe("FeeDistributor tests", () => {
         .createLock(makeBN18(10000), (await timeLatest()).add(4 * WEEK));
       await increaseTime(2 * WEEK);
 
-      await mintBToken(bendCollector.address, makeBN18(10));
+      await mintWETH(feeDistributor.address, makeBN18(10));
       await feeDistributor.distribute();
-      expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
 
       await increaseTime(WEEK);
       await feeDistributor.distribute();
 
-      expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
       let aliceClaimable = await feeDistributor.claimable(alice.address);
       await feeDistributor.connect(alice).claim(true);
 
@@ -328,13 +308,11 @@ describe("FeeDistributor tests", () => {
 
       await increaseTime(5 * WEEK);
 
-      await mintBToken(bendCollector.address, makeBN18(10));
+      await mintWETH(feeDistributor.address, makeBN18(10));
       await feeDistributor.distribute();
-      expect(await bToken.balanceOf(bendCollector.address)).to.be.equal(0);
 
       await increaseTime(WEEK);
       await feeDistributor.distribute();
-      expect(await bToken.balanceOf(alice.address)).to.be.equal(0);
 
       let aliceBalanceBefore = await provider.getBalance(alice.address);
       let bobBalanceBefore = await provider.getBalance(bob.address);

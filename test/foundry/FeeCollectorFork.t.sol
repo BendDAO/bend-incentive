@@ -8,14 +8,18 @@ import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.so
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "../../contracts/incentives/interfaces/IWETH.sol";
+import "../../contracts/incentives/interfaces/IBToken.sol";
+import "../../contracts/incentives/interfaces/IBendCollector.sol";
 import "../../contracts/incentives/FeeCollector.sol";
 import "../../contracts/incentives/FeeDistributor.sol";
 import "../../contracts/libs/PercentageMath.sol";
 
-contract FeeCollectorFork0715Test is Test {
+contract FeeCollectorForkTest is Test {
     using PercentageMath for uint256;
 
     // the address of the contract on the mainnet fork
+    address constant lendingOwnerAddress =
+        0x652DB942BE3Ab09A8Fd6F14776a52ed2A73bF214;
     address constant incentiveOwnerAddress =
         0xF1465c7Ea04765853Facc2D1ea68bc6e47bE90e1;
     address constant timelockControllerAddress =
@@ -26,9 +30,11 @@ contract FeeCollectorFork0715Test is Test {
         0xf3aB1d58Ce6B9E0D42b8958c918649305e1b1d26;
     address constant feeDistributorAddress =
         0x2338D34337dd0811b684640de74717B73F7B8059;
+    address constant BWETH = 0xeD1840223484483C0cb050E6fC344d1eBF0778a9;
+    address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
     // how to run this testcase
-    // forge test --match-contract FeeCollectorFork0715Test --fork-url https://RPC --fork-block-number 17697506
+    // forge test -vvv --match-contract FeeCollectorFork0715Test --fork-url https://RPC --fork-block-number xxxxx
 
     function setUp() public {}
 
@@ -40,26 +46,38 @@ contract FeeCollectorFork0715Test is Test {
                 payable(feeCollectorAddress)
             );
         FeeCollector feeCollectorImpl = new FeeCollector();
-        vm.prank(timelockControllerAddress);
+        vm.startPrank(timelockControllerAddress);
         proxyAdmin.upgrade(feeCollectorProxy, address(feeCollectorImpl));
+        vm.stopPrank();
 
         FeeCollector feeCollector = FeeCollector(payable(feeCollectorAddress));
-
-        // get balance before collect
-        IERC20 bweth = IERC20(address(feeCollector.BWETH()));
-        uint256 bwethFeeAmount = bweth.balanceOf(feeCollectorAddress);
-        console.log("bwethFeeAmount:", bwethFeeAmount);
-
-        uint256 bwethBalanceOfDistributorBeforeCollect = bweth.balanceOf(
-            feeDistributorAddress
+        IBToken bweth = IBToken(BWETH);
+        IERC20 weth = IERC20(WETH);
+        IBendCollector bendCollector = IBendCollector(
+            feeCollector.bendCollector()
         );
+        vm.startPrank(lendingOwnerAddress);
+        bendCollector.approve(bweth, feeCollectorAddress, type(uint256).max);
+        vm.stopPrank();
+
+        vm.startPrank(incentiveOwnerAddress);
+        feeCollector.addBToken(BWETH);
+        feeCollector.setTreasuryPercentage(WETH, 5000);
+        vm.stopPrank();
+
+        uint256 bwethAmount = bweth.balanceOf(address(bendCollector));
+        console.log("bwethAmount:", bwethAmount);
+        uint256 wethAmount = weth.balanceOf(feeCollectorAddress);
+        console.log("wethAmount:", wethAmount);
+
+        wethAmount += bwethAmount;
+
         uint256 bwethBalanceOfTreasuryBeforeCollect = bweth.balanceOf(
             feeCollector.treasury()
         );
-
-        IERC20 weth = IERC20(address(feeCollector.WETH()));
-        uint256 wethFeeAmount = weth.balanceOf(feeCollectorAddress);
-        console.log("wethFeeAmount:", wethFeeAmount);
+        uint256 bwethBalanceOfDistributorBeforeCollect = bweth.balanceOf(
+            feeDistributorAddress
+        );
 
         uint256 wethBalanceOfDistributorBeforeCollect = weth.balanceOf(
             feeDistributorAddress
@@ -72,65 +90,54 @@ contract FeeCollectorFork0715Test is Test {
         feeCollector.collect();
 
         // check results
-        uint256 feeRatio = feeCollector.treasuryPercentage();
 
         // check bweth results
         {
-            uint256 bwethAmountToTreasury = bwethFeeAmount.percentMul(feeRatio);
-            uint256 bwethAmountToDistributor = (bwethFeeAmount -
-                bwethAmountToTreasury);
-
-            uint256 bwethBalanceOfTreasuryAfterCollect = bweth.balanceOf(
-                feeCollector.treasury()
-            );
-            uint256 bwethBalanceOfDistributorAfterCollect = bweth.balanceOf(
-                feeDistributorAddress
-            );
-
-            uint256 bwethBalanceOfTreasuryDelta = bwethBalanceOfTreasuryAfterCollect -
-                    bwethBalanceOfTreasuryBeforeCollect;
-            uint256 bwethBalanceOfDistributorDelta = bwethBalanceOfDistributorAfterCollect -
-                    bwethBalanceOfDistributorBeforeCollect;
-
             assertEq(
-                bwethBalanceOfTreasuryDelta,
-                bwethAmountToTreasury,
-                "treasury bweth not match"
+                bweth.balanceOf(feeCollectorAddress),
+                0,
+                "fee collector bweth delta not zero"
             );
 
             assertEq(
-                bwethBalanceOfDistributorDelta,
-                bwethAmountToDistributor,
-                "distributor bweth not match"
+                bweth.balanceOf(feeCollector.treasury()) -
+                    bwethBalanceOfTreasuryBeforeCollect,
+                0,
+                "treasury bweth delta not zero"
+            );
+
+            assertEq(
+                bweth.balanceOf(feeDistributorAddress) -
+                    bwethBalanceOfDistributorBeforeCollect,
+                0,
+                "fee distributor bweth delta not zero"
             );
         }
 
         // check weth results
         {
-            uint256 wethAmountToTreasury = wethFeeAmount.percentMul(feeRatio);
-            uint256 wethAmountToDistributor = (wethFeeAmount -
+            uint256 wethAmountToTreasury = wethAmount.percentMul(
+                feeCollector.getTreasuryPercentage(WETH)
+            );
+            uint256 wethAmountToDistributor = (wethAmount -
                 wethAmountToTreasury);
 
-            uint256 wethBalanceOfTreasuryAfterCollect = weth.balanceOf(
-                feeCollector.treasury()
+            assertEq(
+                weth.balanceOf(feeCollectorAddress),
+                0,
+                "treasury weth not match"
             );
-            uint256 wethBalanceOfDistributorAfterCollect = weth.balanceOf(
-                feeDistributorAddress
-            );
-
-            uint256 wethBalanceOfTreasuryDelta = wethBalanceOfTreasuryAfterCollect -
-                    wethBalanceOfTreasuryBeforeCollect;
-            uint256 wethBalanceOfDistributorDelta = wethBalanceOfDistributorAfterCollect -
-                    wethBalanceOfDistributorBeforeCollect;
 
             assertEq(
-                wethBalanceOfTreasuryDelta,
+                weth.balanceOf(feeCollector.treasury()) -
+                    wethBalanceOfTreasuryBeforeCollect,
                 wethAmountToTreasury,
                 "treasury weth not match"
             );
 
             assertEq(
-                wethBalanceOfDistributorDelta,
+                weth.balanceOf(feeDistributorAddress) -
+                    wethBalanceOfDistributorBeforeCollect,
                 wethAmountToDistributor,
                 "distributor weth not match"
             );

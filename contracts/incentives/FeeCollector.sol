@@ -5,22 +5,36 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {EnumerableMapUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableMapUpgradeable.sol";
+import {EnumerableSetUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
+
 import {PercentageMath} from "../libs/PercentageMath.sol";
 import {IWETH} from "./interfaces/IWETH.sol";
 import {IFeeCollector} from "./interfaces/IFeeCollector.sol";
 import {ILendPoolAddressesProvider} from "./interfaces/ILendPoolAddressesProvider.sol";
 import {ILendPool} from "./interfaces/ILendPool.sol";
+import {IBToken} from "./interfaces/IBToken.sol";
 
 contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
+    using SafeERC20Upgradeable for IBToken;
     using PercentageMath for uint256;
-    IWETH public WETH;
-    IERC20Upgradeable public BWETH;
-    uint256 public treasuryPercentage;
+    using EnumerableMapUpgradeable for EnumerableMapUpgradeable.AddressToUintMap;
+    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
+
+    // deprecated
+    IWETH private __WETH;
+    // deprecated
+    IERC20Upgradeable private __BWETH;
+    // deprecated
+    uint256 private __treasuryPercentage;
+
     address public treasury;
     address public bendCollector;
     ILendPoolAddressesProvider public bendAddressesProvider;
     address public feeDistributor;
+    EnumerableSetUpgradeable.AddressSet private _bTokens;
+    EnumerableMapUpgradeable.AddressToUintMap private _treasuryPercentages;
 
     function initialize(
         IWETH _weth,
@@ -30,12 +44,12 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
         ILendPoolAddressesProvider _bendAddressesProvider
     ) external initializer {
         __Ownable_init();
-        WETH = _weth;
-        BWETH = _bweth;
+        __WETH = _weth;
+        __BWETH = _bweth;
         treasury = _treasury;
         bendCollector = _bendCollector;
         bendAddressesProvider = _bendAddressesProvider;
-        WETH.approve(_bendAddressesProvider.getLendPool(), type(uint256).max);
+        __WETH.approve(_bendAddressesProvider.getLendPool(), type(uint256).max);
     }
 
     function setTreasury(address _treasury) external onlyOwner {
@@ -62,43 +76,81 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
         feeDistributor = _feeDistributor;
     }
 
-    function setTreasuryPercentage(uint256 _treasuryPercentage)
-        external
-        onlyOwner
-    {
+    function setTreasuryPercentage(
+        address token_,
+        uint256 treasuryPercentage_
+    ) external onlyOwner {
+        require(token_ != address(0), "FeeCollector: token can't be null");
         require(
-            _treasuryPercentage <= PercentageMath.PERCENTAGE_FACTOR,
+            treasuryPercentage_ <= PercentageMath.PERCENTAGE_FACTOR,
             "FeeCollector: treasury percentage overflow"
         );
-        treasuryPercentage = _treasuryPercentage;
+        _treasuryPercentages.set(token_, treasuryPercentage_);
+    }
+
+    function getTreasuryPercentage(
+        address token_
+    ) external view returns (uint256) {
+        return _treasuryPercentages.get(token_);
+    }
+
+    function addBToken(address bToken_) external onlyOwner {
+        require(bToken_ != address(0), "FeeCollector: bToken can't be null");
+        _bTokens.add(bToken_);
+    }
+
+    function removeBToken(address bToken_) external onlyOwner {
+        require(bToken_ != address(0), "FeeCollector: bToken can't be null");
+        _bTokens.remove(bToken_);
     }
 
     function collect() external override {
-        _collectToken(BWETH);
+        for (uint256 i = 0; i < _bTokens.length(); i++) {
+            _collectBToken(IBToken(_bTokens.at(i)));
+        }
 
-        _collectToken(IERC20Upgradeable(address(WETH)));
+        for (uint256 i = 0; i < _treasuryPercentages.length(); i++) {
+            (address token_, uint256 percentage_) = _treasuryPercentages.at(i);
+            _distributeToken(IERC20Upgradeable(token_), percentage_);
+        }
     }
 
-    function _collectToken(IERC20Upgradeable _token) internal {
+    function _collectBToken(IBToken bToken_) internal {
+        uint256 amount = bToken_.balanceOf(bendCollector);
+        if (amount > 0) {
+            bToken_.safeTransferFrom(bendCollector, address(this), amount);
+            amount = bToken_.balanceOf(address(this));
+            ILendPool(bendAddressesProvider.getLendPool()).withdraw(
+                bToken_.UNDERLYING_ASSET_ADDRESS(),
+                amount,
+                address(this)
+            );
+        }
+    }
+
+    function _distributeToken(
+        IERC20Upgradeable token_,
+        uint256 treasuryPercentage_
+    ) internal {
         require(
             feeDistributor != address(0),
             "FeeCollector: feeDistributor can't be null"
         );
         require(treasury != address(0), "FeeCollector: treasury can't be null");
 
-        uint256 _toDistribute = _token.balanceOf(address(this));
+        uint256 _toDistribute = token_.balanceOf(address(this));
         if (_toDistribute == 0) {
             return;
         }
 
-        uint256 _toTreasury = _toDistribute.percentMul(treasuryPercentage);
+        uint256 _toTreasury = _toDistribute.percentMul(treasuryPercentage_);
         if (_toTreasury > 0) {
-            _token.safeTransfer(treasury, _toTreasury);
+            token_.safeTransfer(treasury, _toTreasury);
         }
 
         uint256 _toFeeDistributor = _toDistribute - _toTreasury;
         if (_toFeeDistributor > 0) {
-            _token.safeTransfer(feeDistributor, _toFeeDistributor);
+            token_.safeTransfer(feeDistributor, _toFeeDistributor);
         }
     }
 }
