@@ -23,11 +23,11 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
     // deprecated
-    IWETH private __WETH;
+    IWETH public WETH;
     // deprecated
-    IERC20Upgradeable private __BWETH;
+    IERC20Upgradeable public BWETH;
     // deprecated
-    uint256 private __treasuryPercentage;
+    uint256 public treasuryPercentage;
 
     address public treasury;
     address public bendCollector;
@@ -44,12 +44,12 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
         ILendPoolAddressesProvider _bendAddressesProvider
     ) external initializer {
         __Ownable_init();
-        __WETH = _weth;
-        __BWETH = _bweth;
+        WETH = _weth;
+        BWETH = _bweth;
         treasury = _treasury;
         bendCollector = _bendCollector;
         bendAddressesProvider = _bendAddressesProvider;
-        __WETH.approve(_bendAddressesProvider.getLendPool(), type(uint256).max);
+        WETH.approve(_bendAddressesProvider.getLendPool(), type(uint256).max);
     }
 
     function setTreasury(address _treasury) external onlyOwner {
