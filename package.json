@@ -5,6 +5,7 @@
     "compile": "TS_NODE_TRANSPILE_ONLY=true hardhat compile",
     "compile:force": "hardhat compile --force",
     "test": "hardhat test",
+    "test:forge": "forge test -vvv",
     "prettier:code": "prettier --write 'tasks/**/*.ts' 'contracts/**/*.sol' 'scripts/**/*.ts'  'test/**/*.ts' 'test/**/*.sol'"
   },
   "devDependencies": {
