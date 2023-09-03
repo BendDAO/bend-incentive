@@ -35,6 +35,7 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
     address public feeDistributor;
     EnumerableSetUpgradeable.AddressSet private _bTokens;
     EnumerableMapUpgradeable.AddressToUintMap private _treasuryPercentages;
+    mapping(address => uint256) public treasuryTotalTransferred;
 
     function initialize(
         IWETH _weth,
@@ -104,6 +105,22 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
         _bTokens.remove(bToken_);
     }
 
+    function setTreasuryTotalTransferred(
+        address token_,
+        uint256 totalTransferred_
+    ) external onlyOwner {
+        require(token_ != address(0), "FeeCollector: token can't be null");
+        treasuryTotalTransferred[token_] = totalTransferred_;
+    }
+
+    function getTreasuryTotalTransferred(address token_)
+        external
+        view
+        returns (uint256)
+    {
+        return treasuryTotalTransferred[token_];
+    }
+
     function collect() external override {
         for (uint256 i = 0; i < _bTokens.length(); i++) {
             _collectBToken(IBToken(_bTokens.at(i)));
@@ -146,6 +163,7 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
         uint256 _toTreasury = _toDistribute.percentMul(treasuryPercentage_);
         if (_toTreasury > 0) {
             token_.safeTransfer(treasury, _toTreasury);
+            treasuryTotalTransferred[address(token_)] += _toTreasury;
         }
 
         uint256 _toFeeDistributor = _toDistribute - _toTreasury;

@@ -44,6 +44,8 @@ contract FeeDistributor is
     // deprecated
     address public override bendCollector;
 
+    uint256 public totalDistributedBalance;
+
     function initialize(
         IWETH _weth,
         address _tokenAddress,
@@ -73,6 +75,7 @@ contract FeeDistributor is
         uint256 tokenBalance = WETH.balanceOf(address(this));
 
         uint256 toDistribute = tokenBalance - tokenLastBalance;
+        totalDistributedBalance += toDistribute;
 
         tokenLastBalance = tokenBalance;
         uint256 t = lastDistributeTime;
@@ -348,6 +351,17 @@ contract FeeDistributor is
         }
 
         return amount;
+    }
+
+    function setTotalDistributedBalance(uint256 totalDistributed_)
+        external
+        onlyOwner
+    {
+        totalDistributedBalance = totalDistributed_;
+    }
+
+    function getTotalDistributedBalance() external view returns (uint256) {
+        return totalDistributedBalance;
     }
 
     /**
