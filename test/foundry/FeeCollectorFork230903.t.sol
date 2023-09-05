@@ -114,7 +114,23 @@ contract FeeCollectorFork230903Test is Test {
             assertGt(
                 wethTotalDistributedAfterCollect,
                 wethTotalDistributedBeforeCollect,
-                "weth distributed not match"
+                "weth total distributed not match"
+            );
+        }
+        {
+            uint256 endWeekTime = block.timestamp + 7 days;
+            uint256 startWeekTime = endWeekTime - 30 days;
+            uint256 wethWeekDistributedAfterCollect = feeDistributor
+                .getWeekDistributedBalance(startWeekTime, endWeekTime);
+            console.log(
+                "weth week distributed:",
+                wethWeekDistributedAfterCollect
+            );
+
+            assertGt(
+                wethWeekDistributedAfterCollect,
+                0,
+                "weth week distributed not match"
             );
         }
     }

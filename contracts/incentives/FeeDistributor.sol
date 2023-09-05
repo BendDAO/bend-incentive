@@ -365,6 +365,29 @@ contract FeeDistributor is
     }
 
     /**
+     * @dev query distributed balance between weeks.
+     * @param startWeekTime the start timestamp of the week (inclusive)
+     * @param endWeekTime the end timestamp of the week (exclusive)
+     * @notice All timestamp should be aligned to week and based on blockchain (UTC+0 timezone)
+     */
+    function getWeekDistributedBalance(
+        uint256 startWeekTime,
+        uint256 endWeekTime
+    ) external view returns (uint256) {
+        uint256 startWeek = (startWeekTime / WEEK) * WEEK;
+        uint256 endWeek = (endWeekTime / WEEK) * WEEK;
+        uint256 weekDistributedBalance = 0;
+        for (
+            uint256 nextWeek = startWeek;
+            nextWeek < endWeek;
+            nextWeek += WEEK
+        ) {
+            weekDistributedBalance += tokensPerWeek[nextWeek];
+        }
+        return weekDistributedBalance;
+    }
+
+    /**
      * @dev transfer ETH to an address, revert if it fails.
      * @param to recipient of the transfer
      * @param value the amount to send
