@@ -44,6 +44,8 @@ contract FeeDistributor is
     // deprecated
     address public override bendCollector;
 
+    uint256 public totalDistributedBalance;
+
     function initialize(
         IWETH _weth,
         address _tokenAddress,
@@ -73,6 +75,7 @@ contract FeeDistributor is
         uint256 tokenBalance = WETH.balanceOf(address(this));
 
         uint256 toDistribute = tokenBalance - tokenLastBalance;
+        totalDistributedBalance += toDistribute;
 
         tokenLastBalance = tokenBalance;
         uint256 t = lastDistributeTime;
@@ -348,6 +351,40 @@ contract FeeDistributor is
         }
 
         return amount;
+    }
+
+    function setTotalDistributedBalance(uint256 totalDistributed_)
+        external
+        onlyOwner
+    {
+        totalDistributedBalance = totalDistributed_;
+    }
+
+    function getTotalDistributedBalance() external view returns (uint256) {
+        return totalDistributedBalance;
+    }
+
+    /**
+     * @dev query distributed balance between weeks.
+     * @param startWeekTime the start timestamp of the week (inclusive)
+     * @param endWeekTime the end timestamp of the week (exclusive)
+     * @notice All timestamp should be aligned to week and based on blockchain (UTC+0 timezone)
+     */
+    function getWeekDistributedBalance(
+        uint256 startWeekTime,
+        uint256 endWeekTime
+    ) external view returns (uint256) {
+        uint256 startWeek = (startWeekTime / WEEK) * WEEK;
+        uint256 endWeek = (endWeekTime / WEEK) * WEEK;
+        uint256 weekDistributedBalance = 0;
+        for (
+            uint256 nextWeek = startWeek;
+            nextWeek < endWeek;
+            nextWeek += WEEK
+        ) {
+            weekDistributedBalance += tokensPerWeek[nextWeek];
+        }
+        return weekDistributedBalance;
     }
 
     /**
