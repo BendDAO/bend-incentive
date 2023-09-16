@@ -54,8 +54,8 @@
     "proxyVerification": "https://goerli.etherscan.io/address/0x3C9f44Dac66d56DcD8dFb4bC361AA4b72aCA8C08#code"
   },
   "BendKeeper": {
-    "address": "0x7354e69221F33291c5993721fb762d39ecc239A5",
-    "txHash": "0x98e105e95c28b51fab3d307047b60f76f6d2e92efe47d90dc3ec8232f7c2a0da",
-    "verification": "https://goerli.etherscan.io/address/0x7354e69221F33291c5993721fb762d39ecc239A5#code"
+    "address": "0xc174427A3fE54bB5BaBb9139d4deAd8074750A3D",
+    "txHash": "0x42c9773b85ad662b89157f56a5618fecd06611739011d5b8d0b4d454b72eeec3",
+    "verification": "https://etherscan.io/address/0xc174427A3fE54bB5BaBb9139d4deAd8074750A3D#code"
   }
 }
