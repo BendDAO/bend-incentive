@@ -267,3 +267,32 @@ task("deploy:BendKeeper", "Deploy BendKeeper").setAction(
     );
   }
 );
+
+task("deploy:TokenVesting", "Deploy TokenVesting")
+  .addParam("id", "the id of contract")
+  .addParam("token", "the address of token")
+  .addParam("amount", "the total amount of token")
+  .addParam("benificiary", "the address of benificiary")
+  .addParam("start", "the time of start")
+  .addParam("end", "the time of end")
+  .setAction(
+    async (
+      { id, token, amount, benificiary, start, end },
+      { network, ethers, upgrades, run }
+    ) => {
+      await run("compile");
+      const [deployer] = await ethers.getSigners();
+
+      let utils = await import("../scripts/utils");
+
+      const deploymentState = utils.loadPreviousDeployment(network.name);
+      await utils.loadOrDeploy(
+        "TokenVesting",
+        [token, amount, benificiary, start, end],
+        network.name,
+        deployer,
+        deploymentState,
+        { proxy: false, id: id }
+      );
+    }
+  );

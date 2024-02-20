@@ -84,6 +84,7 @@ export async function loadOrDeploy(
     );
     return contract;
   }
+  console.log("params:", params);
   let contract;
   if (options.proxy) {
     if (options.proxyInitializer !== undefined) {
