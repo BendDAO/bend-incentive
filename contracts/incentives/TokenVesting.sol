@@ -17,6 +17,7 @@ contract TokenVesting is Ownable {
     uint40 public startTime;
     uint40 public endTime;
     uint256 public slope;
+    uint256 claimedAmount;
 
     constructor(
         address token_,
@@ -40,11 +41,14 @@ contract TokenVesting is Ownable {
             return 0;
         }
 
+        uint256 allAmount;
         if (block.timestamp >= endTime) {
-            return token.balanceOf(address(this));
+            allAmount = totalAmount;
+        } else {
+            allAmount = (slope * (block.timestamp - startTime)) / 10**PRECISION;
         }
 
-        return (slope * (block.timestamp - startTime)) / 10**PRECISION;
+        return allAmount - claimedAmount;
     }
 
     function claim() public {
@@ -55,6 +59,7 @@ contract TokenVesting is Ownable {
 
         uint256 _value = claimable();
         if (_value > 0) {
+            claimedAmount += _value;
             token.safeTransfer(benificiary, _value);
         }
     }
