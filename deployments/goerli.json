@@ -59,8 +59,8 @@
     "verification": "https://etherscan.io/address/0xc174427A3fE54bB5BaBb9139d4deAd8074750A3D#code"
   },
   "OVBendVesting": {
-    "address": "0xD6eF80C599d3a87ba4E9498800052E8EcEBFbD6B",
-    "txHash": "0x699d4c9877fc6cb3c8df6ac88836eb84c1b98c55660f85b55637a274f5cc5b1f",
-    "verification": "https://etherscan.io/address/0xD6eF80C599d3a87ba4E9498800052E8EcEBFbD6B#code"
+    "address": "0xCFDC0A31cD4FC0a73E67F8ecC72144fDd7f75382",
+    "txHash": "0x096446a8a0466c57babdc8e401a2470ab41d773063f98da081588a400394c880",
+    "verification": "https://etherscan.io/address/0xCFDC0A31cD4FC0a73E67F8ecC72144fDd7f75382#code"
   }
 }

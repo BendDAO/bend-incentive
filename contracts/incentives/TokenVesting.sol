@@ -17,7 +17,7 @@ contract TokenVesting is Ownable {
     uint40 public startTime;
     uint40 public endTime;
     uint256 public slope;
-    uint256 claimedAmount;
+    uint256 public claimedAmount;
 
     constructor(
         address token_,
