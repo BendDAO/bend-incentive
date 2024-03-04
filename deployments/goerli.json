@@ -57,5 +57,10 @@
     "address": "0xc174427A3fE54bB5BaBb9139d4deAd8074750A3D",
     "txHash": "0x42c9773b85ad662b89157f56a5618fecd06611739011d5b8d0b4d454b72eeec3",
     "verification": "https://etherscan.io/address/0xc174427A3fE54bB5BaBb9139d4deAd8074750A3D#code"
+  },
+  "OVBendVesting": {
+    "address": "0xCFDC0A31cD4FC0a73E67F8ecC72144fDd7f75382",
+    "txHash": "0x096446a8a0466c57babdc8e401a2470ab41d773063f98da081588a400394c880",
+    "verification": "https://etherscan.io/address/0xCFDC0A31cD4FC0a73E67F8ecC72144fDd7f75382#code"
   }
 }
