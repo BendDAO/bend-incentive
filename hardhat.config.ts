@@ -40,6 +40,14 @@ export default {
       initialBaseFeePerGas: 0, // workaround from https://github.com/sc-forks/solidity-coverage/issues/652#issuecomment-896330136 . Remove when that issue is closed.
       accounts: accounts,
     },
+    sepolia: {
+      //gasPrice: 65 * GWEI,
+      url: process.env.SEPOLIA_URL || "",
+      accounts:
+        process.env.SEPOLIA_PRIVATE_KEY !== undefined
+          ? [process.env.SEPOLIA_PRIVATE_KEY]
+          : [],
+    },
     goerli: {
       gasPrice: 65 * GWEI,
       url: process.env.GOERLI_URL || "",

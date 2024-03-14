@@ -12,6 +12,7 @@ export enum Network {
   rinkeby = "rinkeby",
   mainnet = "mainnet",
   goerli = "goerli",
+  sepolia = "sepolia",
 }
 
 export interface iParamsPerNetwork<T> {
@@ -20,10 +21,11 @@ export interface iParamsPerNetwork<T> {
   [Network.rinkeby]: T;
   [Network.mainnet]: T;
   [Network.goerli]: T;
+  [Network.sepolia]: T;
 }
 
 export const getParamPerNetwork = <T>(
-  { rinkeby, mainnet, hardhat, coverage, goerli }: iParamsPerNetwork<T>,
+  { rinkeby, mainnet, hardhat, coverage, goerli, sepolia }: iParamsPerNetwork<T>,
   network: Network
 ) => {
   switch (network) {
@@ -37,6 +39,8 @@ export const getParamPerNetwork = <T>(
       return mainnet;
     case Network.goerli:
       return goerli;
+    case Network.sepolia:
+      return sepolia;
     default:
       return mainnet;
   }
@@ -85,6 +89,16 @@ export const getBTokenConfig = (network: string): any[] =>
           makeBN(19025875173611110000), // bendDebtWETH
         ],
       ],
+      [Network.sepolia]: [
+        [
+          "", // bendWETH
+          "", // bendDebtWETH
+        ],
+        [
+          makeBN(6341958391203703000), // bendWETH
+          makeBN(19025875173611110000), // bendDebtWETH
+        ],
+      ],
     },
     Network[network as keyof typeof Network]
   );
@@ -97,6 +111,7 @@ export const getUniswapV3Factory = (network: string): string =>
       [Network.rinkeby]: "0x815BCC87613315327E04e4A3b7c96a79Ae80760c",
       [Network.mainnet]: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
       [Network.goerli]: "0x1f98431c8ad98523631ae4a59f267346ea31f984",
+      [Network.sepolia]: "",
     },
     Network[network as keyof typeof Network]
   );
@@ -124,6 +139,12 @@ export const getFeeDistributorParams = (network: string): string[] =>
         "0x1cba0A3e18be7f210713c9AC9FE17955359cC99B", //lendPoolAddressesProvider,
         "0x32B08f895d93a207e8A5C9405870D780A43b25Dd", //bendCollector
       ],
+      [Network.sepolia]: [
+        "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14", //WETH
+        "", //bendWETH
+        "", //lendPoolAddressesProvider,
+        "", //bendCollector
+      ],
     },
     Network[network as keyof typeof Network]
   );
@@ -136,6 +157,7 @@ export const getSnapshotDelatation = (network: string): string =>
       [Network.rinkeby]: "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
       [Network.mainnet]: "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
       [Network.goerli]: "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
+      [Network.sepolia]: "",
     },
     Network[network as keyof typeof Network]
   );
@@ -148,6 +170,7 @@ export const getBendEthUni = (network: string): string =>
       [Network.rinkeby]: "0x170DC266c6A65C4C686De29E5D4Fc27270373014",
       [Network.mainnet]: "0x336ef4e633b1117dca08c1a57f4139c62c32c935",
       [Network.goerli]: "0x1b2A26C8c107eD4a36957bCfbe07E5F6E6a1EF51",
+      [Network.sepolia]: "",
     },
     Network[network as keyof typeof Network]
   );
@@ -160,6 +183,7 @@ export const getStakedBuniIncentiveConfig = (network: string): string =>
       [Network.rinkeby]: "3170979198376458752",
       [Network.mainnet]: "3170979198376458752",
       [Network.goerli]: "3170979198376458752",
+      [Network.sepolia]: "3170979198376458752",
     },
     Network[network as keyof typeof Network]
   );
@@ -172,6 +196,7 @@ export const getWETH = (network: string): string =>
       [Network.rinkeby]: "0xaD1908f909B5C5D2B1032a215d611773F26f089F",
       [Network.mainnet]: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       [Network.goerli]: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+      [Network.sepolia]: "",
     },
     Network[network as keyof typeof Network]
   );
@@ -184,6 +209,7 @@ export const getBWETH = (network: string): string =>
       [Network.rinkeby]: "0x162f6ef816c8b03193c50852fffb570d97ceea2f",
       [Network.mainnet]: "0xeD1840223484483C0cb050E6fC344d1eBF0778a9",
       [Network.goerli]: "0x57FEbd640424C85b72b4361fE557a781C8d2a509",
+      [Network.sepolia]: "",
     },
     Network[network as keyof typeof Network]
   );
@@ -196,6 +222,7 @@ export const getTreasury = (network: string): string =>
       [Network.rinkeby]: "0xcbb8a164d498e0c2312f0ddcf0a6ee2f5bad983a",
       [Network.mainnet]: "0x472FcC65Fab565f75B1e0E861864A86FE5bcEd7B",
       [Network.goerli]: "0x5011Ea004b9F7615333DDC7Fbe60D9eF42D2b8C5",
+      [Network.sepolia]: "",
     },
     Network[network as keyof typeof Network]
   );
@@ -208,6 +235,7 @@ export const getLendPoolAddressesProvider = (network: string): string =>
       [Network.rinkeby]: "0xE55870eBB007a50B0dfAbAdB1a21e4bFcee5299b",
       [Network.mainnet]: "0x24451F47CaF13B24f4b5034e1dF6c0E401ec0e46",
       [Network.goerli]: "0x1cba0A3e18be7f210713c9AC9FE17955359cC99B",
+      [Network.sepolia]: "",
     },
     Network[network as keyof typeof Network]
   );
@@ -220,6 +248,7 @@ export const getBendCollector = (network: string): string =>
       [Network.rinkeby]: "0x7A02EE743Aadca63d60945971B7eD12c7f26b6d2",
       [Network.mainnet]: "0x43078AbfB76bd24885Fd64eFFB22049f92a8c495",
       [Network.goerli]: "0x32B08f895d93a207e8A5C9405870D780A43b25Dd",
+      [Network.sepolia]: "",
     },
     Network[network as keyof typeof Network]
   );

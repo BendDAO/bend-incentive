@@ -1,0 +1,17 @@
+{
+  "BendToken": {
+    "address": "0xbeD1e8B430FD512b82A18cb121a8442F3889E505",
+    "txHash": "0xedba44c7ee72a3ba8b12ddae6ebfeb59c4ca146352e6a2c9e0741ad452c70102",
+    "verification": "https://sepolia.etherscan.io/address/0x248e2d3f5decf6f7159ecc4c65d5efbbdd9be433#code"
+  },
+  "Vault": {
+    "address": "0x708c48AaA4Ea8B9E46Bd8DEb6470986842b9a16d",
+    "txHash": "0x246df60e10c7ac4a49bcee7d8cdb19e582f221a09ad8d8042cecf57b9fb01667",
+    "verification": "https://sepolia.etherscan.io/address/0x578bc56a145a3464adc44635c23501653138c946#code"
+  },
+  "BendProtocolIncentivesController": {
+    "address": "0x06A13f172ADce6fdE761c9A2Ff2d0ad50e9e38d0",
+    "txHash": "0x739955e1d353e61581d23e2036c04b8a0f25ca9a0f7f77bdef148b639146d253",
+    "verification": "https://sepolia.etherscan.io/address/0x82c348ef21629f5aaee5280ef3f4389ad82f8799#code"
+  }
+}

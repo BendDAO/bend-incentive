@@ -193,7 +193,7 @@ export async function verify(address: string, constructorArguments: any = []) {
   } catch (error: unknown) {
     // if it was already verified, it’s like a success, so let’s move forward and save it
     if (error instanceof NomicLabsHardhatPluginError) {
-      return true;
+      //return true;
     }
     console.error(error);
     return false;
