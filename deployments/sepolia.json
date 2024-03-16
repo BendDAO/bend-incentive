@@ -13,5 +13,30 @@
     "address": "0x06A13f172ADce6fdE761c9A2Ff2d0ad50e9e38d0",
     "txHash": "0x739955e1d353e61581d23e2036c04b8a0f25ca9a0f7f77bdef148b639146d253",
     "verification": "https://sepolia.etherscan.io/address/0x82c348ef21629f5aaee5280ef3f4389ad82f8799#code"
+  },
+  "VeBend": {
+    "address": "0xc3e9ec69E2D24020D82B602a16C6f18Aecc3C386",
+    "txHash": "0x0132d73e380c65a8d42d99f45e7d0329eff432b70da455b727b6d635e61e9775",
+    "verification": "https://sepolia.etherscan.io/address/0x707d1a914ea67855617557bd700f01537353a74e#code"
+  },
+  "FeeDistributor": {
+    "address": "0x9f232cc0A80FB7489F7214df8B5Cfd693321239E",
+    "txHash": "0x230dd7ddc49d4e4ab24db8868a1b9998a620df640c6f910e4cd14b3f46797a45",
+    "verification": "https://sepolia.etherscan.io/address/0x701ca86a355da5e32b70a9c7e8967b4dfaa735db#code"
+  },
+  "FeeCollector": {
+    "address": "0x337035aFA98B3B552e714B04347f51968486706B",
+    "txHash": "0x35347167054e5c354e6df2cebb94f9c0af260d07c3870fbbdf7184f0d40d5000",
+    "verification": "https://sepolia.etherscan.io/address/0x3e604de7970ea70da7363851e72dc79f258a553a#code"
+  },
+  "BendKeeper": {
+    "address": "0x4DF8934BAB834e9455e2842a2E72a0d02a2C8E99",
+    "txHash": "0xcb8eaaa806aa39f0ba5b185441f40fecbcbd13b04ba43e9998a5954eb86289d1",
+    "verification": "https://sepolia.etherscan.io/address/0x4DF8934BAB834e9455e2842a2E72a0d02a2C8E99#code"
+  },
+  "LockupBendFactory": {
+    "address": "0xdDC9a0CDc47F1f7eb817C140B06F8e060c62932d",
+    "txHash": "0xe367efaa87a6ccd688f4dfd3ea26c210208c2d7da6fe73a60255f964c0f8de8f",
+    "verification": "https://sepolia.etherscan.io/address/0x90d16aa9ac84b67a8a6a767981fd9541815f86ff#code"
   }
 }

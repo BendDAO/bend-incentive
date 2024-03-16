@@ -41,7 +41,7 @@ export default {
       accounts: accounts,
     },
     sepolia: {
-      //gasPrice: 65 * GWEI,
+      gasPrice: 45 * GWEI,
       url: process.env.SEPOLIA_URL || "",
       accounts:
         process.env.SEPOLIA_PRIVATE_KEY !== undefined

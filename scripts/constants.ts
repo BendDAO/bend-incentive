@@ -91,8 +91,8 @@ export const getBTokenConfig = (network: string): any[] =>
       ],
       [Network.sepolia]: [
         [
-          "", // bendWETH
-          "", // bendDebtWETH
+          "0xD1E6d2B2D2205Ca77632c831bb8b5e468a270975", // bendWETH
+          "0x9ca8943Fb310d2c06DFB4D27Ea3d566B4bdC0971", // bendDebtWETH
         ],
         [
           makeBN(6341958391203703000), // bendWETH
@@ -111,7 +111,7 @@ export const getUniswapV3Factory = (network: string): string =>
       [Network.rinkeby]: "0x815BCC87613315327E04e4A3b7c96a79Ae80760c",
       [Network.mainnet]: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
       [Network.goerli]: "0x1f98431c8ad98523631ae4a59f267346ea31f984",
-      [Network.sepolia]: "",
+      [Network.sepolia]: "0x0227628f3F023bb0B980b67D528571c95c6DaC1c",
     },
     Network[network as keyof typeof Network]
   );
@@ -141,9 +141,9 @@ export const getFeeDistributorParams = (network: string): string[] =>
       ],
       [Network.sepolia]: [
         "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14", //WETH
-        "", //bendWETH
-        "", //lendPoolAddressesProvider,
-        "", //bendCollector
+        "0xD1E6d2B2D2205Ca77632c831bb8b5e468a270975", //bendWETH
+        "0x95e84AED75EB9A545D817c391A0011E0B34EAf5C", //lendPoolAddressesProvider,
+        "0xdd3eC916c0B438b9DB2Ee675cBD412c46763a641", //bendCollector
       ],
     },
     Network[network as keyof typeof Network]
@@ -157,7 +157,7 @@ export const getSnapshotDelatation = (network: string): string =>
       [Network.rinkeby]: "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
       [Network.mainnet]: "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
       [Network.goerli]: "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
-      [Network.sepolia]: "",
+      [Network.sepolia]: "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
     },
     Network[network as keyof typeof Network]
   );
@@ -196,7 +196,7 @@ export const getWETH = (network: string): string =>
       [Network.rinkeby]: "0xaD1908f909B5C5D2B1032a215d611773F26f089F",
       [Network.mainnet]: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       [Network.goerli]: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
-      [Network.sepolia]: "",
+      [Network.sepolia]: "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
     },
     Network[network as keyof typeof Network]
   );
@@ -209,7 +209,7 @@ export const getBWETH = (network: string): string =>
       [Network.rinkeby]: "0x162f6ef816c8b03193c50852fffb570d97ceea2f",
       [Network.mainnet]: "0xeD1840223484483C0cb050E6fC344d1eBF0778a9",
       [Network.goerli]: "0x57FEbd640424C85b72b4361fE557a781C8d2a509",
-      [Network.sepolia]: "",
+      [Network.sepolia]: "0xD1E6d2B2D2205Ca77632c831bb8b5e468a270975",
     },
     Network[network as keyof typeof Network]
   );
@@ -222,7 +222,7 @@ export const getTreasury = (network: string): string =>
       [Network.rinkeby]: "0xcbb8a164d498e0c2312f0ddcf0a6ee2f5bad983a",
       [Network.mainnet]: "0x472FcC65Fab565f75B1e0E861864A86FE5bcEd7B",
       [Network.goerli]: "0x5011Ea004b9F7615333DDC7Fbe60D9eF42D2b8C5",
-      [Network.sepolia]: "",
+      [Network.sepolia]: "0x0e9d6B6B7CEfc88f12ef214eeC5A3DAddB0dD3FD",
     },
     Network[network as keyof typeof Network]
   );
@@ -235,7 +235,7 @@ export const getLendPoolAddressesProvider = (network: string): string =>
       [Network.rinkeby]: "0xE55870eBB007a50B0dfAbAdB1a21e4bFcee5299b",
       [Network.mainnet]: "0x24451F47CaF13B24f4b5034e1dF6c0E401ec0e46",
       [Network.goerli]: "0x1cba0A3e18be7f210713c9AC9FE17955359cC99B",
-      [Network.sepolia]: "",
+      [Network.sepolia]: "0x95e84AED75EB9A545D817c391A0011E0B34EAf5C",
     },
     Network[network as keyof typeof Network]
   );
@@ -248,7 +248,7 @@ export const getBendCollector = (network: string): string =>
       [Network.rinkeby]: "0x7A02EE743Aadca63d60945971B7eD12c7f26b6d2",
       [Network.mainnet]: "0x43078AbfB76bd24885Fd64eFFB22049f92a8c495",
       [Network.goerli]: "0x32B08f895d93a207e8A5C9405870D780A43b25Dd",
-      [Network.sepolia]: "",
+      [Network.sepolia]: "0xdd3eC916c0B438b9DB2Ee675cBD412c46763a641",
     },
     Network[network as keyof typeof Network]
   );
