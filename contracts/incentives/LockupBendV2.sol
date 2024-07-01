@@ -30,9 +30,15 @@ contract LockupBendV2 is
     uint256 public unlockStartTime;
     uint256 public override lockEndTime;
     mapping(address => Locked) public locks;
+    bool public paused;
 
     modifier onlyAuthed() {
         require(authedBeneficiaries[_msgSender()], "Sender not authed");
+        _;
+    }
+
+    modifier whenNotPaused() {
+        require(!paused, "Paused");
         _;
     }
 
@@ -66,7 +72,7 @@ contract LockupBendV2 is
     function transferBeneficiary(
         address _oldBeneficiary,
         address _newBeneficiary
-    ) external override onlyOwner {
+    ) external override onlyOwner whenNotPaused {
         require(
             _oldBeneficiary != _newBeneficiary,
             "Beneficiary can't be same"
@@ -111,6 +117,7 @@ contract LockupBendV2 is
         external
         override
         onlyOwner
+        whenNotPaused
     {
         require(
             unlockStartTime == 0 && lockEndTime == 0,
@@ -195,7 +202,7 @@ contract LockupBendV2 is
         return locks[_beneficiary].amount - _lockedAmount(_beneficiary);
     }
 
-    function withdraw() external override onlyAuthed {
+    function withdraw() external override onlyAuthed whenNotPaused {
         _withdraw(msg.sender);
     }
 
@@ -267,5 +274,9 @@ contract LockupBendV2 is
                     0
                 );
         }
+    }
+
+    function setPause(bool value) public onlyOwner {
+        paused = value;
     }
 }
