@@ -77,10 +77,10 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
         feeDistributor = _feeDistributor;
     }
 
-    function setTreasuryPercentage(
-        address token_,
-        uint256 treasuryPercentage_
-    ) external onlyOwner {
+    function setTreasuryPercentage(address token_, uint256 treasuryPercentage_)
+        external
+        onlyOwner
+    {
         require(token_ != address(0), "FeeCollector: token can't be null");
         require(
             treasuryPercentage_ <= PercentageMath.PERCENTAGE_FACTOR,
@@ -89,9 +89,11 @@ contract FeeCollector is IFeeCollector, Initializable, OwnableUpgradeable {
         _treasuryPercentages.set(token_, treasuryPercentage_);
     }
 
-    function getTreasuryPercentage(
-        address token_
-    ) external view returns (uint256) {
+    function getTreasuryPercentage(address token_)
+        external
+        view
+        returns (uint256)
+    {
         return _treasuryPercentages.get(token_);
     }
 

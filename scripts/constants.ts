@@ -25,7 +25,14 @@ export interface iParamsPerNetwork<T> {
 }
 
 export const getParamPerNetwork = <T>(
-  { rinkeby, mainnet, hardhat, coverage, goerli, sepolia }: iParamsPerNetwork<T>,
+  {
+    rinkeby,
+    mainnet,
+    hardhat,
+    coverage,
+    goerli,
+    sepolia,
+  }: iParamsPerNetwork<T>,
   network: Network
 ) => {
   switch (network) {

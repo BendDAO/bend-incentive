@@ -27,7 +27,7 @@ contract LockupBendV2PauseTest is Test {
 
     function setUp() public {}
 
-    function testFork_Pause() public {
+    function testFork_TransferBeneficiary() public {
         // upgrading
         vm.startPrank(timelockControllerAddress);
         ProxyAdmin(proxyAdminAddress).upgrade(
@@ -36,25 +36,65 @@ contract LockupBendV2PauseTest is Test {
         );
         vm.stopPrank();
 
-        address user = 0xCF620C347386c42CDeC152688b881E767c614d70;
+        address user1 = 0x2dEF095549a4F48EAF37a338822Dad9fadae22af;
+        address user2 = 0x200D2620eeaaD4cd52075Df841dF95a12e2C7708;
 
         // paused
-        vm.startPrank(incentiveOwnerAddress);
-        lockupV2.setPause(true);
+        vm.prank(incentiveOwnerAddress);
+        lockupV2.transferBeneficiary(user1, user2);
+    }
+
+    function testFork_GlobalPause() public {
+        // upgrading
+        vm.startPrank(timelockControllerAddress);
+        ProxyAdmin(proxyAdminAddress).upgrade(
+            TransparentUpgradeableProxy(payable(address(lockupV2))),
+            address(new LockupBendV2())
+        );
         vm.stopPrank();
 
-        vm.startPrank(user);
-        vm.expectRevert(bytes("Paused"));
+        address user = 0x2dEF095549a4F48EAF37a338822Dad9fadae22af;
+
+        // paused
+        vm.prank(incentiveOwnerAddress);
+        lockupV2.setGlobalPause(true);
+
+        vm.prank(user);
+        vm.expectRevert(bytes("Global Paused"));
         lockupV2.withdraw();
-        vm.stopPrank();
 
         // unpaused
-        vm.startPrank(incentiveOwnerAddress);
-        lockupV2.setPause(false);
+        vm.prank(incentiveOwnerAddress);
+        lockupV2.setGlobalPause(false);
+
+        vm.prank(user);
+        lockupV2.withdraw();
+    }
+
+    function testFork_BeneficiaryPause() public {
+        // upgrading
+        vm.startPrank(timelockControllerAddress);
+        ProxyAdmin(proxyAdminAddress).upgrade(
+            TransparentUpgradeableProxy(payable(address(lockupV2))),
+            address(new LockupBendV2())
+        );
         vm.stopPrank();
 
-        vm.startPrank(user);
+        address user = 0x2dEF095549a4F48EAF37a338822Dad9fadae22af;
+
+        // paused
+        vm.prank(incentiveOwnerAddress);
+        lockupV2.setBeneficiaryPause(user, true);
+
+        vm.prank(user);
+        vm.expectRevert(bytes("Beneficiary Paused"));
         lockupV2.withdraw();
-        vm.stopPrank();
+
+        // unpaused
+        vm.prank(incentiveOwnerAddress);
+        lockupV2.setBeneficiaryPause(user, false);
+
+        vm.prank(user);
+        lockupV2.withdraw();
     }
 }

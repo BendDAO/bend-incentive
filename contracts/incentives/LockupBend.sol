@@ -68,7 +68,6 @@ contract LockupBend is ILockup, ReentrancyGuard, Ownable {
         );
 
         if (locked[_oldBeneficiary].amount > 0) {
-            _withdraw(_oldBeneficiary);
             Locked memory _oldLocked = locked[_oldBeneficiary];
 
             Locked memory _newLocked = locked[_newBeneficiary];

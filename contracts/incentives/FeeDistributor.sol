@@ -164,9 +164,11 @@ contract FeeDistributor is
         timeCursor = t;
     }
 
-    function _findTimestampEpoch(
-        uint256 _timestamp
-    ) internal view returns (uint256) {
+    function _findTimestampEpoch(uint256 _timestamp)
+        internal
+        view
+        returns (uint256)
+    {
         uint256 _min = 0;
         uint256 _max = veBEND.epoch();
         for (uint256 i = 0; i < 128; i++) {
@@ -213,10 +215,11 @@ contract FeeDistributor is
         uint256 weekCursor;
     }
 
-    function _claimable(
-        address _addr,
-        uint256 _lastDistributeTime
-    ) internal view returns (Claimable memory) {
+    function _claimable(address _addr, uint256 _lastDistributeTime)
+        internal
+        view
+        returns (Claimable memory)
+    {
         uint256 roundedTimestamp = (_lastDistributeTime / WEEK) * WEEK;
         uint256 userEpoch = 0;
         uint256 toDistribute = 0;
