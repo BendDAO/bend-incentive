@@ -30,9 +30,21 @@ contract LockupBendV2 is
     uint256 public unlockStartTime;
     uint256 public override lockEndTime;
     mapping(address => Locked) public locks;
+    bool public globalPaused;
+    mapping(address => bool) public beneficiaryPaused;
 
     modifier onlyAuthed() {
         require(authedBeneficiaries[_msgSender()], "Sender not authed");
+        _;
+    }
+
+    modifier whenNotGlobalPaused() {
+        require(!globalPaused, "Global Paused");
+        _;
+    }
+
+    modifier whenNotBeneficiaryPaused() {
+        require(!beneficiaryPaused[msg.sender], "Beneficiary Paused");
         _;
     }
 
@@ -84,7 +96,6 @@ contract LockupBendV2 is
         authedBeneficiaries[_newBeneficiary] = true;
 
         if (locks[_oldBeneficiary].amount > 0) {
-            _withdraw(_oldBeneficiary);
             Locked memory _oldLocked = locks[_oldBeneficiary];
 
             Locked memory _newLocked = locks[_newBeneficiary];
@@ -195,7 +206,13 @@ contract LockupBendV2 is
         return locks[_beneficiary].amount - _lockedAmount(_beneficiary);
     }
 
-    function withdraw() external override onlyAuthed {
+    function withdraw()
+        external
+        override
+        onlyAuthed
+        whenNotGlobalPaused
+        whenNotBeneficiaryPaused
+    {
         _withdraw(msg.sender);
     }
 
@@ -267,5 +284,16 @@ contract LockupBendV2 is
                     0
                 );
         }
+    }
+
+    function setGlobalPause(bool value) public onlyOwner {
+        globalPaused = value;
+    }
+
+    function setBeneficiaryPause(address beneficiary, bool value)
+        public
+        onlyOwner
+    {
+        beneficiaryPaused[beneficiary] = value;
     }
 }
