@@ -3953,6 +3953,291 @@
           }
         }
       }
+    },
+    "36ed39a4e3d4bd7f0d549afd9d3056c27019450aa176cfcb0c8e8f6c1d20c1f7": {
+      "address": "0xfC31C8Eb86867c1258D1dc8240a5828E7f2c685C",
+      "txHash": "0x0829f372eb0f3080b58b3d87707071ad43146a583cc1ae2d9bb17cd270a9a3bc",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "bendToken",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_contract(IERC20Upgradeable)419",
+            "contract": "LockupBendV1Storage",
+            "src": "contracts/incentives/LockupBendV1Storage.sol:11"
+          },
+          {
+            "label": "veBend",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_contract(IVeBend)2514",
+            "contract": "LockupBendV1Storage",
+            "src": "contracts/incentives/LockupBendV1Storage.sol:12"
+          },
+          {
+            "label": "feeDistributor",
+            "offset": 0,
+            "slot": "153",
+            "type": "t_contract(IFeeDistributor)1951",
+            "contract": "LockupBendV1Storage",
+            "src": "contracts/incentives/LockupBendV1Storage.sol:13"
+          },
+          {
+            "label": "lockups",
+            "offset": 0,
+            "slot": "154",
+            "type": "t_array(t_contract(ILockup)2089)3_storage",
+            "contract": "LockupBendV1Storage",
+            "src": "contracts/incentives/LockupBendV1Storage.sol:15"
+          },
+          {
+            "label": "feeIndexs",
+            "offset": 0,
+            "slot": "157",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "LockupBendV1Storage",
+            "src": "contracts/incentives/LockupBendV1Storage.sol:16"
+          },
+          {
+            "label": "locked",
+            "offset": 0,
+            "slot": "158",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "LockupBendV1Storage",
+            "src": "contracts/incentives/LockupBendV1Storage.sol:17"
+          },
+          {
+            "label": "authedBeneficiaries",
+            "offset": 0,
+            "slot": "159",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "LockupBendV1Storage",
+            "src": "contracts/incentives/LockupBendV1Storage.sol:19"
+          },
+          {
+            "label": "feeIndex",
+            "offset": 0,
+            "slot": "160",
+            "type": "t_uint256",
+            "contract": "LockupBendV1Storage",
+            "src": "contracts/incentives/LockupBendV1Storage.sol:21"
+          },
+          {
+            "label": "feeIndexlastUpdateTimestamp",
+            "offset": 0,
+            "slot": "161",
+            "type": "t_uint256",
+            "contract": "LockupBendV1Storage",
+            "src": "contracts/incentives/LockupBendV1Storage.sol:22"
+          },
+          {
+            "label": "totalLocked",
+            "offset": 0,
+            "slot": "162",
+            "type": "t_uint256",
+            "contract": "LockupBendV1Storage",
+            "src": "contracts/incentives/LockupBendV1Storage.sol:23"
+          },
+          {
+            "label": "WETH",
+            "offset": 0,
+            "slot": "163",
+            "type": "t_contract(IWETH)2272",
+            "contract": "LockupBendV1Storage",
+            "src": "contracts/incentives/LockupBendV1Storage.sol:25"
+          },
+          {
+            "label": "snapshotDelegation",
+            "offset": 0,
+            "slot": "164",
+            "type": "t_contract(ISnapshotDelegation)2225",
+            "contract": "LockupBendV1Storage",
+            "src": "contracts/incentives/LockupBendV1Storage.sol:26"
+          },
+          {
+            "label": "unlockStartTime",
+            "offset": 0,
+            "slot": "165",
+            "type": "t_uint256",
+            "contract": "LockupBendV2",
+            "src": "contracts/incentives/LockupBendV2.sol:30"
+          },
+          {
+            "label": "lockEndTime",
+            "offset": 0,
+            "slot": "166",
+            "type": "t_uint256",
+            "contract": "LockupBendV2",
+            "src": "contracts/incentives/LockupBendV2.sol:31"
+          },
+          {
+            "label": "locks",
+            "offset": 0,
+            "slot": "167",
+            "type": "t_mapping(t_address,t_struct(Locked)2101_storage)",
+            "contract": "LockupBendV2",
+            "src": "contracts/incentives/LockupBendV2.sol:32"
+          },
+          {
+            "label": "globalPaused",
+            "offset": 0,
+            "slot": "168",
+            "type": "t_bool",
+            "contract": "LockupBendV2",
+            "src": "contracts/incentives/LockupBendV2.sol:33"
+          },
+          {
+            "label": "beneficiaryPaused",
+            "offset": 0,
+            "slot": "169",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "LockupBendV2",
+            "src": "contracts/incentives/LockupBendV2.sol:34"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_contract(ILockup)2089)3_storage": {
+            "label": "contract ILockup[3]",
+            "numberOfBytes": "96"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IERC20Upgradeable)419": {
+            "label": "contract IERC20Upgradeable",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IFeeDistributor)1951": {
+            "label": "contract IFeeDistributor",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ILockup)2089": {
+            "label": "contract ILockup",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ISnapshotDelegation)2225": {
+            "label": "contract ISnapshotDelegation",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IVeBend)2514": {
+            "label": "contract IVeBend",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IWETH)2272": {
+            "label": "contract IWETH",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Locked)2101_storage)": {
+            "label": "mapping(address => struct ILockupV2.Locked)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Locked)2101_storage": {
+            "label": "struct ILockupV2.Locked",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "slope",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
     }
   }
 }
