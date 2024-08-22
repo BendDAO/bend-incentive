@@ -39,9 +39,21 @@ contract LockupBendV2PauseTest is Test {
         address user1 = 0x2dEF095549a4F48EAF37a338822Dad9fadae22af;
         address user2 = 0x200D2620eeaaD4cd52075Df841dF95a12e2C7708;
 
-        // paused
+        uint256 user1LockAmountBefore = lockupV2.lockedAmount(user1);
+        assertGt(user1LockAmountBefore, 0, "user1LockAmountBefore not gt");
+
+        // transfer
         vm.prank(incentiveOwnerAddress);
         lockupV2.transferBeneficiary(user1, user2);
+
+        uint256 user1LockAmount = lockupV2.lockedAmount(user1);
+        assertEq(user1LockAmount, 0, "user1LockAmount not eq");
+
+        uint256 user1Withdrawable = lockupV2.withdrawable(user1);
+        assertEq(user1Withdrawable, 0, "user1Withdrawable not eq");
+
+        uint256 user2LockAmount = lockupV2.lockedAmount(user2);
+        assertEq(user2LockAmount, user1LockAmountBefore, "user2LockAmount not eq");
     }
 
     function testFork_GlobalPause() public {
